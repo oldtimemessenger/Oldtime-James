@@ -361,9 +361,10 @@ test("Discover shows inline placeholders while the next page loads", async () =>
   });
   f.eco.markup();
   await tick();
+  assert.match(f.eco.markup().body, /Keep exploring/);
   const pending = f.eco.ensureNext("first");
   assert.match(f.eco.markup().body, /xe-more-skeletons/);
-  assert.match(f.eco.markup().body, /Keep exploring/);
+  assert.match(f.eco.markup().body, /Loading more/);
   release();
   await pending;
   assert.match(f.eco.markup().body, /data-xe-post="second"/);
