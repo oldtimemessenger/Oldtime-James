@@ -220,7 +220,7 @@ export function drawStatusStickers(target, stickers = [], width, height, { selec
     ctx.translate(s.x * W, s.y * H); ctx.rotate(s.rotation * Math.PI / 180);
     if (s.kind === "answer") {
       drawAnswer(ctx, s, w, h, u);
-    } else drawArt(ctx, s, w, h); // native Questions and Add Yours cards
+    } else drawArt(ctx, s, w, h); // Oldtime Questions and Add your own cards
     if (selectedId && s.id === selectedId) {
       ctx.setLineDash([10 * u, 7 * u]); ctx.lineWidth = 2.5 * u; ctx.strokeStyle = "#ffffff";
       roundRect(ctx, -w / 2 - 6 * u, -h / 2 - 6 * u, w + 12 * u, h + 12 * u, 26 * u); ctx.stroke();
