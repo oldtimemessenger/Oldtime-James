@@ -37,3 +37,11 @@ test("Search discovery cards follow Places styling with subtle visual variation"
   assert.ok(search.includes(".search-screen .xe-card:nth-child(5n + 2) .xe-tile { aspect-ratio: 1 / 1; }"));
   assert.ok(search.includes("@media (prefers-reduced-motion: reduce)"));
 });
+
+test("Search video cards reuse the Places post layout without restyling other tiles", () => {
+  assert.match(search, /\.explore-video-card\s*\{[^}]*flex-direction:\s*column/s);
+  assert.match(search, /\.explore-video-card \.places-post-media\s*\{[^}]*aspect-ratio:\s*\.78;[^}]*border-radius:\s*9px/s);
+  assert.match(search, /\.explore-video-card \.places-post-caption\s*\{[^}]*font-size:\s*11px;[^}]*font-weight:\s*600/s);
+  assert.match(search, /\.explore-video-card \.places-post-author img\s*\{[^}]*width:\s*22px;[^}]*height:\s*22px/s);
+  assert.match(search, /\.explore-feed-grid:has\(\.explore-video-card\)/);
+});
