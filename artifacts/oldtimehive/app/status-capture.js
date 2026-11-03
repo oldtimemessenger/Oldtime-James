@@ -7,8 +7,7 @@ import { PICKER_KINDS, STICKER_LABELS, TITLE_MAX, PROMPT_MAX, ANSWER_MAX, ANSWER
   updateStickerText, resizeSticker, moveSticker, hitSticker, pinchDelta, clampMediaTransform, publishStickers, clampSticker, isUuid } from "./status-sticker-editor.js";
 import { MAX_TEXT_LABELS, canAddLabel, emptyDraft, placementPoint, hitTextLabel, joinLabelText } from "./status-text-labels.js";
 import { OVERLAY_ACCEPT, isOverlayFile, overlaySlots, overlaySize, overlayPosition, hitOverlay, scaleOverlay, moveOverlay, overlayInsertIndex, MAX_OVERLAYS } from "./status-overlay.js";
-import { drawStatusStickers, loadStickerArt, STICKER_ART } from "./status-sticker-art.js";
-const stickerArtSrc = kind => STICKER_ART[kind] || "";
+import { drawStatusStickers, loadStickerArt } from "./status-sticker-art.js";
 const galleryGlyph = new URL("./assets/gallery-glyph.png", import.meta.url).href;
 
 export const STATUS_COLORS = ["#ffffff", "#17191c", "#1456d9", "#e0245e", "#8e1b24", "#8dba91", "#f2c94c", "#f2f4f7", "#6b6f76"];
