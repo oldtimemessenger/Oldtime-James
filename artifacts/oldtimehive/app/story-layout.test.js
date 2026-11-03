@@ -112,6 +112,21 @@ test("Story playback progress follows video time and photo duration is five seco
 });
 
 
+test("Stories use the immersive responsive viewer without replacing the existing Story engine", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/story-immersive-redesign\.css"/);
+  assert.match(redesign, /#storyview\.storyview\s*\{[^}]*overscroll-behavior:contain/);
+  assert.match(redesign, /\.story-creator\s*\{[^}]*backdrop-filter:blur/);
+  assert.match(redesign, /\.story-compose:focus-within/);
+  assert.match(redesign, /@media\s*\(min-width:700px\)/);
+  assert.match(redesign, /--story-frame-width\s*:\s*min\(460px/);
+  assert.match(redesign, /\.story-stage\s*\{[^}]*border-radius:26px/);
+  assert.match(redesign, /@media\s*\(max-height:520px\) and \(orientation:landscape\)/);
+  assert.match(redesign, /prefers-reduced-motion:reduce/);
+  assert.match(js, /mountStoryInteractions\(/);
+  assert.match(js, /api\.canSeeStory\(s\)/);
+});
+
 test("Stories use a centered immersive stage on desktop and preserve full-bleed mobile playback", () => {
   const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
   assert.match(visual, /--story-frame-width:min\(480px/);
@@ -122,7 +137,6 @@ test("Stories use a centered immersive stage on desktop and preserve full-bleed 
   assert.match(visual, /\.story-compose:focus-within[\s\S]*?var\(--color-primary/);
   assert.match(visual, /prefers-reduced-motion:reduce/);
 });
-
 
 test("Story progress is segmented by item and announces the current position", () => {
   assert.match(js, /role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
