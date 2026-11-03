@@ -172,3 +172,17 @@ test("auth artwork redesign preserves password forms without adding reference-on
   assert.doesNotMatch(markup, /id="su-(?:name|bday|bio)"/);
   assert.doesNotMatch(markup, /Send me a code|Continue with Apple|Continue with Google/);
 });
+
+test("a ready app is released immediately without an artificial splash delay", async t => {
+  const fixture = openingFixture(t);
+  fixture.opening.dataset.started = String(performance.now());
+  const scheduledDelays = [];
+  t.mock.method(globalThis, "setTimeout", (_callback, delay) => {
+    scheduledDelays.push(delay);
+    return 1;
+  });
+  await finishStartup();
+  assert.equal(fixture.appAttributes.size, 0, "the app must become interactive immediately");
+  assert.ok(fixture.appClasses.has("is-ready"));
+  assert.deepEqual(scheduledDelays, [460], "only the visual fade-out remains; no minimum wait is scheduled");
+});
