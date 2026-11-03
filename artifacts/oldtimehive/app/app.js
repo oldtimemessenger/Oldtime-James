@@ -112,8 +112,8 @@ import { mountEmailVerificationReminder, openEmailVerificationSheet, emailManual
 import { openProfileListSheet } from "./profile-list-sheet.js";
 import "./email-verification.css";
 import "./media-style-consistency.css";
-import "./unboxed-interface.css";
 import "./ui-foundations.css";
+import "./unboxed-interface.css";
 
 const $ = (s, r = document) => r.querySelector(s);
 const app = $("#app");
@@ -6874,7 +6874,7 @@ function openCommunityNoteComposer() {
       for (const [index,item] of attachments.entries()) {
         if (!item.uploadedId) {
           status.textContent = `Uploading ${item.kind} ${index+1} of ${total}…`;
-          const reference = await putLocalMedia(item.file,item.id);
+          const reference = await putLocalMedia(item.file, item.id);
           const uploadedId = String(reference||"").replace(/^oldtime-media:/,"");
           if (!/^[0-9a-f-]{36}$/i.test(uploadedId)) throw new Error(`${item.kind==="video"?"Video":"Photo"} ${index+1} could not be confirmed. Your post and attachments are still here.`);
           item.uploadedId = uploadedId;
