@@ -4090,7 +4090,7 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     if (!s) { if (groupIndex < groups.length - 1) changeAuthor(1); else close(); return; }
     if (!isStoryActive(s) || !api.canSeeStory(s)) { i++; show(); return; }
     if (s.cloud && s.hasMedia && !s.media) {
-      view.innerHTML = `<div class="story-cloud-loading" role="status">Loading Story…</div>`;
+      view.innerHTML = `<div class="story-cloud-loading" role="status" aria-label="Preparing story" aria-busy="true"><span class="story-loading-shimmer" aria-hidden="true"></span></div>`;
       try { s.media = await api.loadCloudStoryMedia(s.id); }
       catch (error) {
         if (list[i] !== s) return;
@@ -4210,12 +4210,41 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     });
     $("#sclose").onclick = close;
      $("#story-profile").onclick = () => { close(); navigateToProfile(s.author); };
-    let w = 0; clearInterval(storyTimer);
+    let w = 0;
+    clearInterval(storyTimer);
+    const progressBar = $("#bar");
+    const videoDuration = () => {
+      const video = storyVideo();
+      return video && Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0;
+    };
+    const advanceStory = () => { if (list[i] === s) { i++; show(); } };
+    const activeVideo = storyVideo();
+    if (activeVideo) {
+      activeVideo.addEventListener("ended", advanceStory, { once: true });
+      activeVideo.addEventListener("timeupdate", () => {
+        if (list[i] !== s || !progressBar) return;
+        const duration = videoDuration();
+        if (duration) progressBar.style.width = Math.min(100, activeVideo.currentTime / duration * 100) + "%";
+      });
+    }
+    let lastTick = Date.now();
     storyTimer = setInterval(() => {
+      if (list[i] !== s) return;
       if (!isStoryActive(s) || !api.canSeeStory(s) || !api.stories().some(item => item.id === s.id)) { i++; show(); return; }
-      if (paused || view.dataset.stickerOpen === "true") return;
-      w += s.creativeProject ? 100 / ((s.trim || s.creativeProject.duration) * 1000 / 90) : 2;
-      const bar = $("#bar"); if (bar) bar.style.width = w + "%"; if (w >= 100) { i++; show(); }
+      if (paused || view.dataset.stickerOpen === "true" || document.hidden) { lastTick = Date.now(); return; }
+      const video = storyVideo();
+      if (video) {
+        const duration = videoDuration();
+        if (duration && progressBar) progressBar.style.width = Math.min(100, video.currentTime / duration * 100) + "%";
+        return; // Video playback owns its clock; never advance it with a photo timer.
+      }
+      const now = Date.now();
+      const elapsed = Math.max(0, now - lastTick);
+      lastTick = now;
+      const duration = s.creativeProject ? Math.max(1000, Number(s.trim || s.creativeProject.duration || 5) * 1000) : 5000;
+      w = Math.min(100, w + elapsed / duration * 100);
+      if (progressBar) progressBar.style.width = w + "%";
+      if (w >= 100) advanceStory();
     }, 90);
   };
   show();
