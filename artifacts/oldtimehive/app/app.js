@@ -6945,6 +6945,39 @@ function bindCommunityVideoCards() {
     });
   });
 }
+async function openCommunityThread(postId, trigger) {
+  const sheet = $("#sheet");
+  if (!sheet) return;
+  const owner = api.cloudAccountId();
+  sheet.classList.add("on");
+  sheet.innerHTML = `<section class="panel community-thread-viewer" role="dialog" aria-modal="true" aria-labelledby="community-thread-title" tabindex="-1">
+    <header><button type="button" data-thread-close aria-label="Close conversation">${ic.back || ic.close}</button><div><h2 id="community-thread-title">Conversation</h2><small>Connected Community posts</small></div></header>
+    <div class="community-thread-viewer-content" role="status"><div class="community-thread-loading"><i></i><span></span><span></span></div></div>
+  </section>`;
+  const close = () => {
+    sheet.classList.remove("on"); sheet.innerHTML=""; sheet.onclick=null;
+    if (trigger?.isConnected) trigger.focus({preventScroll:true});
+  };
+  sheet.onclick = event => { if(event.target===sheet) close(); };
+  sheet.querySelector("[data-thread-close]").onclick=close;
+  try {
+    const result=await api.loadCloudPostThread(postId);
+    if(api.cloudAccountId()!==owner || !sheet.querySelector(".community-thread-viewer")) return;
+    if(result.posts.length<2){close();toast("This post isn’t part of a multi-post thread yet.");return;}
+    const cards=result.posts.map((post,index)=>`<div class="community-thread-viewer-part"><span class="community-thread-part-number">${index+1} / ${result.posts.length}</span>${communityPostCard(post)}</div>`).join("");
+    sheet.querySelector(".community-thread-viewer-content").outerHTML=`<div class="community-thread-viewer-content">${cards}</div>`;
+    bindPosts(); bindCommunityMediaOpen();
+  } catch(error) {
+    if(sheet.querySelector(".community-thread-viewer")) sheet.querySelector(".community-thread-viewer-content").innerHTML=`<p class="community-thread-viewer-error">${esc(error.message||"This conversation couldn’t be loaded.")}</p>`;
+  }
+}
+app?.addEventListener("click",event=>{
+  const button=event.target.closest?.("[data-thread-open]");
+  if(!button)return;
+  event.preventDefault();event.stopPropagation();
+  void openCommunityThread(button.dataset.threadOpen,button);
+});
+
 function communityPostCard(post) {
   const author = api.user(post.author) || { id: post.author, username: "member", name: "Member", avatar: "/app/avatar.svg" };
   const currentUser = api.me();
@@ -6996,6 +7029,7 @@ function communityPostCard(post) {
           </header>
           ${text ? `<button type="button" class="cvc-caption" data-stories-post="${esc(post.id)}" data-media-index="0">${renderMentionText(text, { tag: "span" })}</button>` : ""}
           ${postPlaceCard(post) ? `<div class="cvc-place">${postPlaceCard(post)}</div>` : ""}
+          ${post.threadId ? `<button type="button" class="community-thread-affordance" data-thread-open="${esc(post.id)}">${ic.messageCircle || ic.comment}<span>View thread · Part ${Number(post.threadPosition)+1}</span></button>` : ""}
           <div class="cvc-actions" aria-label="Post actions">${likeButton}${commentButton}${repostButton}<span class="cvc-spacer"></span>${saveButton}${shareButton}</div>
           <button type="button" class="cvc-comment-prompt" data-comment="${esc(post.id)}">${commentPromptLabel(commentCount)}</button>
         </div>
@@ -7014,6 +7048,7 @@ function communityPostCard(post) {
       ${postActionsMenu}
     </header>
     ${repostAttribution}
+    ${post.threadId ? `<button type="button" class="community-thread-affordance" data-thread-open="${esc(post.id)}">${ic.messageCircle || ic.comment}<span>View thread · Part ${Number(post.threadPosition)+1}</span></button>` : ""}
     ${text ? `<button type="button" class="community-post-copy" data-stories-post="${esc(post.id)}">${renderMentionText(text, { tag: "span" })}</button>` : ""}
     ${grid}
     ${postPlaceCard(post) ? `<div class="community-post-place">${postPlaceCard(post)}</div>` : ""}
