@@ -45,6 +45,46 @@ export function createPause({ onPause, onResume }) {
   return { hold() { if (holds++ === 0) onPause(); }, release() { if (holds > 0 && --holds === 0) onResume(); }, active: () => holds > 0, reset() { holds = 0; } };
 }
 
+export function createVisibilityPolling({
+  document: doc,
+  poll,
+  shouldPoll = () => true,
+  delay = 5000,
+  setIntervalFn = setInterval,
+  clearIntervalFn = clearInterval,
+}) {
+  let timer = null, disposed = false;
+  const stop = () => {
+    if (timer !== null) {
+      clearIntervalFn(timer);
+      timer = null;
+    }
+  };
+  const start = () => {
+    if (disposed || doc.hidden || !shouldPoll() || timer !== null) return;
+    void poll();
+    timer = setIntervalFn(() => {
+      if (!disposed && !doc.hidden && shouldPoll()) void poll();
+    }, delay);
+  };
+  const onVisibilityChange = () => {
+    if (doc.hidden) stop();
+    else start();
+  };
+  doc.addEventListener("visibilitychange", onVisibilityChange);
+  start();
+  return {
+    start,
+    stop,
+    dispose() {
+      disposed = true;
+      stop();
+      doc.removeEventListener("visibilitychange", onVisibilityChange);
+    },
+    isActive: () => timer !== null,
+  };
+}
+
 export const STORY_HOLD_DELAY_MS = 180;
 export function createPressPause({ hold, release, delay = STORY_HOLD_DELAY_MS, movement = 12, setTimer = setTimeout, clearTimer = clearTimeout }) {
   let pointer = null, timer = null, held = false, suppressClick = false;
@@ -177,7 +217,7 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
   const optionsPanel = moreMenu.querySelector(".story-panel-options");
   view.append(moreMenu);
   const reactionButton = bar.querySelector(".story-reaction-open"), reactionPicker = bar.querySelector(".story-reaction-picker");
-  let disposed = false, activityPanel = null, pollTimer = null, replyHold = false, historyHold = false, repliesExpanded = false, historyTouchStartY = null, reactionPending = false;
+  let disposed = false, activityPanel = null, replyHold = false, historyHold = false, repliesExpanded = false, historyTouchStartY = null, reactionPending = false;
   let menuHold = false, menuCloseTimer = null, historyIdleTimer = null, historyTouching = false, panelTouchY = null;
   const replyRows = new Map(), replyTimers = new Map(), fadeTimers = new Map(), visibleReplyIds = new Set(), fadedReplyIds = new Set();
   if (!story.cloud) {
@@ -334,8 +374,10 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
     updateReplyControls(comments);
     if (!repliesExpanded) liveList.scrollTop = liveList.scrollHeight;
   };
+  let repliesRequestPending = false;
   const loadReplies = async () => {
-    if (!story.cloud || story.commentsEnabled === false || disposed) return;
+    if (!story.cloud || story.commentsEnabled === false || disposed || repliesRequestPending) return;
+    repliesRequestPending = true;
     try {
       const replies = await api.loadCloudStoryComments(story.id);
       if (!disposed) {
@@ -354,21 +396,29 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
         liveChat.hidden = false;
         liveChat.classList.add("has-error");
       }
+    } finally {
+      repliesRequestPending = false;
     }
   };
   refreshReplies();
   updateReactionState();
   renderReplies();
-  if (story.cloud) {
-    void loadReplies();
-    pollTimer = win.setInterval(() => { void loadReplies(); }, 5000);
-  }
+  const replyPolling = createVisibilityPolling({
+    document: doc,
+    poll: loadReplies,
+    shouldPoll: () => story.cloud && story.commentsEnabled !== false && !disposed,
+    delay: 5000,
+    setIntervalFn: win.setInterval.bind(win),
+    clearIntervalFn: win.clearInterval.bind(win),
+  });
   const setting = moreMenu.querySelector(".story-comment-setting");
   if (setting) setting.onchange = async () => {
     const enabled = setting.value === "on";
     try {
       await api.updateCloudStory(story.id, { commentsEnabled: enabled });
       story.commentsEnabled = enabled;
+      if (enabled) replyPolling.start();
+      else replyPolling.stop();
       refreshReplies(); renderReplies();
     } catch (error) {
       setting.value = story.commentsEnabled === false ? "off" : "on";
@@ -647,7 +697,7 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
     dispose() {
       disposed = true;
       mentionCleanup();
-      if (pollTimer) win.clearInterval(pollTimer);
+      replyPolling.dispose();
       if (historyIdleTimer) win.clearTimeout(historyIdleTimer);
       if (menuCloseTimer) win.clearTimeout(menuCloseTimer);
       if (replyHold) { replyHold = false; pauser.release(); }
