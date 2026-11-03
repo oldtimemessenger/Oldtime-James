@@ -43,13 +43,15 @@ test("placeholder markup: cached still renders img; Save-Data waits for a tap; e
 
 test("real posters keep precedence; stills only for poster-less video; one shared queue", () => {
   const xe = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
-  const app = readFileSync(new URL("./app.js", import.meta.url), "utf8");
+  const explore = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
   const src = readFileSync(new URL("./video-still.js", import.meta.url), "utf8");
   assert.match(xe, /inner = poster\s*\?\s*`<img \$\{mediaAttributes\(poster, post\.author\)\}[\s\S]*?: videoStillMarkup\(post\)/);
   assert.match(xe, /owner = next;\s*stills\.clear\(\);/);
   assert.match(xe, /unbindStills\?\.\(\);/);
-  assert.match(app, /video \? \(isDefaultAvatarMediaReference\(rawPoster\) \? "" : rawPoster \|\| ""\) : media/);
-  assert.match(app, /exploreEco\.videoStillMarkup\(post, "discovery-story-preview-media"\)/);
+  assert.match(explore, /const rawMedia = post\.media\?\.\[0\];[\s\S]*?const media = isDefaultAvatarMediaReference\(rawMedia\) \? "" : rawMedia;/);
+  assert.match(explore, /const rawPoster = post\.mediaPosters\?\.\[0\];[\s\S]*?const poster = isDefaultAvatarMediaReference\(rawPoster\) \? "" : rawPoster;/);
+  assert.match(explore, /inner = poster\s*\?[\s\S]*?: videoStillMarkup\(post\)/);
+  assert.match(explore, /stillPlaceholderMarkup\(\{ id, ref, owner: post\.author/);
   assert.match(src, /video\.muted = true;[\s\S]*playsInline = true;[\s\S]*preload = "metadata"/);
   assert.match(src, /removeAttribute\("src"\); video\.load\(\)/);
   assert.doesNotMatch(src, /\.play\(\)/);
