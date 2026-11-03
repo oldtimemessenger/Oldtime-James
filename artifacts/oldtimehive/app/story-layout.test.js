@@ -154,6 +154,7 @@ test("Story viewer warms only the next authorized image and respects reduced mot
 test("app-wide action controls use a consistent menu and contextual icon language", () => {
   const icons = readFileSync(new URL("./icons.js", import.meta.url), "utf8");
   const storyInteractions = readFileSync(new URL("./story-interactions.js", import.meta.url), "utf8");
+  const storyStyles = readFileSync(new URL("./story-interactions.css", import.meta.url), "utf8");
   const explore = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
   const blastDrawer = readFileSync(new URL("./blast-settings-drawer.js", import.meta.url), "utf8");
   const blastStyles = readFileSync(new URL("./blast-video-notes.css", import.meta.url), "utf8");
@@ -163,8 +164,12 @@ test("app-wide action controls use a consistent menu and contextual icon languag
   assert.match(js, /mine \? ic\.menu : ic\.tune/);
   assert.match(js, /aria-label="Comment actions">\$\{ic\.tune\}/);
   assert.match(js, /aria-label="Reply actions">\$\{ic\.tune\}/);
-  assert.ok(storyInteractions.includes('icon("heart")'), "Story likes reuse the Home feed heart icon");
+  assert.ok(storyInteractions.includes('icon("mediaHeart")'), "Story likes reuse the Home feed media-heart icon");
   assert.ok(storyInteractions.includes('icon("share")'), "Story sharing reuses the Home feed share icon");
+  assert.match(js, /ic\.mediaHeart/);
+  assert.match(js, /ic\.share/);
+  assert.match(storyStyles, /\.story-heart \.navic \{ width:30px; height:30px/);
+  assert.match(storyStyles, /\.story-share \.navic \{ width:30px; height:30px/);
   assert.ok(storyInteractions.includes('class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("tune")}'), "Story options use the refined contextual action icon");
   assert.ok(explore.includes('aria-label="Why this post and Not interested">${ic.tune}</button>'), "Explore uses the shared contextual action icon");
   assert.ok(blastDrawer.includes('ctx.icon("chevronRight")'), "Blast settings rows use a directional chevron, not an ellipsis");
