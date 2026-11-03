@@ -20,7 +20,7 @@ const art = new Map(); // kind -> { img, ready, failed }
 
 
 /** Starts (or reuses) loading of sticker art. Resolves when loaded or failed; never rejects. */
-export function loadStickerArt(kinds = Object.keys(STICKER_ART), { required = false } = {}) {
+export function loadStickerArt(kinds = ["questions"], { required = false } = {}) {
   kinds = [...new Set(kinds.map(kind => kind === "answer" ? "questions" : kind))];
   if (typeof Image === "undefined") return Promise.resolve();
   return Promise.all(kinds.filter(k => STICKER_ART[k]).map(kind => {
