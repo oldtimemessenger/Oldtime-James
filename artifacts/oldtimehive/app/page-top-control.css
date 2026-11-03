@@ -1,0 +1,20 @@
+.page-top-control {
+  position:fixed;
+  z-index:90;
+  left:14px;
+  bottom:calc(82px + env(safe-area-inset-bottom,0px));
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:1px solid #e4e4e4;
+  border-radius:50%;
+  background:#fff;
+  color:#17191d;
+  box-shadow:0 2px 8px #00000012;
+  cursor:pointer;
+}
+.page-top-control[hidden] { display:none; }
+.page-top-control svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.page-top-control:focus-visible { outline:2px solid var(--color-primary,#1456d9); outline-offset:3px; }

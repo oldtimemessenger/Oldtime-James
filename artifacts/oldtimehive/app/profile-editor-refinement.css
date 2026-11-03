@@ -1,0 +1,75 @@
+/* Edit profile refinement: grouped rounded fields, compact identity area. Scoped to .edit-profile-screen. */
+.edit-profile-screen { --pe-bg:#f4f6fb; --pe-card:#fff; --pe-line:#e6e9f2; --pe-text:#171a22; --pe-muted:#6b7180; background:var(--pe-bg); font-family:var(--font); }
+.edit-profile-screen *, .edit-profile-screen *::before, .edit-profile-screen *::after { box-sizing:border-box; }
+.edit-profile-screen input, .edit-profile-screen textarea, .edit-profile-screen button, .edit-profile-screen summary, .edit-profile-screen label { font-family:var(--font); }
+#app .screen.edit-profile-screen :is(b,strong,small,label,input,textarea,button,summary) { font-family:var(--font); }
+#app .screen.edit-profile-screen .profile-editor-photo-action { color:#fff; }
+.edit-profile-screen .profile-editor-header { background:var(--pe-bg); border-bottom:0; padding-left:12px; padding-right:12px; }
+.edit-profile-screen .profile-editor-back { border-color:var(--pe-line); background:var(--pe-card); }
+.edit-profile-screen .profile-editor-header-save { justify-self:end; min-width:56px; border-radius:999px; padding:8px 14px; }
+.edit-profile-screen .edit-profile-scroll { background:var(--pe-bg); padding:4px 12px 20px; min-width:0; }
+
+/* Identity */
+.edit-profile-screen .profile-editor-avatar-section { flex-direction:row; flex-wrap:wrap; align-items:center; gap:12px 14px; padding:14px; margin-bottom:14px; border:0; border-radius:18px; background:var(--pe-card); }
+.edit-profile-screen .profile-editor-avatar { width:64px; height:64px; flex:0 0 64px; border:2px solid #e3eafb; }
+.edit-profile-screen .profile-editor-identity { flex:1; min-width:0; display:grid; gap:4px; }
+.edit-profile-screen .profile-editor-identity b { font-size:18px; overflow-wrap:anywhere; }
+.edit-profile-screen .profile-editor-identity small { color:var(--pe-muted); font-size:13px; overflow-wrap:anywhere; }
+.edit-profile-screen .profile-avatar-actions { flex:1 1 100%; min-width:0; display:flex; flex-wrap:wrap; gap:8px; }
+.edit-profile-screen .profile-editor-photo-action,
+.edit-profile-screen .profile-avatar-choices > summary { display:inline-flex; align-items:center; min-height:36px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:var(--fw-strong); cursor:pointer; }
+.edit-profile-screen .profile-editor-photo-action { background:var(--color-primary); color:#fff; }
+.edit-profile-screen .profile-avatar-choices > summary { list-style:none; background:#eaf0fd; color:var(--color-primary); }
+.edit-profile-screen .profile-avatar-choices > summary::-webkit-details-marker { display:none; }
+.edit-profile-screen .profile-avatar-choices[open] { flex-basis:100%; }
+.edit-profile-screen .profile-avatar-choice-panel { margin-top:10px; max-width:100%; }
+.edit-profile-screen .profile-avatar-choice-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:8px; }
+.edit-profile-screen .profile-avatar-choice { min-width:0; display:grid; justify-items:center; gap:4px; padding:6px 4px; border:1px solid var(--pe-line); border-radius:12px; background:var(--pe-card); font-size:11px; color:var(--pe-muted); }
+.edit-profile-screen .profile-avatar-choice img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+.edit-profile-screen .profile-avatar-choice span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.edit-profile-screen .profile-avatar-choice[aria-pressed="true"] { border-color:var(--color-primary); color:var(--color-primary); background:#eef3fe; }
+.edit-profile-screen .profile-avatar-automatic { margin-top:8px; min-height:34px; padding:0 4px; color:var(--color-primary); font-size:13px; font-weight:var(--fw-strong); background:none; }
+
+/* Grouped fields */
+.edit-profile-screen .profile-editor-fields { padding:0; margin-bottom:14px; border-radius:18px; background:var(--pe-card); overflow:hidden; }
+.edit-profile-screen .profile-editor-field,
+.edit-profile-screen .profile-editor-bio { display:flex; flex-direction:column; align-items:stretch; gap:2px; min-height:0; padding:10px 14px 8px; margin-left:0; border-bottom:1px solid var(--pe-line); }
+.edit-profile-screen .profile-editor-fields > :last-child { border-bottom:0; }
+.edit-profile-screen .profile-editor-field > span,
+.edit-profile-screen .profile-editor-bio > label { padding:0; color:var(--pe-muted); font-size:12px; font-weight:var(--fw-strong); }
+.edit-profile-screen .profile-editor-field > input,
+.edit-profile-screen .profile-editor-bio textarea { width:100%; min-width:0; min-height:30px; padding:2px 0; border:0; background:transparent; color:var(--pe-text); font-size:16px; -webkit-appearance:none; appearance:none; }
+.edit-profile-screen .profile-editor-field > input[type="date"] { min-height:32px; display:block; }
+.edit-profile-screen .profile-editor-bio textarea { min-height:64px; padding-right:38px; line-height:1.4; resize:vertical; }
+.edit-profile-screen .profile-editor-field:focus-within,
+.edit-profile-screen .profile-editor-bio:focus-within { background:#f5f8ff; }
+.edit-profile-screen .profile-editor-field > input:focus-visible,
+.edit-profile-screen .profile-editor-bio textarea:focus-visible { border:0; outline:0; }
+.edit-profile-screen .profile-editor-emoji { right:12px; bottom:10px; width:32px; height:32px; background:#eef1f7; }
+
+/* Cover + interests cards */
+.edit-profile-screen .profile-editor-cover-section,
+.edit-profile-screen .profile-editor-interests { margin:0 0 14px; padding:14px; border:0; border-radius:18px; background:var(--pe-card); }
+.edit-profile-screen .profile-editor-section-heading b { font-size:15px; color:var(--pe-text); }
+.edit-profile-screen .profile-editor-section-heading small { font-size:12px; color:var(--pe-muted); }
+.edit-profile-screen .profile-editor-cover-section > img { display:block; max-width:100%; height:96px; margin:10px 0; border:0; border-radius:12px; }
+.edit-profile-screen .profile-editor-cover-upload,
+.edit-profile-screen .profile-editor-auto-cover { display:inline-flex; align-items:center; min-height:36px; margin:0 6px 0 0; padding:0 14px; border:1px solid var(--pe-line); border-radius:999px; background:var(--pe-card); color:var(--pe-text); font-size:13px; font-weight:var(--fw-strong); }
+.edit-profile-screen .profile-editor-auto-cover { margin-top:8px; }
+.edit-profile-screen .profile-editor-auto-cover[aria-pressed="true"] { border-color:var(--color-primary); color:var(--color-primary); background:#eef3fe; }
+.edit-profile-screen .profile-editor-interests .profile-interest-picker { display:flex; flex-wrap:wrap; gap:8px; }
+.edit-profile-screen .profile-editor-interests .profile-interest-option { min-height:34px; max-width:100%; padding:5px 12px; overflow-wrap:anywhere; white-space:normal; border:1px solid var(--pe-line); border-radius:999px; background:var(--pe-card); color:#3d4250; font-size:13px; }
+.edit-profile-screen .profile-editor-interests .profile-interest-option.selected { border-color:var(--color-primary); background:var(--color-primary); color:#fff; }
+
+/* Footer */
+.edit-profile-screen .profile-editor-footer { grid-template-columns:1fr 1.4fr; padding:10px 12px max(10px,env(safe-area-inset-bottom)); background:rgba(244,246,251,.97); border-top:1px solid var(--pe-line); }
+.edit-profile-screen .profile-editor-save-cover,
+.edit-profile-screen .profile-editor-save { min-height:44px; border-radius:999px; font-size:14px; }
+.edit-profile-screen .profile-editor-save-cover { border-color:var(--color-primary); background:var(--pe-card); color:var(--color-primary); }
+.edit-profile-screen .profile-editor-save-cover:disabled { border-color:var(--pe-line); background:#eceff5; color:#8a90a0; }
+
+@media (max-width:370px) {
+  .edit-profile-screen .edit-profile-scroll { padding-left:10px; padding-right:10px; }
+  .edit-profile-screen .profile-editor-footer { grid-template-columns:1fr; }
+  .edit-profile-screen .profile-editor-avatar-section { padding:12px; }
+}

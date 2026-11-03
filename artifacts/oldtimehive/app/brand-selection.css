@@ -1,0 +1,49 @@
+:root {
+  --brand-red:var(--color-burgundy,#8e1b24);
+}
+
+/* Primary actions use Old Time royal blue; burgundy remains a restrained brand accent. */
+.phone .btn:not(.ghost):not(.danger):not(:disabled),
+.phone #pfollow.followwide,
+.phone .blast-screen .blast-primary,
+.phone .bvn-screen.bvn-twitter-feed .bvn-capture-actions > .bvn-record-cta,
+.phone .bvn-screen:not(.bvn-twitter-feed) .bvn-record-cta,
+.phone .bvn-screen .bvn-share-submit,
+.bvn-editor-screen .bvn-share-submit,
+.bvn-editor-screen .bvn-editor-save-dock .bvn-share-submit {
+  background:var(--color-primary);
+  border-color:var(--color-primary);
+  color:#fff !important;
+}
+
+/* Keep Follow as a primary action; Edit profile is a compact, neutral utility action. */
+.phone .profile-screen .profile-primary-actions .followwide {
+  min-height:40px;
+  padding:10px 12px;
+  border-radius:8px;
+  font:700 14px/1.2 var(--font,system-ui,sans-serif);
+}
+.phone .profile-screen #edit.followwide {
+  flex:0 0 auto;
+  width:auto;
+  min-width:0;
+  min-height:34px;
+  margin-left:auto;
+  padding:0 14px;
+  border-radius:999px;
+  background:#f0f1f3;
+  border-color:#e5e7eb;
+  color:#30343a !important;
+  box-shadow:none;
+  font:600 12px/1.1 var(--font,system-ui,sans-serif);
+}
+.phone .profile-screen #logout,
+.phone .profile-screen #pmsg {
+  min-height:40px;
+  padding:10px 12px;
+  border-radius:8px;
+  background:#f0f1f3;
+  border-color:#f0f1f3;
+  color:#17191d;
+  font:700 14px/1.2 var(--font,system-ui,sans-serif);
+}

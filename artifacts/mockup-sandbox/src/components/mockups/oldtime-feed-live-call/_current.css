@@ -1,0 +1,91 @@
+/* Extracted from the current Old Time Live room styles in app/styles.css. */
+.ot-app-live-current .live-room-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff;
+  background: #101116;
+}
+.ot-app-live-current .live-broadcast {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #33323a, #17181f 60%, #101116);
+}
+.ot-app-live-current .live-broadcast img,
+.ot-app-live-current .live-broadcast video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ot-app-live-current .live-video-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(7,8,12,.7), transparent 24%, transparent 47%, rgba(7,8,12,.2) 60%, rgba(7,8,12,.86));
+}
+.ot-app-live-current .live-room-top {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  left: 12px;
+  right: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.ot-app-live-current .live-room-top > button {
+  display: grid;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 50%;
+  background: rgba(12,13,18,.48);
+  backdrop-filter: blur(10px);
+}
+.ot-app-live-current .live-room-top > button svg { width: 19px; height: 19px; }
+.ot-app-live-current .live-room-top > button:first-child svg { transform: rotate(180deg); }
+.ot-app-live-current .live-room-host { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; }
+.ot-app-live-current .live-room-host img {
+  width: 35px; height: 35px; border: 1px solid rgba(255,255,255,.55);
+  border-radius: 50%; object-fit: cover; background: #4a4652;
+}
+.ot-app-live-current .live-room-host > div { display: grid; min-width: 0; gap: 2px; text-shadow: 0 1px 4px #000; }
+.ot-app-live-current .live-room-host b,
+.ot-app-live-current .live-room-host small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ot-app-live-current .live-room-host b { font-size: 13px; }
+.ot-app-live-current .live-room-host small { color: rgba(255,255,255,.72); font-size: 10px; }
+.ot-app-live-current .live-pill { display: flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; background: rgba(20,18,22,.52); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.ot-app-live-current .live-pill i,
+.ot-app-live-current .live-viewer-dot { width: 6px; height: 6px; border-radius: 50%; background: #d8dde2; box-shadow: 0 0 0 3px rgba(255,255,255,.15); }
+.ot-app-live-current .live-room-stats { position: absolute; top: calc(max(14px,env(safe-area-inset-top)) + 52px); left: 17px; z-index: 3; display: flex; align-items: center; gap: 5px; color: #fff; text-shadow: 0 1px 5px #000; font-size: 11px; }
+.ot-app-live-current .live-room-stats b { font-size: 12px; }
+.ot-app-live-current .live-capacity { margin-left: 8px; color: rgba(255,255,255,.72); }
+.ot-app-live-current .live-comments { position: absolute; left: 14px; right: 20px; bottom: calc(187px + env(safe-area-inset-bottom)); z-index: 3; display: flex; flex-direction: column; gap: 7px; max-height: 27vh; overflow: auto; padding-right: 78px; mask-image: linear-gradient(transparent,#000 12%); }
+.ot-app-live-current .live-comment { display: flex; align-items: baseline; gap: 6px; width: max-content; max-width: 100%; padding: 6px 9px; border-radius: 12px; background: rgba(12,13,17,.44); color: #fff; font-size: 12px; line-height: 1.35; text-shadow: 0 1px 3px rgba(0,0,0,.35); backdrop-filter: blur(5px); }
+.ot-app-live-current .live-comment b { flex: 0 0 auto; color: #f2f3f5; }
+.ot-app-live-current .live-comment span { overflow-wrap: anywhere; }
+.ot-app-live-current .live-room-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; padding: 8px 14px max(17px,env(safe-area-inset-bottom)); background: linear-gradient(180deg,transparent,rgba(8,9,13,.68) 22%,rgba(8,9,13,.93)); }
+.ot-app-live-current .live-comment-form { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; padding: 4px 5px 4px 14px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(255,255,255,.12); backdrop-filter: blur(12px); }
+.ot-app-live-current .live-comment-form input { flex: 1; min-width: 0; height: 38px; color: #fff; border: 0; outline: 0; background: transparent; font-size: 13px; }
+.ot-app-live-current .live-comment-form input::placeholder { color: rgba(255,255,255,.69); }
+.ot-app-live-current .live-comment-form button { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: #111; background: var(--accent,#ddd); }
+.ot-app-live-current .live-comment-form button svg { width: 17px; height: 17px; }
+.ot-app-live-current .live-room-controls { display: flex; align-items: center; justify-content: center; gap: clamp(7px,2vw,12px); }
+.ot-app-live-current .live-room-controls button { display: flex; align-items: center; gap: 6px; min-height: 39px; padding: 0 12px; border: 1px solid rgba(255,255,255,.17); border-radius: 999px; background: rgba(255,255,255,.12); color: #fff; font-size: 11px; font-weight: 700; backdrop-filter: blur(10px); }
+.ot-app-live-current .live-room-controls button svg { width: 17px; height: 17px; }
+.ot-app-live-current .live-room-controls button.is-off { background: rgba(255,255,255,.14); }
+.ot-app-live-current .live-room-controls button.live-end { border-color: rgba(255,255,255,.4); background: #55585f; }
+.ot-app-live-current button { color: inherit; font: inherit; cursor: pointer; }
+.ot-app-live-current button:focus-visible,
+.ot-app-live-current input:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (min-width: 760px) {
+  .ot-app-live-current .live-room-top { left: max(18px,calc((100vw - 560px)/2)); right: max(18px,calc((100vw - 560px)/2)); }
+  .ot-app-live-current .live-room-bottom { left: 50%; right: auto; width: min(100%,560px); transform: translateX(-50%); }
+  .ot-app-live-current .live-comments { left: max(20px,calc((100vw - 520px)/2)); right: max(20px,calc((100vw - 520px)/2)); }
+}

@@ -1,0 +1,40 @@
+name = "oldtime-api"
+main = "src/cloudflare/worker.ts"
+compatibility_date = "2026-10-24"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[ai]
+binding = "AI"
+
+[observability]
+enabled = true
+head_sampling_rate = 0.2
+redact_query_string = true
+
+[observability.logs]
+enabled = true
+invocation_logs = false
+head_sampling_rate = 0.2
+
+[[durable_objects.bindings]]
+name = "REALTIME"
+class_name = "OldtimeRealtime"
+
+[[migrations]]
+tag = "realtime"
+new_sqlite_classes = ["OldtimeRealtime"]
+
+[triggers]
+crons = ["17 3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oldtime-app"
+database_id = "38401455-1735-42e1-b704-550308d381db"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "oldtime-media"

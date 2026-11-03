@@ -1,0 +1,321 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,680&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --ot-bg: #07080c;
+  --ot-panel: #101218;
+  --ot-card: #161922;
+  --ot-line: rgba(255, 255, 255, .08);
+  --ot-text: #f5f6f8;
+  --ot-muted: #9ba1aa;
+  --ot-pink: #fe2c55;
+  --ot-gold: #ffd700;
+  --ot-font: Manrope, system-ui, "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+  --ot-serif: Fraunces, Georgia, serif;
+}
+
+.ot-current,
+.ot-mock-page {
+  min-height: 100vh;
+  font-family: var(--ot-font);
+}
+
+.ot-current *,
+.ot-mock-page * {
+  box-sizing: border-box;
+}
+
+.ot-current button,
+.ot-current input,
+.ot-current textarea,
+.ot-mock-page button,
+.ot-mock-page input,
+.ot-mock-page textarea {
+  font: inherit;
+}
+
+.ot-current {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 844px;
+  overflow: hidden;
+  background: var(--ot-bg);
+  color: var(--ot-text);
+}
+
+.ot-current__profile {
+  position: absolute;
+  inset: 0;
+  padding: 0 16px;
+  background: var(--ot-bg);
+}
+
+.ot-current__cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 39%;
+  background:
+    linear-gradient(180deg, transparent 25%, rgba(7, 8, 12, .22) 55%, var(--ot-bg)),
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80") center 43% / cover;
+  opacity: .7;
+}
+
+.ot-current__topbar {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  right: 16px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  font-size: 18px;
+}
+
+.ot-current__topbar span {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 50%;
+  background: rgba(7, 8, 12, .42);
+}
+
+.ot-current__identity {
+  position: absolute;
+  top: 31%;
+  left: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.ot-current__identity img {
+  width: 76px;
+  height: 76px;
+  border: 3px solid var(--ot-bg);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ot-current__identity div {
+  display: grid;
+  gap: 3px;
+  padding-bottom: 6px;
+}
+
+.ot-current__identity small,
+.ot-current__stats {
+  color: var(--ot-muted);
+  font-size: 12px;
+}
+
+.ot-current__stats {
+  position: absolute;
+  top: calc(31% + 88px);
+  left: 16px;
+}
+
+.ot-current__bio {
+  position: absolute;
+  top: calc(31% + 124px);
+  left: 16px;
+  font-size: 13px;
+}
+
+.ot-current__actions {
+  position: absolute;
+  top: calc(31% + 158px);
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 9px;
+}
+
+.ot-current__actions span {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--ot-line);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.ot-current__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, .55);
+}
+
+.ot-current__sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+}
+
+.ot-current__panel {
+  width: 100%;
+  max-height: 92%;
+  overflow: auto;
+  padding: 12px 16px 24px;
+  border-radius: 22px 22px 0 0;
+  background: var(--ot-panel);
+  scrollbar-width: none;
+}
+
+.ot-current__panel::-webkit-scrollbar {
+  display: none;
+}
+
+.ot-current__grab {
+  width: 42px;
+  height: 4px;
+  margin: 0 auto 10px;
+  border-radius: 4px;
+  background: #343844;
+}
+
+.ot-current__title {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.ot-current__panel input,
+.ot-current__panel textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--ot-line);
+  border-radius: 14px;
+  outline: none;
+  background: #181b24;
+  color: var(--ot-text);
+  font-size: 13px;
+}
+
+.ot-current__panel textarea {
+  min-height: 82px;
+  resize: none;
+}
+
+.ot-current__panel label {
+  display: block;
+  margin-top: 12px;
+  color: var(--ot-muted);
+  font-size: 12px;
+}
+
+.ot-current__panel label input {
+  margin-top: 6px;
+}
+
+.ot-current__emoji {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  margin: 7px 0 4px auto;
+  place-items: center;
+  border: 1px solid var(--ot-line);
+  border-radius: 50%;
+  color: var(--ot-muted);
+}
+
+.ot-current__emoji svg {
+  width: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.ot-current__cover-label {
+  margin-top: 13px;
+  color: var(--ot-muted);
+  font-size: 12px;
+}
+
+.ot-current__cover-preview {
+  display: block;
+  width: 100%;
+  height: 96px;
+  margin: 6px 0;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.ot-current__panel > small {
+  display: block;
+  margin-top: 5px;
+  color: var(--ot-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.ot-current__auto {
+  margin-top: 8px;
+  padding: 7px 11px;
+  border: 1px solid var(--ot-line);
+  border-radius: 999px;
+  color: var(--ot-text);
+  font-size: 11px;
+}
+
+.ot-current__interests {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--ot-line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.ot-current__interests b {
+  font-size: 13px;
+}
+
+.ot-current__interests small {
+  float: right;
+  color: var(--ot-muted);
+  font-size: 10px;
+}
+
+.ot-current__interests p {
+  margin: 6px 0 9px;
+  color: var(--ot-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.ot-current__interests div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ot-current__interests span {
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 999px;
+  color: #c6cad0;
+  font-size: 10px;
+}
+
+.ot-current__save {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: white;
+  color: #17191d;
+  font-size: 13px;
+  font-weight: 800;
+}

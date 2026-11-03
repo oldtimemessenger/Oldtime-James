@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/api-zod",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./account-policy": "./src/account-policy.ts",
+    "./signup-age": "./src/signup-age.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

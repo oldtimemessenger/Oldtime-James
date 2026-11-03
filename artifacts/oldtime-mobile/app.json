@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Oldtime",
+    "slug": "oldtime-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "oldtime-mobile",
+    "userInterfaceStyle": "light",
+    "extra": {
+      "oldtimeUrl": "https://www.heyoldtime.com"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Use your camera when you choose to create an Oldtime photo, video, or Status.",
+        "NSMicrophoneUsageDescription": "Record audio when you choose to create a video or voice note.",
+        "NSPhotoLibraryUsageDescription": "Choose photos and videos to share on Oldtime.",
+        "NSPhotoLibraryAddUsageDescription": "Save media you choose to download from Oldtime.",
+        "NSLocationWhenInUseUsageDescription": "Find nearby places only when you request your location."
+      }
+    },
+    "android": {
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

@@ -1,0 +1,1089 @@
+.ot-shell,
+.ot-shell * {
+  box-sizing: border-box;
+}
+
+.ot-shell {
+  --ots-bg: #f7f5ef;
+  --ots-paper: #fffefa;
+  --ots-ink: #27251f;
+  --ots-muted: #77746c;
+  --ots-line: #e9e5da;
+  --ots-gold: #c49a42;
+  --ots-gold-soft: #f4ecd9;
+  --ots-danger: #a54b3f;
+  min-height: 100dvh;
+  width: 100%;
+  margin: 0 auto;
+  color: var(--ots-ink);
+  background: var(--ots-bg);
+  font-family: var(--ot-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ot-shell button,
+.ot-shell input,
+.ot-shell textarea {
+  font: inherit;
+}
+
+.ot-shell button {
+  color: inherit;
+}
+
+.ot-screen {
+  position: relative;
+  width: min(100%, 460px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--ots-bg);
+}
+
+.ot-screen__header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 44px 1fr 70px;
+  align-items: center;
+  min-height: 64px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--ots-line);
+  background: rgba(255, 254, 250, .96);
+  backdrop-filter: blur(14px);
+}
+
+.ot-screen__header h1 {
+  margin: 0;
+  text-align: center;
+  font-family: var(--ot-serif);
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -.035em;
+}
+
+.ot-screen__icon-button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid var(--ots-line);
+  border-radius: 50%;
+  background: var(--ots-paper);
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+}
+
+.ot-screen__icon-button:active,
+.ot-drawer button:active,
+.ot-settings button:active,
+.ot-edit button:active {
+  transform: scale(.97);
+}
+
+.ot-screen__icon-button svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.8;
+}
+
+.ot-screen__content {
+  padding: 18px 18px 34px;
+}
+
+.ot-eyebrow {
+  margin: 0 0 7px;
+  color: var(--ots-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.ot-section-title {
+  margin: 24px 0 10px;
+  font-family: var(--ot-serif);
+  font-size: 19px;
+  font-weight: 620;
+  letter-spacing: -.025em;
+}
+
+.ot-note {
+  margin: 6px 0 0;
+  color: var(--ots-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ot-status {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #eadab6;
+  border-radius: 12px;
+  background: #fbf4e4;
+  color: #6b5427;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* Drawer: a warm paper navigation surface over Old Time's ink-dark app. */
+.ot-drawer {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  padding: 16px 15px 18px;
+  flex-direction: column;
+  overflow: auto;
+  background:
+    radial-gradient(ellipse at 2% 0%, rgba(196,154,66,.1), transparent 36%),
+    var(--ots-bg);
+  animation: ot-arrive .35s cubic-bezier(.2,.75,.25,1) both;
+}
+
+.ot-drawer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 14px;
+}
+
+.ot-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--ot-serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -.04em;
+}
+
+.ot-brand__mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--ots-ink);
+  color: #e9c46e;
+}
+
+.ot-brand__mark svg {
+  width: 17px;
+  height: 17px;
+}
+
+.ot-drawer__close {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--ots-line);
+  border-radius: 50%;
+  background: var(--ots-paper);
+  cursor: pointer;
+}
+
+.ot-drawer__close svg {
+  width: 17px;
+  height: 17px;
+}
+
+.ot-drawer__account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 1px 0 16px;
+  padding: 14px;
+  border: 1px solid #e7dfcd;
+  border-radius: 17px;
+  background: var(--ots-paper);
+  box-shadow: 0 8px 22px rgba(61,48,22,.045);
+}
+
+.ot-drawer__avatar {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #ecd7a5;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ot-drawer__account-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.ot-drawer__account-copy strong,
+.ot-drawer__account-copy span {
+  display: block;
+}
+
+.ot-drawer__account-copy strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.ot-drawer__account-copy span {
+  margin-top: 2px;
+  color: var(--ots-muted);
+  font-size: 12px;
+}
+
+.ot-drawer__profile {
+  border: 0;
+  background: transparent;
+  color: #92702d !important;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-drawer__section-label {
+  margin: 14px 9px 7px;
+  color: #8b877e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.ot-drawer__nav {
+  display: grid;
+  gap: 3px;
+}
+
+.ot-drawer__nav button {
+  display: flex;
+  min-height: 47px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.ot-drawer__nav button svg {
+  width: 19px;
+  height: 19px;
+  color: #827e74;
+  stroke-width: 1.8;
+}
+
+.ot-drawer__nav button span {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.ot-drawer__nav button small {
+  color: var(--ots-muted);
+  font-size: 10px;
+}
+
+.ot-drawer__nav button.is-active {
+  border-color: #eee1c3;
+  background: #f6eedc;
+  color: #795b20;
+}
+
+.ot-drawer__nav button.is-active svg {
+  color: #ac812c;
+}
+
+.ot-drawer__quick {
+  margin-top: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--ots-line);
+  border-radius: 15px;
+  background: rgba(255,254,250,.68);
+}
+
+.ot-drawer__quick-row {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ots-line);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.ot-drawer__quick-row:last-child {
+  border-bottom: 0;
+}
+
+.ot-drawer__quick-row button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 0 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--ots-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ot-drawer__footer {
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.ot-drawer__footer button {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--ots-muted);
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ot-drawer__footer button:last-child {
+  color: var(--ots-danger);
+}
+
+.ot-drawer__version {
+  margin: 5px 10px 0;
+  color: #aaa69c;
+  font-size: 10px;
+}
+
+/* Settings: compact inline controls, with the information architecture kept visible. */
+.ot-settings {
+  animation: ot-arrive .36s cubic-bezier(.2,.75,.25,1) both;
+}
+
+.ot-settings__intro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 1px 17px;
+  border-bottom: 1px solid var(--ots-line);
+}
+
+.ot-settings__avatar {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #ead7ac;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ot-settings__intro-copy {
+  flex: 1;
+}
+
+.ot-settings__intro-copy strong {
+  display: block;
+  font-size: 14px;
+}
+
+.ot-settings__intro-copy span {
+  color: var(--ots-muted);
+  font-size: 11px;
+}
+
+.ot-settings__edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  color: #8d6924 !important;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-settings__edit-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ot-settings__group {
+  margin-top: 17px;
+}
+
+.ot-settings__group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: #716d64;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ot-settings__group-title svg {
+  width: 14px;
+  height: 14px;
+  color: #b18939;
+}
+
+.ot-settings__card {
+  overflow: hidden;
+  border: 1px solid var(--ots-line);
+  border-radius: 14px;
+  background: var(--ots-paper);
+}
+
+.ot-settings__row {
+  display: flex;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 0;
+  border-bottom: 1px solid #efede6;
+  background: transparent;
+  text-align: left;
+}
+
+.ot-settings__row:last-child {
+  border-bottom: 0;
+}
+
+.ot-settings__row-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.ot-settings__row-copy strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 740;
+}
+
+.ot-settings__row-copy small {
+  display: block;
+  margin-top: 3px;
+  color: var(--ots-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.ot-settings__row-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: #f6f1e6;
+  color: #99752f;
+}
+
+.ot-settings__row-icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.9;
+}
+
+.ot-settings__switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d2cfc7;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.ot-settings__switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fffefa;
+  box-shadow: 0 1px 3px rgba(30,27,20,.2);
+  content: "";
+  transition: transform .2s ease;
+}
+
+.ot-settings__switch[aria-checked="true"] {
+  background: var(--ots-gold);
+}
+
+.ot-settings__switch[aria-checked="true"]::after {
+  transform: translateX(16px);
+}
+
+.ot-settings__action {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #efede6;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ot-settings__action:last-child {
+  border-bottom: 0;
+}
+
+.ot-settings__action-copy {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.ot-settings__chevron {
+  width: 15px;
+  height: 15px;
+  color: #9d988d;
+}
+
+.ot-settings__close-count {
+  display: inline-grid;
+  min-width: 21px;
+  height: 21px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ots-gold-soft);
+  color: #7c5e22;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ot-settings__friends {
+  padding: 3px 12px 10px;
+  border-top: 1px solid #efede6;
+}
+
+.ot-settings__friend {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid #f1eee8;
+}
+
+.ot-settings__friend:last-child {
+  border-bottom: 0;
+}
+
+.ot-settings__friend-initial {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #eee5d2;
+  color: #765b27;
+  font-family: var(--ot-serif);
+  font-size: 11px;
+}
+
+.ot-settings__friend-name {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ot-settings__friend button,
+.ot-settings__unblock {
+  border: 0;
+  background: transparent;
+  color: #8b6a2c;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-settings__segmented {
+  display: flex;
+  gap: 5px;
+  padding: 10px 12px 12px 50px;
+  border-top: 1px solid #efede6;
+}
+
+.ot-settings__segmented button {
+  flex: 1;
+  min-height: 29px;
+  border: 1px solid var(--ots-line);
+  border-radius: 999px;
+  background: #fffefa;
+  color: var(--ots-muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ot-settings__segmented button.is-selected {
+  border-color: #d6bd80;
+  background: #f6eedb;
+  color: #70541e;
+}
+
+.ot-settings__form {
+  padding: 11px 12px 12px;
+  border-top: 1px solid #efede6;
+}
+
+.ot-settings__form textarea,
+.ot-settings__form input {
+  display: block;
+  width: 100%;
+  min-height: 74px;
+  padding: 10px 11px;
+  border: 1px solid var(--ots-line);
+  border-radius: 10px;
+  outline: 0;
+  background: #fcfbf7;
+  color: var(--ots-ink);
+  font-size: 11px;
+  resize: vertical;
+}
+
+.ot-settings__form input {
+  min-height: 38px;
+}
+
+.ot-settings__form textarea:focus,
+.ot-settings__form input:focus,
+.ot-edit input:focus,
+.ot-edit textarea:focus {
+  border-color: #c49a42;
+  box-shadow: 0 0 0 3px rgba(196,154,66,.12);
+}
+
+.ot-settings__form button,
+.ot-settings__inline-action {
+  min-height: 32px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border: 1px solid #ddcca3;
+  border-radius: 9px;
+  background: #f7f0df;
+  color: #725823;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-settings__password-fields {
+  display: grid;
+  gap: 7px;
+}
+
+.ot-settings__password-fields input {
+  min-height: 37px;
+}
+
+.ot-settings__foot-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.ot-settings__foot-actions button {
+  min-height: 40px;
+  border: 1px solid #e6d9b9;
+  border-radius: 11px;
+  background: #fcf8ed;
+  color: #805f24;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-settings__foot-actions button:last-child {
+  border-color: #ecd4cf;
+  background: #fbf4f2;
+  color: var(--ots-danger);
+}
+
+.ot-settings__about {
+  padding: 11px 12px 12px;
+  color: var(--ots-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.ot-settings__blocked {
+  padding: 11px 12px;
+  border-top: 1px solid #efede6;
+  font-size: 11px;
+  color: var(--ots-muted);
+}
+
+.ot-settings__blocked-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  color: var(--ots-ink);
+}
+
+.ot-settings__blocked-row span {
+  flex: 1;
+}
+
+.ot-settings__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(30,28,23,.43);
+  animation: ot-fade .2s ease both;
+}
+
+.ot-settings__confirm {
+  width: min(100%, 330px);
+  padding: 20px;
+  border: 1px solid #e8dfcd;
+  border-radius: 18px;
+  background: #fffefa;
+  box-shadow: 0 18px 70px rgba(30,28,23,.18);
+}
+
+.ot-settings__confirm h3 {
+  margin: 0 0 7px;
+  font-family: var(--ot-serif);
+  font-size: 20px;
+}
+
+.ot-settings__confirm p {
+  margin: 0;
+  color: var(--ots-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ot-settings__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.ot-settings__confirm-actions button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--ots-line);
+  border-radius: 9px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.ot-settings__confirm-actions button:last-child {
+  border-color: #d5bc80;
+  background: #f5edd9;
+  color: #70541e;
+}
+
+/* Profile editor: a clear, full-page form inspired by the supplied open profile screens. */
+.ot-edit {
+  background: #fffefa;
+  animation: ot-arrive .35s cubic-bezier(.2,.75,.25,1) both;
+}
+
+.ot-edit .ot-screen__header {
+  grid-template-columns: 44px 1fr 64px;
+  background: rgba(255,254,250,.97);
+}
+
+.ot-edit .ot-screen__header h1 {
+  font-family: var(--ot-font);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+
+.ot-edit__save {
+  justify-self: end;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: #302d26;
+  color: #f1d38b !important;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.ot-edit__photo-zone {
+  display: grid;
+  justify-items: center;
+  padding: 20px 18px 17px;
+  border-bottom: 1px solid var(--ots-line);
+  background: #fffefa;
+}
+
+.ot-edit__avatar-wrap {
+  position: relative;
+}
+
+.ot-edit__avatar {
+  display: block;
+  width: 86px;
+  height: 86px;
+  border: 3px solid #f1e5c8;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 5px 18px rgba(60,48,24,.1);
+}
+
+.ot-edit__photo-badge {
+  position: absolute;
+  right: -1px;
+  bottom: 1px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 2px solid #fffefa;
+  border-radius: 50%;
+  background: #302d26;
+  color: #f1d38b;
+}
+
+.ot-edit__photo-badge svg {
+  width: 13px;
+  height: 13px;
+}
+
+.ot-edit__change-photo {
+  margin-top: 10px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: #8c6925 !important;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-edit__cover {
+  position: relative;
+  overflow: hidden;
+  height: 118px;
+  margin: 0 18px 18px;
+  border-radius: 14px;
+  background: #e4d3b4;
+}
+
+.ot-edit__cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.ot-edit__cover::after {
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(transparent, rgba(32,26,17,.46));
+  content: "";
+  pointer-events: none;
+}
+
+.ot-edit__cover-label {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.32);
+  border-radius: 999px;
+  background: rgba(43,36,26,.66);
+  color: white;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.ot-edit__cover-label svg {
+  width: 13px;
+  height: 13px;
+}
+
+.ot-edit__cover-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -8px 18px 15px;
+  color: var(--ots-muted);
+  font-size: 10px;
+}
+
+.ot-edit__cover-caption button {
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: #8c6925;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ot-edit__fields {
+  padding: 0 18px 34px;
+}
+
+.ot-edit__field {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edeae2;
+}
+
+.ot-edit__field > span {
+  padding-top: 9px;
+  color: #4e4b44;
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.ot-edit__field input,
+.ot-edit__field textarea {
+  width: 100%;
+  min-height: 35px;
+  padding: 8px 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  outline: 0;
+  background: transparent;
+  color: var(--ots-ink);
+  font-size: 12px;
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.ot-edit__field input:hover,
+.ot-edit__field textarea:hover {
+  background: #faf8f2;
+}
+
+.ot-edit__field textarea {
+  min-height: 72px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.ot-edit__field input[type="date"] {
+  color: #5d5950;
+}
+
+.ot-edit__helper {
+  grid-column: 2;
+  margin: -1px 8px 0;
+  color: #918c81;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.ot-edit__interests {
+  padding: 15px 0 0;
+}
+
+.ot-edit__interests-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.ot-edit__interests-heading strong {
+  font-size: 12px;
+}
+
+.ot-edit__interests-heading span {
+  color: var(--ots-muted);
+  font-size: 10px;
+}
+
+.ot-edit__interest-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.ot-edit__interest-grid button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #e7e3da;
+  border-radius: 999px;
+  background: #fffefa;
+  color: #625e55;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.ot-edit__interest-grid button.is-selected {
+  border-color: #d7c18d;
+  background: #f7f0df;
+  color: #72551d;
+}
+
+.ot-edit__bottom-save {
+  width: 100%;
+  min-height: 45px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #302d26;
+  color: #f1d38b !important;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+@keyframes ot-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ot-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 360px) {
+  .ot-screen__content { padding-right: 14px; padding-left: 14px; }
+  .ot-settings__segmented { padding-left: 12px; }
+  .ot-edit__field { grid-template-columns: 74px minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ot-shell *,
+  .ot-shell *::before,
+  .ot-shell *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

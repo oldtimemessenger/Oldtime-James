@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/oldtime-technologies/"
+title = "Oldtime — previous address"
+description = "Compatibility redirect to the single Oldtime app. The canonical source and release are in artifacts/oldtimehive."
+version = "1.0.0"
+id = "artifacts/oldtime-technologies"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/oldtime-technologies/" ]
+localPort = 25359
+
+[services.development]
+run = "pnpm --filter @workspace/oldtime-technologies run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/oldtime-technologies", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/oldtime-technologies/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25359"
+BASE_PATH = "/oldtime-technologies/"

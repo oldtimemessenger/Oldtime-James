@@ -1,0 +1,7 @@
+ALTER TABLE places ADD COLUMN kind TEXT NOT NULL DEFAULT 'unknown';
+ALTER TABLE places ADD COLUMN city TEXT NOT NULL DEFAULT '';
+CREATE TABLE IF NOT EXISTS saved_places (
+ user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ place_id TEXT NOT NULL,place_json TEXT NOT NULL,created_at INTEGER NOT NULL,
+ PRIMARY KEY(user_id,place_id)
+);

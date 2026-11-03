@@ -1,0 +1,63 @@
+- [Sports scope](sports-scope.md) — Sports mode is disabled; preserve historical records and ordinary posts, and do not resume recording without a new request.
+- [Launch scope](launch-scope.md) — real multi-user readiness, not a demo; preserve the existing app and distinguish imported claims from current evidence.
+- [Safe editor verification](ui-verification.md) — keep selection/configuration inside its sheet; close only on explicit completion and never force Share or Publish.
+- [Caught renderer verification](render-verification.md) — isolated input tests do not prove Home renders; treat caught fallback screens and render diagnostics as test failures.
+- [Focus treatment](focus-treatment.md) — avoid oversized focus/selection rectangles on text fields throughout Oldtime; keep ordinary text selection and editing intact.
+- [Full-screen creation](editor-experience.md) — camera-first capture plus the requested v2 Studio; filters belong in its media workspace, while drafts and GIF tools stay removed.
+- [Story interaction scope](story-interactions.md) — no Home layers or status tray; retain avatar, Search/Following Stories and Messages access, with private viewer controls.
+- [Call screen layout](call-screen-layout.md) — use the old call layout only if the user explicitly restores calling; calls remain disabled.
+- [Community feed direction](blast-feed.md) — Following stays follow-only; For You can use explicit Search/Discover interests with Cloudflare-backed public recommendations.
+- [Signup personalization](signup-personalization.md) — minimum three interests, a disclosed optional @oldtime follow, and strong but controllable Community recommendations.
+- [Discovery layout](discovery-layout.md) — Search is video-first with interest-ranked For You, Newest, Most interacted and Shuffle; no Stories rail.
+- [Feed media publication](media-publication.md) — publish the finished composition, not just editor state; verify cloud media in Following and Profile.
+- [Media upload integrity](media-upload-integrity.md) — confirm streamed bytes against the actual digest; placeholder reservations and fixed-ID retries must stay aligned.
+- [Helpful prompts](helpful-prompts.md) — occasional task-aware suggestions; respect dismissals and never invent social activity.
+- [Messaging experience](messaging-experience.md) — swipeable profile-card console and plain inbox; preserve server-confirmed delivery and refresh after reconnect.
+- [Screen scroll stability](screen-scroll-stability.md) — screen actions must preserve the user's place and open controls instead of jumping or disappearing.
+- [Compact mobile layout](compact-mobile-layout.md) — all Oldtime screens stay compact, readable, and free of horizontal spill; no unrequested language packs.
+- [Brand direction](brand-direction.md) — retain the Oldtime palette; the newer original-mark and icon requirements are in current-interface-rules.md.
+- [Blue Badge billing](blue-badge-billing.md) — planned $2.99/month; Apple/Google subscriptions via RevenueCat; billing, gifts and discounts remain disabled until verified.
+- [Official Oldtime account](official-account.md) — reserve @oldtime and keep its permanent badge tied to the stable account across backend changes.
+- [Uploaded profile image restriction](editorial-avatar-restriction.md) — no account may use the uploaded avatar images; reject them in profile updates.
+- [Email verification policy](email-verification.md) — new addresses stay unsaved until the user explicitly starts verification; keep the current login address until confirmation.
+- [Profile list privacy](profile-list-privacy.md) — followers hidden from others by default, following visible; owners retain both lists and can change visibility.
+- [Home header scope](home-header-scope.md) — Profile top-left on Home/Community only; Search stays unchanged except its bottom-nav entry; no avatar in Search/Messages headers.
+- [Map layer presentation](map-layer-presentation.md) — free Places maps, public tagged-post discovery and place profiles with ratings; no Stories integration or paid providers.
+- [Alter Ego deferred](alter-ego.md) — studio/prototypes removed; preserve classic avatar icons and logos; do not resume without a new user request.
+- [3D verification](3d-verification.md) — distinguish browser GPU limitations from actual model failures; verify with a real graphics context.
+- [Mapping rights](mapping-rights.md) — live map display, video export rights and zero-billing prototypes are separate decisions.
+- [Patch safety](patch-safety.md) — multi-file patch failures may still leave independent changes applied; inspect results before retrying.
+- [Workout sharing](workout-sharing.md) — each map image/video is its own snapshot; sharing one must never replace a previously published export.
+- [Participation sharing](participation-sharing.md) — Get On Board is removed; retain existing records and do not restore the feature without a new request.
+- [Build memory pressure](build-memory-pressure.md) — resource-stalled builds are not necessarily code failures; bounded Node heaps can avoid shared-runtime pressure.
+- [Website repository scope](website-repository-scope.md) — private website repo has independent, filtered history; preserve that scope for reviewed GitHub updates.
+- [Oldtime platform scope](oldtime-platform-scope.md) — PWA forever, no native app or paid video services; distinguish mobile Chromium touch emulation from physical-device evidence.
+- [Legacy chat migration](legacy-chat-migration.md) — migrate old conversations as private, read-only owner archives; never impersonate historical participants in shared chats.
+- [Cost-controlled media](cost-control.md) — design every Oldtime feature for low, predictable operating cost without trading away privacy, reliability or content quality.
+- [Explore topic classification](explore-classification.md) — infer topics from ordinary post text locally; hashtags are optional and AI/external classifiers are not allowed.
+- [Cloudflare hosting](cloudflare-hosting.md) — Cloudflare-only stack; preserve current live records and existing domain routing.
+- [Preview data safety](preview-data-safety.md) — preview shares live Cloudflare data; isolate test mutations, preserve current records and distinguish source checks from signed-in browser proof.
+- [D1 portability](d1-portability.md) — validate D1 SQL and apply/verify production migrations before deploying schema-dependent Worker code.
+- [Profile browser checks](profile-browser-checks.md) — follow the visible create flow and await editor teardown; keep UI assertions synced to current palette tokens.
+- [Profile gallery](profile-gallery.md) — preserve existing text posts without Quote-specific shelves or viewers.
+- [Owner profile presentation](owner-profile-presentation.md) — no header views; keep social counts prominent and a landscape cover fading beneath Edit profile.
+- [Floating video playback](floating-video-playback.md) — detached videos stay playable across navigation, with clear expand, pause and close controls.
+- [Tournament scope](tournament-scope.md) — Tournament code and data are removed; do not restore the feature without a new request.
+- [Live media topology](live-media-topology.md) — no Live/calls; retain chat updates and voice notes; verify socket revocation separately from HTTP logout.
+- [Preview URL base](preview-url-base.md) — static HTML public assets must stay relative in the mounted Oldtime preview to avoid duplicated artifact prefixes.
+- [Blast migration tests](blast-migration-testing.md) — when the store test encodes source as a data URL, rewrite newly added relative imports to absolute URLs.
+- [Account-state updates](account-state-updates.md) — Keep narrow account actions from resending unrelated settings and saved data.
+- [Saved posts](saved-posts.md) — private Saved and Archive live in Settings; the user now explicitly requests collections, superseding the earlier removal.
+- [Current interface rules](current-interface-rules.md) — Community/profile/header scope, original icons/mark, calm Messages, custom interests and Campaign removal.
+- [API contract synchronization](api-contract-sync.md) — preserve existing runtime extensions in OpenAPI before regenerating clients and validators.
+- [Backend route reachability](backend-route-reachability.md) — handler code is not runtime proof; check outer route admission and the production-backed preview relay.
+- [Mention permissions](mention-permissions.md) — “People you follow” means the tagged account follows the tagger; use that same rule for suggestions and publishing.
+- [Cloud post cache synchronization](cloud-post-cache-synchronization.md) — update opened-detail copies along with feed/profile copies after server-confirmed post actions.
+- [Publication confirmation](publication-confirmation.md) — never delete confirmed content or offer duplicate publishing because a later refresh or display failed.
+- [Original sound rights](audio-rights.md) — source-linked reuse, creator opt-out, private personal saves, public use counts, and no Oldtime-owned sound catalog.
+- [Automated profiles removed](social-engine-direction.md) — do not create or expose automated profiles; preserve genuine member accounts and records.
+- [Video frame-rate integrity](video-frame-rate-integrity.md) — verify source and encoded frame rates; browser playback callbacks and real-time encoding can silently fall behind 60 fps.
+- [Browser audio activation](browser-audio-activation.md) — carry the tap-started audio context through rendering; preserve video audio graphs for retries until editor teardown.
+- [Status stickers and layouts](status-sticker-layouts.md) — independent picture/sticker sizing, editable titles, owner-only questions and “Add your own” participation.
+- [Transient comments](transient-comments.md) — animated comments fade without deleting history; retain compact controls in black full-screen media viewers.
+- [Studio draft persistence](studio-drafts.md) — use the account-owned Cloudflare draft service for autosave; do not add browser-local durable storage.

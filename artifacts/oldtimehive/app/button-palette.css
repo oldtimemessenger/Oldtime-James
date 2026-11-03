@@ -1,0 +1,181 @@
+/* Old Time royal-blue primary actions, neutral secondary surfaces, and burgundy accents. */
+:root {
+  --color-primary:#1456d9; --color-primary-pressed:#1048bd; --color-burgundy:#8e1b24;
+  --color-danger:#b42318; --color-dark:#101318; --color-surface:#ffffff;
+  --color-surface-secondary:#f2f4f7; --color-ink:#17191c; --color-muted:#6b6f76; --color-border:#e5e7eb;
+  --bg:#ffffff; --panel:#f2f4f7; --card:#ffffff; --text:#17191c; --muted:#6b6f76;
+  --line:#e5e7eb; --accent:#1456d9; --accent-pink:#e0245e; --accent-gold:#8e1b24; --brand-red:#8e1b24;
+  --notification-accent:#1456d9; --story-ring:linear-gradient(145deg,#1456d9,#8e1b24);
+  --bp-black:#1456d9; --bp-black-on:#ffffff;
+  --bp-primary:#1456d9; --bp-primary-press:#1048bd; --bp-primary-on:#ffffff;
+  --bp-orange:#1456d9; --bp-orange-press:#1048bd; --bp-orange-on:#ffffff;
+  --bp-soft:#f2f4f7; --bp-neutral:#f2f4f7; --bp-neutral-on:#17191c;
+  --bp-disabled-bg:#f2f4f7; --bp-disabled-ink:#6b6f76;
+}
+.btn, .chat-newgroup, .bvn-record-cta, .blast-primary, .followwide, #pfollow, .followpill, .followchip, .contact-follow,
+.creative-editor .ce-primary, .creative-editor .ce-text-done, .creative-editor .ce-theme-btn[aria-pressed=true],
+.creative-editor .ce-camera-settings[open] > summary, .creative-editor .ce-crop-bar .ce-ok {
+  background:var(--bp-primary); color:var(--bp-primary-on); border:1px solid var(--bp-primary); box-shadow:none; min-height:44px;
+}
+.btn:active, .chat-newgroup:active, .followwide:active, .creative-editor .ce-primary:active { background:var(--bp-primary-press); }
+.btn.ghost, .contact-follow.following, .cta-secondary {
+  background:var(--bp-neutral); color:var(--bp-neutral-on); border:1px solid var(--line); min-height:44px;
+}
+.btn.ghost:active, .contact-follow.following:active { background:#fff; opacity:.75; }
+.cta-secondary {
+  background:var(--bp-neutral); color:var(--bp-neutral-on); border-color:var(--line);
+}
+.cta-secondary:active { background:#30323a; }
+.people-match-view, .seg button.on, .settings-content .seg button.on, .account-settings-screen .settings-content .seg button.on {
+  background:var(--bp-primary); color:var(--bp-primary-on); border:1px solid var(--bp-primary);
+}
+.cta-primary {
+  background:var(--bp-primary);
+  color:var(--bp-primary-on);
+  border:1px solid var(--bp-primary);
+  box-shadow:none;
+}
+.chat-inbox-filter.active { background:#fff; color:#17191c; border-color:#17191c; }
+.btn.danger, .btn.ghost.danger, .creative-editor .ce-danger { background:#fff; color:#b51e29; border:1px solid #b51e29; }
+.btn:disabled, .followwide:disabled, .ot-auth .btn:disabled, .creative-editor .ce-primary:disabled {
+  background:var(--bp-disabled-bg); color:var(--bp-disabled-ink); border-color:transparent; opacity:1;
+}
+  :where(.btn,.followwide,.chat-newgroup,.bvn-record-cta,.chat-head-icon,.chat-option,.chat-inbox-filter,.bvn-chat-tool,.bvn-save-message):focus-visible {
+  outline:2px solid var(--bp-primary); outline-offset:2px;
+}
+.creative-editor input[type=range] { accent-color:var(--bp-primary); }
+.creative-editor[data-ce-tools="light"] input[type=range] { accent-color:var(--bp-primary); }
+.creative-editor .ce-dock-row > .ce-menu[open] > summary,
+.creative-editor .ce-dock-row > .ce-tool[aria-pressed=true],
+.creative-editor .ce-dock-row > .ce-tool[aria-expanded=true] { box-shadow:inset 0 -3px 0 var(--bp-soft); }
+.creative-editor[data-ce-tools="light"] .ce-dock-row > .ce-menu[open] > summary,
+.creative-editor[data-ce-tools="light"] .ce-dock-row > .ce-tool[aria-pressed=true],
+.creative-editor[data-ce-tools="light"] .ce-dock-row > .ce-tool[aria-expanded=true] { box-shadow:inset 0 -3px 0 var(--bp-primary); }
+.creative-editor .ce-quote-style[aria-pressed=true] { border-color:var(--bp-soft); box-shadow:0 0 0 2px rgba(208,211,215,.3); }
+.creative-editor .ce-sheet-done, .creative-editor .ce-panel .ce-sheet-done { color:var(--bp-orange); }
+.creative-editor[data-ce-tools="dark"] .ce-sheet-done, .creative-editor .ce-media-panel .ce-sheet-done { color:var(--bp-soft); }
+.creative-editor :is(.ce-primary,.ce-text-done,.ce-quote-readable,.ce-quote-font,.ce-theme-btn,.ce-strip-upload,.ce-strip-handle,.ce-strip-tile):focus-visible {
+  outline:3px solid var(--bp-soft); outline-offset:3px;
+}
+.creative-editor[data-ce-tools="light"] :is(.ce-primary,.ce-theme-btn,.ce-strip-upload,.ce-strip-handle):focus-visible { outline-color:var(--bp-primary); }
+.creative-editor .ce-strip-tile:active { border-color:var(--bp-soft); }
+.auth.ot-auth .btn.primary { background:var(--bp-primary); color:#fff; border:1px solid var(--bp-primary); }
+.auth.ot-auth .btn.primary:active { background:var(--bp-primary-press); }
+.auth.ot-auth .btn.ghost, .auth.ot-auth .btn:not(.primary) { background:var(--bp-neutral); color:var(--bp-neutral-on); border:1px solid var(--line); }
+.auth.ot-auth.ot-auth-login .ot-switch .btn.auth-link {
+  all:unset; display:inline; width:auto; min-height:0; padding:4px; background:transparent;
+  color:var(--bp-primary)!important; border:0; box-shadow:none; text-align:left; font:inherit; cursor:pointer;
+}
+.auth.ot-auth.ot-auth-login .ot-switch .btn.auth-link:hover { text-decoration:underline; }
+.auth.ot-auth.ot-auth-login .ot-switch .btn.auth-link:focus-visible { outline:2px solid var(--bp-primary); outline-offset:2px; }
+.auth.ot-auth .btn:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.auth.ot-auth .btn.primary:disabled {
+  background:var(--bp-disabled-bg);
+  color:var(--bp-disabled-ink);
+  border-color:var(--line);
+  box-shadow:none;
+}
+.profile-editor-header-save, .profile-editor-save {
+  background:var(--bp-primary);
+  color:#fff;
+  border:1px solid var(--bp-primary);
+  box-shadow:none;
+}
+.profile-editor-header-save:active, .profile-editor-save:active {
+  background:var(--bp-primary-press);
+}
+
+/* Feature controls with older, more-specific declarations share the same brand contract. */
+.audio-panel .ap-primary, .people-match-follow, .settings-save-bar > button,
+.ot-control.ot-accept, .ot-post-primary, .ct-btn:not(.ghost), .ap-btn:not(.ghost) {
+  background:var(--bp-primary); color:#fff; border-color:var(--bp-primary);
+}
+.phone .blast-screen .blast-primary, .blast-screen .blast-primary,
+.phone .bvn-screen .bvn-record-cta, .bvn-screen .bvn-record-cta,
+.phone .bvn-screen .bvn-share-submit, .bvn-screen .bvn-share-submit,
+.bvn-editor-screen .bvn-share-submit, .bvn-editor-screen .bvn-editor-save-dock .bvn-share-submit,
+.bvn-screen:not(.bvn-twitter-feed) .bvn-chat-composer button[type="submit"],
+.account-settings-screen .exp-primary {
+  background:var(--bp-primary)!important; color:#fff!important; border-color:var(--bp-primary);
+}
+.account-settings-screen .settings-content .btn.ghost {
+  background:var(--bp-neutral)!important; color:var(--bp-neutral-on)!important; border-color:var(--line);
+}
+.clip .act[data-like].on, .bvn-card-actions .bvn-social-actions button.is-liked, .bvn-detail-heart.is-liked { color:#e0245e; }
+.clip .act[data-save].on { color:inherit; }
+.clip .act[data-save].on .navic { color:var(--bp-primary); fill:var(--bp-primary); stroke:var(--bp-primary); }
+.ct-tabs button.on, .ap-tabs button.on, .ap-seg button.on {
+  background:var(--bp-primary); color:#fff; border-color:var(--bp-primary);
+}
+.phone .btn.danger, .phone .btn.ghost.danger { background:#fff; color:#b51e29!important; border-color:#b51e29; }
+.phone .btn:disabled, .ct-btn:disabled, .ap-btn:disabled, .audio-panel .ap-primary:disabled,
+.people-match-follow:disabled, .settings-save-bar > button:disabled,
+.blast-screen .blast-primary:disabled, .bvn-screen .bvn-record-cta:disabled,
+.bvn-screen .bvn-share-submit:disabled, .bvn-editor-screen .bvn-share-submit:disabled,
+.bvn-editor-screen .bvn-editor-save-dock .bvn-share-submit:disabled,
+.account-settings-screen .exp-primary:disabled {
+  background:var(--bp-disabled-bg)!important; color:var(--bp-disabled-ink)!important;
+  border-color:transparent; opacity:1;
+}
+
+/* Primary actions with legacy screen-specific colors use the shared royal blue. */
+.profile-note-panel .btn:not(.ghost):not(.danger),
+.light .btn:not(.ghost):not(.danger),
+.settings-content .btn:not(.ghost):not(.danger),
+.account-settings-screen .settings-content .btn:not(.ghost):not(.danger),
+.exp-primary,
+.community-note-submit,
+.chat-composer button[type=submit],
+.comment-send,
+.live-comment-form button,
+.vn-action.primary,
+.pp-sheet button.pp-main,
+.saved-social-panel .ss-primary,
+.rn-save,
+.gob .btn:not(.sec):not(.bad),
+.remix-studio .rs-record,
+.guide-update > button {
+  background:var(--bp-primary)!important;
+  color:#fff!important;
+  border:1px solid var(--bp-primary)!important;
+  box-shadow:none;
+}
+.profile-note-panel .btn:not(.ghost):not(.danger):active,
+.light .btn:not(.ghost):not(.danger):active,
+.settings-content .btn:not(.ghost):not(.danger):active,
+.account-settings-screen .settings-content .btn:not(.ghost):not(.danger):active,
+.exp-primary:active,
+.community-note-submit:active,
+.chat-composer button[type=submit]:active,
+.comment-send:active,
+.live-comment-form button:active,
+.vn-action.primary:active,
+.pp-sheet button.pp-main:active,
+.saved-social-panel .ss-primary:active,
+.rn-save:active,
+.gob .btn:not(.sec):not(.bad):active,
+.remix-studio .rs-record:active,
+.guide-update > button:active {
+  background:var(--bp-primary-press)!important;
+}
+.community-note-submit:disabled,
+.profile-note-panel .btn:not(.ghost):not(.danger):disabled,
+.light .btn:not(.ghost):not(.danger):disabled,
+.settings-content .btn:not(.ghost):not(.danger):disabled,
+.account-settings-screen .settings-content .btn:not(.ghost):not(.danger):disabled,
+.exp-primary:disabled,
+.chat-composer button[type=submit]:disabled,
+.comment-send:disabled,
+.live-comment-form button:disabled,
+.vn-action.primary:disabled,
+.pp-sheet button.pp-main:disabled,
+.saved-social-panel .ss-primary:disabled,
+.rn-save:disabled,
+.gob .btn:not(.sec):not(.bad):disabled,
+.remix-studio .rs-record:disabled,
+.guide-update > button:disabled {
+  background:var(--bp-disabled-bg)!important;
+  color:var(--bp-disabled-ink)!important;
+  border-color:transparent!important;
+  box-shadow:none;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1456D9" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Oldtime</title>
+<meta name="description" content="Oldtime brings short-form video, chat, and communities together." />
+<link rel="manifest" href="%BASE_URL%manifest.json" />
+<link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="app-icon-180.png" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet" />
+<style>
+  .oldtime-startup { --font:system-ui,-apple-system,"Segoe UI",sans-serif; position:fixed; inset:0; z-index:2000; overflow:hidden; background:#1456D9; color:#fff; transition:opacity .28s ease; }
+  .oldtime-startup-lockup { position:absolute;top:calc(50% + 25px);left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;max-width:80vw; }
+  .oldtime-startup-art { position:relative;left:6px;display:block;width:min(32vw,148px); height:min(25vh,220px); object-fit:contain; object-position:center; opacity:0; filter:drop-shadow(0 0 13px rgba(185,220,255,.34)) drop-shadow(0 7px 18px rgba(2,24,80,.20)); animation:oldtime-feather-arrive .68s cubic-bezier(.2,.7,.2,1) .04s both; }
+  .oldtime-startup-status { position:absolute; z-index:1; left:50%; bottom:max(28px,calc(env(safe-area-inset-bottom,0px) + 24px)); width:min(330px,calc(100vw - 32px)); display:grid; justify-items:center; gap:12px; padding:14px 16px; border:1px solid rgba(255,255,255,.24); border-radius:18px; background:rgba(6,36,112,.5); color:#fff; transform:translateX(-50%); font:500 14px/1.45 var(--font); text-align:center; box-shadow:0 12px 32px rgba(0,20,74,.16); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  .oldtime-startup-status[hidden] { display:none; }
+  .oldtime-startup-name { margin:0;text-align:center;color:#fff;font:600 30px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:-.6px;white-space:nowrap;animation:oldtime-name-arrive .55s cubic-bezier(.2,.7,.2,1) .25s both; }
+  .oldtime-startup.is-dismissed { opacity:0; visibility:hidden; pointer-events:none;transition:opacity .28s ease,visibility 0s linear .28s; }
+  .oldtime-startup-retry { min-height:44px; padding:10px 18px; border:1px solid rgba(255,255,255,.7); border-radius:999px; background:#fff; color:#123d9a; font:700 13px/1.4 var(--font); cursor:pointer; }
+  .oldtime-startup-retry:focus-visible { outline:2px solid #fff; outline-offset:4px; }
+  #app.oldtime-app { opacity:0; transform:translateY(7px); transition:opacity .24s ease-out,transform .24s cubic-bezier(.2,.7,.2,1); }
+  #app.oldtime-app.is-ready { opacity:1; transform:none; }
+  @keyframes oldtime-feather-arrive { from { opacity:0;transform:scale(.88); } to { opacity:1;transform:scale(1); } }
+  @keyframes oldtime-name-arrive { from { opacity:0;transform:translateY(9px); } to { opacity:1;transform:translateY(0); } }
+  @media (max-width:360px) { .oldtime-startup-art { width:min(34vw,136px); height:min(23vh,200px); } }
+  @media (prefers-reduced-motion:reduce) { .oldtime-startup,#app.oldtime-app { transition:none; } .oldtime-startup-art,.oldtime-startup-name { animation:none;opacity:1;transform:none; } }
+</style>
+</head>
+<body>
+<div class="oldtime-startup" id="oldtime-startup" aria-label="Opening Oldtime">
+  <div class="oldtime-startup-lockup">
+    <img class="oldtime-startup-art" src="brand/oldtime-feather.png" alt="Oldtime feather logo" fetchpriority="high" />
+  </div>
+  <div class="oldtime-startup-status" id="oldtime-startup-status" role="alert" hidden>
+    <p id="oldtime-startup-label">Couldn’t open Oldtime. Please try again.</p>
+    <button class="oldtime-startup-retry" id="oldtime-startup-retry" type="button">Try again</button>
+  </div>
+</div>
+<div id="app" class="oldtime-app" inert aria-hidden="true"></div>
+<script type="module" src="app/release-entry.js" id="oldtime-entry"></script>
+<script>
+  (() => {
+    const opening = document.getElementById("oldtime-startup");
+    opening.dataset.started = String(performance.now());
+    const status = document.getElementById("oldtime-startup-status");
+    const label = document.getElementById("oldtime-startup-label");
+    const retry = document.getElementById("oldtime-startup-retry");
+    const showOpeningError = (message = "Couldn’t open Oldtime. Please try again.") => {
+      if (opening.dataset.ready === "true") return;
+      label.textContent = message;
+      status.hidden = false;
+    };
+    const entry = document.getElementById("oldtime-entry")
+      || document.querySelector('script[type="module"][src]');
+    entry?.addEventListener("error", showOpeningError);
+    window.addEventListener("error", event => { if (event.error) showOpeningError(); });
+    window.addEventListener("unhandledrejection", showOpeningError);
+    retry.addEventListener("click", () => location.reload());
+    setTimeout(() => {
+      if (opening.dataset.ready === "true") return;
+      showOpeningError("Oldtime is taking longer than expected. Please try again.");
+    }, 16000);
+  })();
+</script>
+</body>
+</html>

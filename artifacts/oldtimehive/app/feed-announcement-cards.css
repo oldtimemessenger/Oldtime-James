@@ -1,0 +1,163 @@
+.community-announcement-slot {
+  grid-column: 1 / -1;
+  display: block;
+  min-width: 0;
+  margin-block: 8px;
+}
+.community-announcement-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e6e6e8;
+  border-radius: 17px;
+  background: #fff;
+  color: #202126;
+  box-shadow: 0 4px 16px rgba(20, 20, 24, .055);
+}
+.community-announcement-visual {
+  position: relative;
+  height: clamp(150px, 48vw, 194px);
+  overflow: hidden;
+  background: #26252a;
+}
+.community-announcement-visual::after {
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .48));
+  content: "";
+  pointer-events: none;
+}
+.community-announcement-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 44%;
+}
+.community-announcement-visual-label {
+  position: relative;
+  z-index: 1;
+  position: absolute;
+  bottom: 13px;
+  left: 14px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+}
+.community-announcement-copy { padding: 14px 16px 16px; }
+.community-announcement-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+.community-announcement-category-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f8e8eb;
+  color: #b51e32;
+}
+.community-announcement-category-icon .navic { width: 15px; height: 15px; }
+.community-announcement-category-icon[data-category="feature"] { background: #eaf1fc; color: #286ac2; }
+.community-announcement-category-icon[data-category="community"] { background: #eaf4ef; color: #25764e; }
+.community-announcement-category-icon[data-category="creator"] { background: #f0ecfa; color: #6950a4; }
+.community-announcement-meta {
+  margin: 0 !important;
+  color: #4f5156 !important;
+  font-size: 10px !important;
+  font-weight: 700;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.community-announcement-dismiss {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 50%;
+  background: rgba(255,255,255,.94);
+  color: #34363b;
+}
+.community-announcement-dismiss .navic { width: 15px; height: 15px; }
+.community-announcement-meta + h3,
+.community-announcement-copy h3 {
+  margin: 0;
+  color: #1e2024;
+  font-size: 18px;
+  font-weight: 720;
+  letter-spacing: -.025em;
+  line-height: 1.22;
+}
+.community-announcement-copy p {
+  margin: 7px 0 0;
+  color: #62666d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.community-announcement-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+.community-announcement-brand {
+  color: #8b8d92;
+  font-size: 10px;
+  font-weight: 650;
+}
+.community-announcement-action {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 17px;
+  border: 1px solid var(--color-primary, #1456d9);
+  border-radius: 999px;
+  background: var(--color-primary, #1456d9);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
+  font: 650 12px/1 var(--font, system-ui, sans-serif);
+}
+.community-announcement-action:hover {
+  background: var(--color-primary, #1456d9);
+}
+.community-announcement-action:active {
+  background: var(--color-primary-pressed, #1048bd);
+}
+.community-announcement-action:focus-visible,
+.community-announcement-dismiss:focus-visible {
+  outline: 2px solid #202126;
+  outline-offset: 2px;
+}
+.community-announcement-action:disabled,
+.community-announcement-dismiss:disabled { opacity: .65; }
+.community-announcement-error {
+  grid-column: 1 / -1;
+  padding: 11px 13px;
+  border: 1px solid #e8e4e5;
+  border-radius: 12px;
+  background: #fff;
+  color: #656b73;
+  font-size: 12px;
+}
+.community-announcement-error button {
+  margin-left: 7px;
+  padding: 3px 5px;
+  background: transparent;
+  color: #bd2945;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}

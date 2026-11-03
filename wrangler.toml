@@ -1,0 +1,9 @@
+# Cloudflare Pages serves the site; its API function forwards the original
+# request through a private Worker service binding, without a separate API URL.
+name = "oldtimehive"
+compatibility_date = "2026-10-24"
+pages_build_output_dir = "./artifacts/oldtimehive/dist/public"
+
+[[services]]
+binding = "OLDTIME_API"
+service = "oldtime-api"

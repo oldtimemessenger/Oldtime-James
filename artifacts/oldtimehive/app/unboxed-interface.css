@@ -1,0 +1,306 @@
+/*
+ * Final interface contract: no filled backplates behind ordinary icons or
+ * neutral controls. Search fields use a soft capsule without a border. Keep identity/media pixels, colored
+ * primary actions, selection indicators and functional slider/switch tracks.
+ * This sheet loads last; !important intentionally wins older feature palettes.
+ */
+
+/* Include sheets mounted outside #app as well as ordinary routed screens. */
+:is(#app,.audio-panel,.share-recipient-panel,.saved-social-panel,.pp-sheet,.rn-panel) :is(
+  .icon,.row-icon,.interest-feed-mark,.community-story-find,
+  .community-header-action,.community-header-profile,.community-note-close,
+  .community-note-image-remove,.quotes-close,.drawer-close,
+  .settings-back,.settings-entry-icon,.profile-editor-emoji,
+  .profile-action-close,.ap-icon,.ct-icon,.ap-post-back,.ap-post-action,
+  .comment-header button,.comment-close,.comment-action-header button,
+  .chat-head-icon,.chat-back,.detail-back,.chat-action,.chat-compose-chip button,
+  .discovery-back,.discovery-empty-mark,.discovery-people-icon,
+  .blast-icon-btn,.blast-back,.blast-search-submit,.blast-notes-icon,.blast-notes-share,
+  .bvn-icon-button,.bvn-back-button,.bvn-feed-search button,
+  .ap-close,.ap-mini,.ss-close,.srp-close,.srp-actic,.rn-icon,
+  .pp-header [data-close],.pp-map-header [data-map-close],
+  .community-announcement-category-icon,.notification-activity-menu>summary
+) {
+  background:transparent!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+
+/* Search pills are styled below; remaining form fields keep their hairline border. */
+:is(#app,.audio-panel,.share-recipient-panel,.saved-social-panel,.pp-sheet) :is(
+  .search,.exp-search,.srp-search,
+  .emoji-search-row,.chat-emoji-search-row,.blast-community-search,
+  .field,.ap-field,.ct-field,.blast-input,.comment-search-wrap input,
+  .notification-activity-options select,
+  .profile-note-panel textarea,.post-edit-field textarea,
+  .chat-compose-mode,.chat-compose-chip,.chat-composer,.composer,.msgdock,.pinbar,.replybar,
+  .comment-composer-pill
+) {
+  background:#fff!important;
+  box-shadow:none!important;
+}
+
+/* Neutral chips stay unboxed; selected rows use a flat pale-blue fill and blue indicator. */
+#app :is(
+  .profile-interest-chip,.people-match-tags span,.ap-new,.hc-pill,
+  .notification-filter,.chat-inbox-filter,
+  .chat-option,.chat-folder-options button,.drawer-link,
+  .ap-tabs button,.ap-seg button,.ct-status-chip,.ct-range,.ct-kind,
+  .rn-reactions button,.emoji-grid button,.emoji-tile>.emoji,.emoji-categories button,
+  .post-edit-location-row>.post-edit-place,
+  .post-edit-cancel,.profile-grid-more,.profile-action-item
+) {
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#app :is(.profile-interest-option,.seg button,.hc-chip,.guide-chip):not(.on):not(.is-active):not(.selected):not([aria-pressed=true]):not([aria-selected=true]) {
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#app :is(.chat-option[aria-checked=true],.chat-folder-options button.active) {
+  border:0!important;
+  border-bottom:0!important;
+  border-radius:999px!important;
+  background:#e8f1ff!important;
+  color:#17191c!important;
+  font-weight:500;
+}
+#app .chat-option[aria-checked=true] .chat-option-radio {
+  display:grid;
+  place-items:center;
+  border:0;
+  background:var(--color-primary,#1456d9);
+}
+#app .chat-option[aria-checked=true] .chat-option-radio::after {
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#fff;
+  content:"";
+}
+#app .chat-option[aria-checked=true]:focus-visible { outline:0; outline-offset:0; }
+#app .chat-compose-panel .chat-compose-mode[aria-pressed="true"] { color:#17191c!important; background:#e8f1ff!important; border-color:transparent!important; }
+#app :is(.ap-tabs button,.ap-seg button,.rn-reactions button):is(.on,.active,[aria-pressed=true]) {
+  color:var(--text)!important;
+  border-bottom:2px solid var(--color-primary,#1456d9);
+}
+:is(#app,.audio-panel,.share-recipient-panel,.saved-social-panel,.pp-sheet) :is(.blast-search-submit,.bvn-feed-search button) {
+  color:var(--text,#17191c)!important;
+}
+
+/* Remove filled gray grouping cards without flattening user-created content. */
+#app :is(
+  .ap-card,.ap-stat,.ap-guide,.ct-card,.ct-stats>div,.status-counts>div,
+  .ap-post-summary .ap-stat,.community-post-card,.community-trending-section,
+  .blast-x-rail-card,.blast-x-rail-note,.blast-compose-prompt,
+  .discovery-state,.places-state,.people-match-empty,.exp-empty,
+  .notification-load-status,.notification-row,.settings-transfer-row,
+  .comment-action-preview,.places-card-no-preview,.places-map-backdrop
+) {
+  background:#fff!important;
+  box-shadow:none!important;
+}
+:is(#app,.saved-social-panel,.share-recipient-panel) :is(.ss-body,.ss-foot,.srp-preview) {
+  background:#fff!important;
+  box-shadow:none!important;
+}
+#app :is(.ap-tools-art,.community-post-media,.community-post-media-item) {
+  background:transparent!important;
+}
+#app :is(.community-post-media,.community-post-media-item):has(video) {
+  background:#000!important;
+}
+#app :is(.phone.light,.stories-phone,.stories-phone .screen) {
+  background:#fff!important;
+}
+
+/* White secondary actions and disabled states retain readable labels. */
+:is(#app,.audio-panel,.share-recipient-panel,.saved-social-panel,.pp-sheet) :is(
+  .account-settings-screen .btn.ghost,.auth.ot-auth .btn.ghost,
+  .profile-screen #logout,
+  .profile-note-panel .btn.ghost,.ap-ghost,.ap-btn.ghost,.ct-btn.ghost,
+  .srp-aud button:not(.on):not([aria-pressed=true]),
+  .profile-editor-save-cover:disabled,.settings-save-bar>button:disabled,
+  .community-note-compose-footer button:disabled,.srp-send:disabled
+) {
+  background:#fff!important;
+  color:var(--text,#17191c)!important;
+  border:1px solid var(--line,rgba(22,24,35,.12))!important;
+  box-shadow:none!important;
+}
+#app .conversation-screen .bubble-msg.theirs {
+  background:#fff!important;
+  color:var(--text)!important;
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+#app .conversation-screen :is(.datesep,.chat-archive-notice,.chat-archive-draft) {
+  background:#fff!important;
+}
+#app .nav button.on {
+  background:transparent!important;
+}
+#app .nav:not(.lightnav) button.on {
+  color:#fff;
+}
+#app .nav.lightnav button.on {
+  color:#17191c;
+}
+.toast {
+  background:#fff!important;
+  color:#17191c!important;
+  border:1px solid rgba(22,24,35,.12);
+}
+
+/* Inbox details: an original message-plus mark, a soft search capsule, and clear selection. */
+#app .chat-list-topline {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#app .chat-list-topline .chat-title {
+  min-width:0;
+  max-width:none;
+  flex:1 1 auto;
+  margin:0;
+  text-align:left;
+  font-size:18px;
+}
+#app .chat-list-topline .chat-head-actions {
+  position:static;
+  flex:0 0 auto;
+  margin-left:auto;
+  gap:4px;
+  transform:none;
+}
+#app .chat-search-trigger {
+  min-width:82px;
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 12px;
+  border:0;
+  border-radius:999px;
+  color:#555d66;
+  background:#f1f2f4;
+  font:inherit;
+  font-size:13px;
+  font-weight:550;
+  line-height:1;
+  cursor:pointer;
+}
+#app .chat-search-trigger .navic { width:18px; height:18px; flex:0 0 auto; }
+#app .chat-search-trigger[aria-expanded=true] { color:var(--color-primary,#1456d9); background:#e8f1ff; }
+#app .chat-search-trigger:focus-visible { outline:2px solid rgba(20,86,217,.42); outline-offset:2px; }
+#app .chat-search-wrap,
+#app .discovery-search-wrap {
+  border:0!important;
+  border-radius:999px!important;
+  background:#f1f2f4!important;
+  box-shadow:none!important;
+}
+#app .chat-search-wrap { min-height:44px; padding:0 15px; }
+#app .chatsearch,
+#app .discovery-search {
+  border:0!important;
+  outline:0;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#app .chatsearch::placeholder,
+#app .discovery-search::placeholder { color:#777d85; opacity:1; }
+#app .chat-search-wrap:focus-within,
+#app .discovery-search-wrap:focus-within {
+  border-color:transparent!important;
+  outline:2px solid rgba(20,86,217,.26);
+  outline-offset:2px;
+}
+#app .chat-inbox-empty {
+  min-height:min(50dvh,440px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:32px 18px 24px;
+  color:#17191c;
+  text-align:center;
+}
+#app .chat-inbox-empty-icon { display:grid; place-items:center; color:#5e6874; }
+#app .chat-inbox-empty-icon .navic { width:48px; height:48px; stroke-width:1.55; }
+#app .chat-inbox-empty p { margin:0; font-size:15px; font-weight:600; line-height:1.35; }
+#app .chat-inbox-empty-cta {
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 15px;
+  border:0;
+  border-radius:999px;
+  color:#fff;
+  background:var(--color-primary,#1456d9);
+  font:inherit;
+  font-size:13px;
+  font-weight:650;
+  cursor:pointer;
+}
+#app .chat-inbox-empty-cta .navic { width:17px; height:17px; }
+#app .chat-inbox-empty-cta:hover { background:#1049bd; }
+#app .chat-inbox-empty-cta:focus-visible { outline:2px solid #17191c; outline-offset:3px; }
+@media (max-width:370px) {
+  #app .chat-list-topline { gap:5px; }
+  #app .chat-list-topline .chat-head-actions { gap:1px; }
+  #app .chat-search-trigger { min-width:36px; width:36px; padding:0; }
+  #app .chat-search-trigger span { display:none; }
+  #app .chat-head-icon { width:32px; min-width:32px; }
+}
+
+/* Chat thread palette: near-black sent bubbles, pearly-white received bubbles. Thread-scoped only. */
+#app .conversation-screen .bubble-msg.mine {
+  background:#17191c!important;
+  color:#f8f7f3!important;
+  border:0;
+}
+#app .conversation-screen .bubble-msg.theirs {
+  background:#f6f4ef!important;
+  color:#17191c!important;
+  border:1px solid rgba(23,25,28,.08);
+}
+#app .conversation-screen .bubble-msg :is(a,a:visited) {
+  color:inherit!important;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+#app .conversation-screen .bubble-msg.mine .quote { border-color:rgba(248,247,243,.5)!important; color:rgba(248,247,243,.86)!important; }
+#app .conversation-screen .bubble-msg.theirs .quote { border-color:rgba(23,25,28,.28)!important; color:#4a4e54!important; }
+#app .conversation-screen .bubble-msg :is(.cap,.caption,small) { color:inherit; }
+#app .conversation-screen .bubble-msg.mine .vn-msg :is(button,[data-vspeed]), #app .conversation-screen .bubble-msg.mine .vn-msg > span { color:#f8f7f3!important; }
+#app .conversation-screen .bubble-msg.mine .vn-msg .vn-wave::before { background:rgba(248,247,243,.3)!important; }
+#app .conversation-screen .bubble-msg.mine .vn-msg .vn-wave::after { background:#f8f7f3!important; }
+#app .conversation-screen .bubble-msg.mine .vn-msg .vn-wave i { background:rgba(248,247,243,.82)!important; }
+#app .conversation-screen .bubble-msg.theirs .vn-msg button { color:#17191c!important; }
+#app .conversation-screen .bubble-msg.theirs .vn-msg > span, #app .conversation-screen .bubble-msg.theirs .vn-msg [data-vspeed] { color:#4a4e54!important; }
+#app .conversation-screen .bubble-msg.theirs .vn-msg .vn-wave::before { background:rgba(23,25,28,.14)!important; }
+#app .conversation-screen .bubble-msg.theirs .vn-msg .vn-wave::after { background:#17191c!important; }
+#app .conversation-screen .bubble-msg.theirs .vn-msg .vn-wave i { background:#6b6f76!important; }
+#app .conversation-screen .bubble-msg.mine :is(.message-time,.message-status) { color:rgba(248,247,243,.72)!important; }
+#app .conversation-screen .bubble-msg.theirs :is(.message-time,.message-status) { color:#6b6f76!important; }
+#app .conversation-screen :is(.meta-line,.message-time,.message-status) { color:#6b6f76; }
+
+/* The saved state on media rails uses a filled white bookmark. */
+#app .clip .act[data-save].on .navic,
+#app .clip .act[data-save].on svg,
+#app .post-viewer-screen.post-viewer-media .act[data-save].on .navic,
+#app .post-viewer-screen.post-viewer-media .act[data-save].on svg,
+.blast-screen .blast-post-actions [data-blast-save].is-on .navic,
+.blast-screen .blast-post-actions [data-blast-save].is-on svg {
+  color:#fff!important;
+  fill:#fff!important;
+  stroke:#fff!important;
+  filter:none!important;
+}

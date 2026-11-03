@@ -1,0 +1,38 @@
+.mq-launch{display:block;width:100%;border:0;border-bottom:1px solid var(--color-border,#e5e7eb);background:transparent;color:var(--color-ink,#17191c);padding:16px 12px;text-align:left;font:inherit;font-size:14px;font-weight:600}
+.mq { --mq-ink: var(--text, #17191d); --mq-muted: var(--muted, #747982); --mq-line: var(--line, #e8e8eb); --mq-blue: var(--color-primary, #1456d9); --mq-soft: #f2f4f7;
+  display: flex; flex-direction: column; min-height: 100%; min-width: 0; background: #fff; color: var(--mq-ink); font: 400 13px/1.45 var(--font, Manrope, system-ui, sans-serif); }
+.mq * { box-sizing: border-box; }
+.mq button, .mq select, .mq textarea { font: inherit; color: inherit; }
+.mq :focus-visible { outline: 2px solid var(--mq-blue); outline-offset: 2px; }
+.mq-header { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 34px minmax(0,1fr) auto; align-items: center; gap: 9px; min-height: 52px; padding: calc(env(safe-area-inset-top,0px) + 6px) 12px 6px; border-bottom: 1px solid var(--mq-line); background: #fff; }
+.mq-header h1 { margin: 0; overflow: hidden; font-size: 18px; font-weight: 800; letter-spacing: -.03em; text-overflow: ellipsis; white-space: nowrap; }
+.mq-back { display: grid; width: 34px; height: 34px; place-items: center; padding: 0; border: 1px solid var(--mq-line); border-radius: 50%; background: #fff; cursor: pointer; }
+.mq-back svg { width: 17px; height: 17px; }
+.mq-filter select { min-height: 32px; padding: 0 8px; border: 1px solid var(--mq-line); border-radius: 9px; background: var(--mq-soft); font-size: 12px; font-weight: 700; }
+.mq-scroll { flex: 1 1 auto; overflow-x: hidden; overflow-y: auto; padding: 0 12px calc(80px + env(safe-area-inset-bottom,0px)); }
+.mq-list { margin: 0; padding: 0; list-style: none; }
+.mq-row { display: grid; gap: 7px; min-width: 0; padding: 12px 0; border-bottom: 1px solid var(--mq-line); }
+.mq-row[aria-busy="true"] { opacity: .7; }
+.mq-row-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mq-kind { font-size: 12px; font-weight: 800; text-transform: capitalize; }
+.mq-category { padding: 1px 7px; border-radius: 999px; background: var(--mq-soft); color: var(--mq-muted); font-size: 11px; font-weight: 650; }
+.mq-status { margin-left: auto; font-size: 11px; font-weight: 750; color: var(--mq-muted); }
+.mq-status-open { color: var(--mq-blue); }
+.mq-reason { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mq-muted { color: var(--mq-muted); }
+.mq-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: var(--mq-muted); font-size: 11px; }
+.mq-link { padding: 0; border: 0; background: transparent; color: var(--mq-blue); font-size: 12px; font-weight: 700; cursor: pointer; }
+.mq-note textarea { display: block; width: 100%; resize: vertical; padding: 7px 9px; border: 1px solid var(--mq-line); border-radius: 9px; background: var(--mq-soft); font-size: 12px; }
+.mq-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mq-btn { min-height: 32px; padding: 0 11px; border: 1px solid var(--mq-line); border-radius: 9px; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; transition: background-color .15s ease, opacity .15s ease; }
+.mq-btn.mq-primary { border-color: var(--mq-blue); background: var(--mq-blue); color: #fff; }
+.mq-btn:disabled, .mq-link:disabled { opacity: .5; cursor: default; }
+.mq-row-msg { color: var(--mq-muted); font-size: 11px; }
+.mq-empty { display: grid; gap: 6px; justify-items: start; margin: 14px 0; padding: 15px; border: 1px solid var(--mq-line); border-radius: 12px; background: #f7f8f9; }
+.mq-empty p { margin: 0; color: var(--mq-muted); font-size: 12px; }
+.mq-skeleton { display: grid; gap: 10px; padding: 14px 0; }
+.mq-skeleton span:not(.mq-sr) { display: block; height: 52px; border-radius: 10px; background: #eceef1; animation: mq-pulse 1.2s ease-in-out infinite alternate; }
+.mq-more { display: flex; justify-content: center; padding: 12px 0; }
+.mq-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@keyframes mq-pulse { from { opacity: .5; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mq-skeleton span { animation: none; } }

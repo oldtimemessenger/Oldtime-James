@@ -1,0 +1,156 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "MbYdFj0LVArDsN0otmrFx"
+uri = "file://generated-artifacts/oldtime-original-base-head.png"
+type = "image"
+title = "Alter Ego — current 3D foundation prototype"
+description = "Actual browser render of the new CC0-derived character. This is progress for review, not the finished premium avatar studio."
+logical_id = "9fc8c78c-6716-4f28-9f8f-4a17a9826be5"
+content_hash = "sha256:9e66f06ca9a0ab68dbfa897f2057b14b65ab0c07d1e1fc42b3a70dde23814e0d"
+size = 199181
+mtime_ms = 1791643890329
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/9fc8c78c-6716-4f28-9f8f-4a17a9826be5/62adba0e-a7d9-4c38-8958-5d778f82e21a"
+storage_version_token = "1791643943752832"
+content_type = "image/png"
+
+[[outputs]]
+id = "XvX_A5h_Z3Nt3rp96RTwd"
+uri = "file://generated-artifacts/alter-ego-portrait-direction.png"
+type = "image"
+title = "Alter Ego — updated portrait-style prototype"
+description = "Actual render of the rotatable 3D character, with more natural proportions and fine hair strands. This is not an AI-generated portrait or a finished studio."
+logical_id = "ed22661f-27c9-43e3-b4df-df8ba2e809cf"
+content_hash = "sha256:c6e13c1ddd9748c12b5320c0e4f044a0fffefc211bf87d08d83ee64c01596b40"
+size = 266067
+mtime_ms = 1791645556409
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/ed22661f-27c9-43e3-b4df-df8ba2e809cf/c5263e98-4ee4-469c-9066-9fed73393a8c"
+storage_version_token = "1791645700612467"
+content_type = "image/png"
+
+[[outputs]]
+id = "3wq7xhjEzZH3p3vbtnf0s"
+uri = "file://generated-artifacts/storage-audit/oldtime-storage-bandwidth-audit.html"
+type = "html"
+title = "Oldtime storage and bandwidth audit"
+description = "Read-only findings, all 73 files, exact cleanup candidates, retained copies, and bandwidth recommendations. Nothing deleted."
+logical_id = "91ce2b66-678f-48ff-a825-2b0121d4419c"
+content_hash = "sha256:23beb930baf25c45856ee1032073ec1f917857148366c978bf685de725abaa99"
+size = 90661
+mtime_ms = 1792672907612
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/91ce2b66-678f-48ff-a825-2b0121d4419c/c04c3c24-7fac-4c8f-9264-82adde33e800"
+storage_version_token = "1792673010262685"
+content_type = "text/html"
+
+[[outputs]]
+id = "bTQIQqixQGrYWH4Jhi2O8"
+uri = "file://generated-artifacts/storage-audit/proposed-cleanup.csv"
+type = "table"
+title = "Proposed cleanup — approval required"
+description = "Exact 14-file proposal and 13 unused media-registry rows; estimated storage savings 10.78 MB. This does not reset cached egress."
+logical_id = "c0ad50e8-1f9f-4eb6-9e12-b10482b4bc70"
+content_hash = "sha256:f4a8fc2ef641df46d8beee639fe664e788e77026795670622ca807167c4cfa50"
+size = 7246
+mtime_ms = 1792672907952
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/c0ad50e8-1f9f-4eb6-9e12-b10482b4bc70/1e3b94ca-3e28-4b9f-ac68-6178d3862efc"
+storage_version_token = "1792673011223472"
+content_type = "text/csv"
+
+[[outputs]]
+id = "gqYWLw6RIBZgmH8EjBix5"
+uri = "file://generated-artifacts/storage-audit/completed-cleanup.csv"
+type = "table"
+title = "Completed cleanup — exact files removed"
+description = "14 approved files removed; 10.78 MB freed; 13 unused registry rows retired. All seven retained copies verified. Remaining storage: 59 files, 117.48 MB."
+logical_id = "da963620-313b-4531-9c12-d14ba81ef763"
+content_hash = "sha256:f85d4fed1a40172a17d98a5339c39b70143bb392e833e08f6efd3e0b7360ab88"
+size = 4474
+mtime_ms = 1792674168360
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/da963620-313b-4531-9c12-d14ba81ef763/9a77f160-d1ec-4e50-90db-6822899f00f0"
+storage_version_token = "1792674356102553"
+content_type = "text/csv"
+
+[[outputs]]
+id = "jobvPZ4sGjaUILTtqfSct"
+uri = "file://artifacts/oldtimehive/docs/platform-release-review.html"
+type = "html"
+title = "Old Time — compatibility and release review"
+description = "Added-music diagnosis, platform audit, verified tests, required iPhone steps, Capacitor/PWA comparison and release gates."
+logical_id = "277e0f23-f1a5-4a40-82de-7045676c2876"
+content_hash = "sha256:4167c8ec261d5670dd8fb5189e62bcb1bc40c18191aeb782dde243c36faec10e"
+size = 16058
+mtime_ms = 1793235127233
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/277e0f23-f1a5-4a40-82de-7045676c2876/ab8663cf-3f06-4f34-abd6-9629aa026805"
+storage_version_token = "1793235357065954"
+content_type = "text/html"
+
+[[outputs]]
+id = "SU5BImh76I0Z7ASl1AcRd"
+uri = "file://node_modules/.cache/oldtime-profile-owner-preview.png"
+type = "image"
+title = "Updated owner profile preview"
+description = "Mobile browser preview: no dashboard or header views; the owner has a full-width Edit profile button and a three-dot actions control. The counts are placeholders from the isolated test fixture."
+logical_id = "d65492f4-3463-4868-84a0-5aa726e15663"
+content_hash = "sha256:83231648af680325234c4c61f19c478d2b497f1230c4609d843fcb774d44ede9"
+size = 48943
+mtime_ms = 1793284401290
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/d65492f4-3463-4868-84a0-5aa726e15663/e1796e71-369c-4e4d-9b3c-c7754ffbfd30"
+storage_version_token = "1793284410862140"
+content_type = "image/png"
+
+[[outputs]]
+id = "PXp7q5loidyWf-ONXchyK"
+uri = "file://generated-artifacts/oldtime-cloudflare-release-check.md"
+type = "text"
+title = "Cloudflare schema updates — applied and verified"
+description = "Both approved migrations are applied. Live site and API checks pass. Worker and Pages publication has not been performed."
+logical_id = "2a819ca2-2353-4f66-892c-4293384d396e"
+content_hash = "sha256:447889443e5d79af9d5e87b2d64aa7d98e10dad667fa1b53ded31cb808032a61"
+size = 4021
+mtime_ms = 1793493948048
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/2a819ca2-2353-4f66-892c-4293384d396e/a7a69b12-efcf-4021-b3e2-d48dab185edf"
+storage_version_token = "1793493980547955"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "yMcLnHvwBr33fHgP3ADUn"
+uri = "file://generated-artifacts/oldtime-current-source-audit.md"
+type = "text"
+title = "Oldtime — latest source and build audit"
+description = "Source comparison, build provenance, Worker validation, live read-only evidence, unfinished scope and all 149 changed files. No publication performed."
+logical_id = "a1a6a8f6-3386-479a-9c36-89125d9aeb8f"
+content_hash = "sha256:8dff8206015b1f2006024e52506b71157d1710dae93cf6130f355c0c29af170f"
+size = 15330
+mtime_ms = 1793496208925
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/a1a6a8f6-3386-479a-9c36-89125d9aeb8f/20f0e492-b2ed-44ba-b53f-a95925bd3085"
+storage_version_token = "1793496223982915"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "rF2O5goNUf_JxA3g3bOU8"
+uri = "file://generated-artifacts/oldtime-release-file-inventory.tsv"
+type = "unspecified"
+title = "Complete release file inventory"
+description = "Every changed application, backend, contract, test and release-document file compared with the last verified Pages source label."
+logical_id = "3211e129-a243-47b7-a688-a21ad8a74280"
+content_hash = "sha256:5a6775c409c5e083fa7b686de95629ea8486c2ff8e1a7d8926fefdf2ac732b5b"
+size = 10984
+mtime_ms = 1793496208921
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/3211e129-a243-47b7-a688-a21ad8a74280/7bb12a06-1da5-406e-8c84-9068d6daaa9a"
+storage_version_token = "1793496224486505"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "aals9y0mf8wbSmUi7I5xe"
+uri = "file://generated-artifacts/action-rail-size-match.html"
+type = "html"
+title = "Action rail — size-matched preview"
+description = "A standalone 146×417 preview matching the screenshot’s black rail, outlined heart, comment bubble, bookmark, counts, proportions, and spacing. This does not change the live app."
+logical_id = "822e5bf9-7955-4488-9a52-6afdb75a7566"
+content_hash = "sha256:43b7aedc30fac56add662515de6713b69230f7fc2287490d43e40277e47cf92b"
+size = 1734
+mtime_ms = 1793634641837
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:9bab1a25-ae8a-41a1-8f0f-0c31fc73fa00/822e5bf9-7955-4488-9a52-6afdb75a7566/00f06d8a-1f3f-4153-b8eb-d95921e60e8d"
+storage_version_token = "1793634663315301"
+content_type = "text/html"

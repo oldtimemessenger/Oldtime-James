@@ -1,0 +1,1 @@
+Oldtime private Cloudflare R2 connectivity check. Safe to delete.

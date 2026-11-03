@@ -1,0 +1,85 @@
+.auth.ot-auth{--ot-ink:#17191c;--ot-muted:#6b6f76;--ot-field-ink:#17191c;--ot-line:#e5e7eb;--ot-red:#b42318;
+  background:#fff;color:var(--ot-ink);padding:0 20px calc(24px + env(safe-area-inset-bottom,0px));gap:0;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;font-family:var(--font,system-ui,sans-serif);color-scheme:light}
+.ot-auth *{box-sizing:border-box}
+.ot-auth > *{width:100%;max-width:420px;margin-left:auto;margin-right:auto;flex-shrink:0}
+.ot-auth .ot-art{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin:max(16px,env(safe-area-inset-top)) auto 16px;width:100%;aspect-ratio:auto;min-height:112px;max-height:none;border-radius:0;overflow:visible;background:transparent;flex:none;align-self:center}
+.ot-auth .ot-art img{width:48px;height:76px;object-fit:contain;object-position:center;display:block;flex:none}
+.ot-auth .ot-eyebrow{margin:0 0 6px;font-size:11px;font-weight:var(--fw-strong);letter-spacing:.16em;text-transform:uppercase;color:var(--ot-muted)}
+.ot-auth h1{margin:0 0 6px;font-family:var(--font-heading);font-size:var(--fs-page);line-height:var(--lh-heading);font-weight:var(--fw-heading);letter-spacing:-.03em;color:var(--ot-ink)}
+.ot-auth .ot-lede{margin:0 0 16px;font-size:14px;line-height:1.45;color:var(--ot-muted)}
+.ot-auth .ot-rule{height:1px;width:44px;background:rgba(255,255,255,.35);margin:0 0 14px;border:0}
+.ot-auth .auth-form{display:flex;flex-direction:column;gap:10px;width:100%}
+.ot-auth .ot-label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:var(--fw-strong);color:var(--ot-ink)}
+.ot-auth .ot-label small{font-weight:var(--fw-caption);color:var(--ot-muted)}
+#app .auth.ot-auth .field{background:#eef2f7!important;border:1px solid #e2e7ef!important;border-radius:12px!important;padding:11px 12px;font-size:16px;font-weight:var(--fw-body);color:var(--ot-field-ink)!important;min-height:48px;font-family:inherit;box-shadow:none!important;transition:border-color .16s,background-color .16s}
+#app .auth.ot-auth .field::placeholder{color:#687181;opacity:1}
+#app .auth.ot-auth .field:focus{outline:0!important;background:#eef2f7!important;border-color:#1456d9!important;box-shadow:none!important}
+#app .auth.ot-auth .field:-webkit-autofill,
+#app .auth.ot-auth .field:-webkit-autofill:hover,
+#app .auth.ot-auth .field:-webkit-autofill:focus,
+#app .auth.ot-auth .field:autofill{background:#eef2f7!important;-webkit-box-shadow:0 0 0 1000px #eef2f7 inset!important;box-shadow:0 0 0 1000px #eef2f7 inset!important;-webkit-text-fill-color:#17191c!important;caret-color:#17191c}
+.ot-auth #err{font-weight:700;min-height:18px;margin:0;font-size:13px;font-weight:var(--fw-control);color:var(--ot-red)}
+.ot-auth .auth-success{min-height:18px;margin:0;font-size:13px;font-weight:var(--fw-control);color:#236b45}
+.ot-auth .btn{min-height:44px;border-radius:999px;font-size:15px;font-weight:var(--fw-strong);font-family:inherit;cursor:pointer;transition:transform .12s,opacity .16s}
+.ot-auth .btn:active{transform:scale(.985)}
+.ot-auth .btn.primary{background:#1456d9;color:#fff;border:1px solid #1456d9}
+.ot-auth .btn.primary:disabled{opacity:.55}
+.ot-auth .btn.ghost{background:#f2f4f7;color:#17191c;border:1px solid #e5e7eb}
+.ot-auth .btn.auth-link{display:block;width:100%;min-height:36px;padding:4px 8px;background:transparent;border:0;color:var(--ot-muted);font-size:13px;text-align:center}
+.ot-auth .btn.auth-link strong{color:var(--ot-ink);font-weight:var(--fw-strong)}
+.ot-auth .ot-switch{margin:16px 0 10px;text-align:center;font-size:14px;color:var(--ot-ink);display:flex;flex-direction:column;gap:10px}
+.ot-auth .ot-switch span{color:var(--ot-muted)}
+.ot-auth > :is(.ot-eyebrow,h1,.auth-form,.ot-switch,.ot-rule){margin-left:auto;margin-right:auto}
+.ot-auth .auth-step-back{align-self:flex-start;width:auto;min-height:36px;margin:0 0 4px;padding:4px 8px;background:transparent;border:0;color:#1456d9;font:inherit;font-size:16px;text-align:left;cursor:pointer}
+.ot-auth .auth-step-back:focus-visible{outline:2px solid #1456d9;outline-offset:2px}
+.ot-auth .signup-form{gap:14px}
+.ot-auth .signup-step{display:flex;flex-direction:column;gap:14px;width:100%}
+.ot-auth .signup-step[hidden]{display:none!important}
+.ot-auth .signup-name-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ot-auth .signup-policy-copy{margin:0;color:var(--ot-ink);font-size:14px;line-height:1.5}
+.ot-auth .signup-policy-copy a{color:#1456d9;text-decoration:none}
+.ot-auth .signup-policy-copy a:hover{text-decoration:underline}
+.ot-auth .signup-policy-copy a[aria-disabled=true]{color:var(--ot-muted);pointer-events:none}
+.ot-auth .signup-policy-unavailable{margin:0;color:var(--ot-red);font-size:13px;line-height:1.4}
+.ot-auth .signup-login{width:100%;margin-top:4px}
+.ot-auth-login .ot-art{margin:max(16px,env(safe-area-inset-top)) auto 20px}
+.ot-auth-login h1{margin:0 0 18px;font-size:clamp(24px,6vw,28px)}
+.ot-auth-login .auth-form{gap:14px}
+.ot-auth-login .field{min-height:48px}
+.ot-auth-login .ot-switch{flex-direction:row;align-items:center;justify-content:center;gap:2px;margin-top:16px}
+.ot-auth-login .ot-switch .btn.auth-link{width:auto;min-height:32px;padding:4px;color:#1456d9;text-align:left;font-size:14px}
+.ot-auth-login .ot-switch .btn.auth-link:focus-visible{outline:2px solid #1456d9;outline-offset:2px}
+@media (max-width:360px){.ot-auth .signup-name-fields{grid-template-columns:1fr}}
+@media (max-height:640px){.ot-auth .ot-art{min-height:94px;margin-bottom:8px}.ot-auth .ot-art img{width:38px;height:58px}}
+@media (max-height:640px){.ot-auth-login .ot-art{margin-bottom:12px}}
+
+/* Keep the signup steps compact and prevent native date inputs from widening the page. */
+#app .auth.ot-auth:not(.ot-auth-login) .ot-art{width:100%;max-height:none;margin:max(12px,env(safe-area-inset-top,0px)) auto 8px}
+#app .auth.ot-auth:not(.ot-auth-login) .auth-step-back{min-height:30px;margin-bottom:0}
+#app .auth.ot-auth:not(.ot-auth-login) .ot-lede{margin-bottom:10px}
+#app .auth.ot-auth:not(.ot-auth-login) .signup-form,
+#app .auth.ot-auth:not(.ot-auth-login) .signup-step{gap:10px}
+#app .auth.ot-auth:not(.ot-auth-login) .signup-login{margin-top:8px}
+#app .auth.ot-auth:not(.ot-auth-login) #err:empty,
+#app .auth.ot-auth:not(.ot-auth-login) .auth-success:empty{display:none;min-height:0}
+#app .auth.ot-auth .auth-form,
+#app .auth.ot-auth .signup-step,
+#app .auth.ot-auth .ot-label{min-width:0;max-width:100%}
+#app .auth.ot-auth .field{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+
+/* Signup interest picker */
+.ot-auth .signup-interests{border:0;margin:0;padding:0;min-width:0}
+.ot-auth .signup-interests legend{padding:0;margin-bottom:10px}
+.ot-auth .signup-interest-grid{display:flex;flex-wrap:wrap;gap:7px;max-height:min(46dvh,330px);overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.ot-auth .signup-interest{min-height:38px;padding:0 14px;border:1px solid var(--ot-line);border-radius:999px;background:#fbfcfe;color:var(--ot-ink);font-family:inherit;font-size:13px;font-weight:600;line-height:1;cursor:pointer;transition:transform .14s ease,background-color .14s ease,color .14s ease}
+.ot-auth .signup-interest:active{transform:scale(.96)}
+.ot-auth .signup-interest.selected{border-color:#2449c8;background:#2449c8;color:#fbfcfe}
+.ot-auth .signup-interest:focus-visible,.ot-auth .signup-follow-oldtime input:focus-visible{outline:2px solid #2449c8;outline-offset:2px}
+.ot-auth .signup-interest-count{margin:10px 0 0;color:var(--ot-muted);font-size:12px;font-weight:600}
+.ot-auth .signup-interest-count.is-ready{color:#2449c8}
+.ot-auth .signup-follow-oldtime{display:flex;align-items:flex-start;gap:10px;margin:14px 0 4px;padding:12px;border:1px solid var(--ot-line);border-radius:12px;cursor:pointer}
+.ot-auth .signup-follow-oldtime input{flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;accent-color:#2449c8}
+.ot-auth .signup-follow-oldtime span{display:grid;gap:3px}
+.ot-auth .signup-follow-oldtime b{font-size:13.5px;color:var(--ot-ink)}
+.ot-auth .signup-follow-oldtime small{font-size:12px;color:var(--ot-muted);line-height:1.35}
+@media (prefers-reduced-motion:reduce){.ot-auth .signup-interest{transition:none}}

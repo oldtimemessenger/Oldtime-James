@@ -1,0 +1,172 @@
+/* Keep the reference's compact outline treatment consistent on media posts.
+   Community text-only cards intentionally remain on their existing styles. */
+#app #feed .clip:not(.post-detail) .rail,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail {
+  right:6px;
+  width:44px;
+  gap:24px;
+}
+#app #feed .clip:not(.post-detail) .rail .act,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail .act {
+  min-width:44px;
+  min-height:44px;
+  gap:2px;
+  font-size:12px;
+  line-height:1.1;
+}
+#app #feed .clip:not(.post-detail) .rail .act:is([data-like],[data-comment],[data-save],[data-share]) .navic,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail .act:is([data-like],[data-comment],[data-save],[data-share]) .navic {
+  width:30px;
+  height:30px;
+  stroke-width:1.75;
+}
+#app #feed .clip:not(.post-detail) .rail .act-count,
+#app #feed .clip:not(.post-detail) .rail .act-label,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail .act-count,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail .act-label {
+  font-size:12px;
+  line-height:1.1;
+}
+#app .post-viewer-screen.post-viewer-media .clip.post-detail > .rail {
+  bottom:calc(76px + env(safe-area-inset-bottom,0px));
+}
+#app #feed .clip:not(.post-detail) .meta {
+  right:60px;
+}
+#app #feed .clip:not(.post-detail) .handle,
+#app .post-viewer-media .post-viewer-media-info .meta .handle {
+  gap:7px;
+  font-size:15px;
+  font-weight:600;
+  line-height:1.25;
+}
+#app #feed .clip:not(.post-detail) .feed-author-avatar,
+#app .post-viewer-media .post-viewer-media-info .meta .feed-author-avatar {
+  width:32px;
+  height:32px;
+}
+#app #feed .clip:not(.post-detail) .feed-author-name,
+#app .post-viewer-media .post-viewer-media-info .meta .feed-author-name {
+  font-size:15px;
+  font-weight:600;
+  line-height:1.25;
+}
+#app #feed .clip:not(.post-detail) .followpill,
+#app .post-viewer-media .post-viewer-media-info .meta .followpill {
+  font-size:12px;
+}
+#app #feed .clip:not(.post-detail) .cap,
+#app .post-viewer-screen.post-viewer-media .clip.post-detail .meta .cap {
+  margin-top:7px;
+  font-size:14px;
+  font-weight:400;
+  line-height:19px;
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-media-info .meta .caption-more {
+  color:rgba(255,255,255,.82);
+}
+#app #feed .clip:not(.post-detail) .feed-top-comment-copy {
+  font-size:14px;
+}
+#app #feed .clip:not(.post-detail) .feed-top-comment-author {
+  font-size:12px;
+}
+#app #feed .clip:not(.post-detail) .soundbar-copy,
+#app .post-viewer-screen.post-viewer-media .post-viewer-media-info .soundbar-copy {
+  font-size:13px;
+}
+
+#app .post-viewer-screen.post-viewer-media .post-viewer-topbar > button {
+  min-width:44px;
+  min-height:44px;
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-topbar > button .navic,
+#app .post-viewer-screen.post-viewer-media .post-viewer-download svg {
+  width:22px;
+  height:22px;
+  stroke-width:1.75;
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-media-info {
+  left:14px;
+  right:60px;
+  bottom:calc(70px + env(safe-area-inset-bottom,0px))!important;
+  align-items:stretch;
+  gap:4px;
+  max-height:calc(100% - 318px - env(safe-area-inset-bottom,0px));
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-media-info .soundbar {
+  max-width:calc(100% - 16px);
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-composer-form {
+  min-height:44px;
+  height:44px;
+}
+#app .post-viewer-screen.post-viewer-media #post-viewer-composer-input {
+  font-size:15px;
+  line-height:1.3;
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-composer-form > img,
+#app .post-viewer-screen.post-viewer-media .post-viewer-composer-form .post-viewer-footer-send {
+  width:36px;
+  height:36px;
+  flex-basis:36px;
+}
+#app .post-viewer-screen.post-viewer-media .post-viewer-composer-form .post-viewer-footer-send .navic {
+  width:21px;
+  height:21px;
+  stroke-width:1.75;
+}
+
+/* Community text-only cards are not selected by these media-only selectors. */
+#app .community-video-card .cvc-sound svg {
+  width:20px;
+  height:20px;
+  stroke-width:1.75;
+}
+#app .community-video-card .cvc-identity b,
+#app .community-post-card:has(.community-post-media) .community-post-identity b,
+#app .community-post-card:has(.community-attachment-grid) .community-post-identity b {
+  font-size:15px;
+  line-height:1.2;
+}
+#app .community-video-card .cvc-identity small,
+#app .community-post-card:has(.community-post-media) .community-post-identity small,
+#app .community-post-card:has(.community-attachment-grid) .community-post-identity small {
+  font-size:12px;
+  line-height:1.2;
+}
+#app .community-video-card .cvc-caption,
+#app .community-post-card:has(.community-post-media) .community-post-copy,
+#app .community-post-card:has(.community-attachment-grid) .community-post-copy {
+  font-size:14px;
+  font-weight:400;
+  line-height:19px;
+}
+#app .community-video-card .cvc-actions button {
+  min-height:44px;
+  gap:6px;
+  font-size:12px;
+}
+#app .community-video-card .cvc-actions button .navic {
+  width:24px;
+  height:24px;
+  stroke-width:1.75;
+}
+#app .community-post-card:has(.community-post-media) .community-post-actions button,
+#app .community-post-card:has(.community-attachment-grid) .community-post-actions button {
+  min-height:44px;
+  gap:5px;
+  font-size:12px;
+}
+#app .community-post-card:has(.community-post-media) .community-post-actions button .navic,
+#app .community-post-card:has(.community-attachment-grid) .community-post-actions button .navic {
+  width:24px;
+  height:24px;
+  stroke-width:1.75;
+}
+#app .community-post-card:has(.community-post-media) .community-post-actions button > span,
+#app .community-post-card:has(.community-attachment-grid) .community-post-actions button > span {
+  font-size:12px;
+  line-height:1.1;
+}
+

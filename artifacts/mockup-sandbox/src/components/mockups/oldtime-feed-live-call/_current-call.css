@@ -1,0 +1,84 @@
+/* Extracted from the current Old Time call UI styles in app/styles.css. */
+.ot-app-call-current {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  color: #fff;
+  background: rgba(9,10,13,.82);
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.ot-app-call-current *,
+.ot-app-call-current *::before,
+.ot-app-call-current *::after { box-sizing: border-box; }
+.ot-app-call-current button,
+.ot-app-call-current textarea { color: inherit; font: inherit; }
+.ot-app-call-current button { cursor: pointer; }
+.ot-app-call-current .ot-card { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; background: #111318; }
+.ot-app-call-current .ot-call-stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 32%,#34323a 0,#1b1c22 50%,#111318 100%); }
+.ot-app-call-current .ot-current-remote { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ot-app-call-current .ot-call-shade { position: absolute; z-index: 2; inset: 0; pointer-events: none; background: linear-gradient(180deg,rgba(9,10,13,.52),transparent 25%,transparent 48%,rgba(9,10,13,.18) 65%,rgba(9,10,13,.68)); }
+.ot-app-call-current .ot-call-top { position: absolute; z-index: 4; inset: calc(max(15px,env(safe-area-inset-top,0px)) + 2px) 18px auto; display: flex; align-items: center; justify-content: space-between; }
+.ot-app-call-current .ot-call-brand { color: rgba(255,255,255,.73); font-size: 9px; font-weight: 800; letter-spacing: .15em; }
+.ot-app-call-current .ot-call-brand i { display: inline-block; width: 3px; height: 3px; margin: 0 6px 2px; border-radius: 50%; background: #e9c37b; }
+.ot-app-call-current .ot-call-top-actions { display: flex; gap: 9px; }
+.ot-app-call-current .ot-call-top-actions button { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; background: rgba(18,19,23,.45); backdrop-filter: blur(12px); }
+.ot-app-call-current .ot-call-top-actions svg { width: 18px; height: 18px; }
+.ot-app-call-current .ot-call-top-actions button:last-child svg { transform: rotate(135deg); }
+.ot-app-call-current .ot-call-copy { position: absolute; z-index: 3; inset: auto 18px 22px; display: grid; justify-items: center; gap: 6px; text-align: center; }
+.ot-app-call-current .ot-call-eyebrow { color: #e7c47f; font-size: 9px; font-weight: 850; letter-spacing: .17em; }
+.ot-app-call-current .ot-call-copy h2,
+.ot-app-call-current .ot-post-call h2 { margin: 0; color: #fff; font-family: Georgia,"Times New Roman",serif; font-size: clamp(27px,7vw,37px); font-weight: 500; letter-spacing: -.035em; line-height: 1.05; }
+.ot-app-call-current .ot-call-copy p { min-height: 16px; margin: 1px 0 0; color: rgba(255,255,255,.88); font-size: 12px; }
+.ot-app-call-current .ot-call-copy small { color: rgba(255,255,255,.65); font-size: 10px; }
+.ot-app-call-current .ot-self-view { position: absolute; z-index: 4; top: calc(max(68px,env(safe-area-inset-top,0px) + 56px)); right: 16px; width: clamp(82px,23vw,118px); aspect-ratio: 3 / 4; overflow: hidden; border: 1px solid rgba(255,255,255,.44); border-radius: 16px; background: linear-gradient(145deg,#34353b,#1a1b20); box-shadow: 0 8px 30px rgba(0,0,0,.32); }
+.ot-app-call-current .ot-self-view img { width: 100%; height: 100%; object-fit: cover; }
+.ot-app-call-current .ot-self-off { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.78); font-size: 10px; }
+.ot-app-call-current .ot-self-label { position: absolute; right: 7px; bottom: 7px; padding: 4px 6px; border-radius: 6px; background: rgba(0,0,0,.44); font-size: 8px; font-weight: 800; letter-spacing: .12em; }
+.ot-app-call-current .ot-call-controls { z-index: 3; flex: 0 0 auto; padding: 16px 18px calc(18px + env(safe-area-inset-bottom,0px)); background: #15171c; }
+.ot-app-call-current .ot-call-actions { display: flex; justify-content: center; gap: clamp(15px,6vw,34px); }
+.ot-app-call-current .ot-control { display: grid; justify-items: center; align-content: center; gap: 8px; width: 58px; min-height: 70px; padding: 3px 0; border: 0; border-radius: 17px; background: transparent; color: #fff; }
+.ot-app-call-current .ot-control > svg { width: 22px; height: 22px; }
+.ot-app-call-current .ot-control small { color: rgba(255,255,255,.75); font-size: 9px; font-weight: 650; }
+.ot-app-call-current .ot-control.is-selected { background: rgba(255,255,255,.1); }
+.ot-app-call-current .ot-control.ot-end-call { background: #d94f59; }
+.ot-app-call-current .ot-control.ot-end-call svg { transform: rotate(135deg); }
+.ot-app-call-current .ot-call-privacy { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 15px 0 0; color: rgba(255,255,255,.48); font-size: 9px; text-align: center; }
+.ot-app-call-current .ot-call-privacy span { width: 5px; height: 5px; border-radius: 50%; background: #83bf9c; }
+.ot-app-call-current .ot-post-call { align-items: center; justify-content: center; padding: calc(24px + env(safe-area-inset-top,0px)) 22px calc(24px + env(safe-area-inset-bottom,0px)); background: radial-gradient(ellipse at 50% 14%,rgba(178,151,108,.13),transparent 34%),#141519; text-align: center; }
+.ot-app-call-current .ot-post-brand { position: absolute; top: calc(23px + env(safe-area-inset-top,0px)); left: 22px; right: 22px; color: rgba(255,255,255,.73); font-size: 9px; font-weight: 800; letter-spacing: .15em; text-align: left; }
+.ot-app-call-current .ot-post-brand span { color: #e7c47f; }
+.ot-app-call-current .ot-post-content { display: grid; justify-items: center; width: min(100%,360px); gap: 13px; }
+.ot-app-call-current .ot-post-avatar { position: relative; width: 74px; height: 74px; margin-bottom: 3px; }
+.ot-app-call-current .ot-post-avatar img { width: 100%; height: 100%; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; object-fit: cover; }
+.ot-app-call-current .ot-post-avatar > span { position: absolute; right: -2px; bottom: -1px; display: grid; width: 25px; height: 25px; place-items: center; border: 3px solid #141519; border-radius: 50%; background: #dfbd76; color: #16171a; }
+.ot-app-call-current .ot-post-avatar svg { width: 13px; height: 13px; }
+.ot-app-call-current .ot-post-call h2 { font-size: clamp(30px,8vw,39px); }
+.ot-app-call-current .ot-post-content > p,
+.ot-app-call-current .ot-post-thanks > p { margin: 0; color: rgba(255,255,255,.65); font-size: 12px; line-height: 1.55; }
+.ot-app-call-current .ot-call-stars { display: flex; justify-content: center; gap: 8px; padding: 4px 0 7px; }
+.ot-app-call-current .ot-call-stars button { display: grid; width: 42px; height: 42px; place-items: center; border: 0; border-radius: 13px; background: rgba(255,255,255,.07); color: rgba(255,255,255,.38); }
+.ot-app-call-current .ot-call-stars button.on { background: rgba(231,196,127,.16); color: #e7c47f; }
+.ot-app-call-current .ot-call-stars svg { width: 20px; height: 20px; }
+.ot-app-call-current .ot-call-note-label { display: flex; justify-content: space-between; width: 100%; color: rgba(255,255,255,.9); font-size: 11px; font-weight: 700; text-align: left; }
+.ot-app-call-current .ot-call-note-label span { color: rgba(255,255,255,.44); font-size: 8px; letter-spacing: .1em; }
+.ot-app-call-current .ot-post-content textarea { width: 100%; min-height: 82px; resize: vertical; padding: 12px 13px; border: 1px solid rgba(255,255,255,.13); border-radius: 13px; outline: none; background: rgba(255,255,255,.055); color: #fff; font-size: 12px; }
+.ot-app-call-current .ot-post-content textarea::placeholder { color: rgba(255,255,255,.38); }
+.ot-app-call-current .ot-call-note-count { justify-self: end; margin-top: -9px; color: rgba(255,255,255,.4); font-size: 9px; }
+.ot-app-call-current .ot-post-primary { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 48px; margin-top: 3px; border: 0; border-radius: 14px; background: #e7c47f; color: #1b1a17; font-size: 12px; font-weight: 800; }
+.ot-app-call-current .ot-post-primary:disabled { background: rgba(231,196,127,.25); color: rgba(255,255,255,.43); }
+.ot-app-call-current .ot-post-primary svg { width: 16px; height: 16px; }
+.ot-app-call-current .ot-post-skip { padding: 7px 12px; border: 0; background: transparent; color: rgba(255,255,255,.63); font-size: 11px; }
+.ot-app-call-current .ot-post-thanks { gap: 17px; }
+.ot-app-call-current .ot-thanks-mark { display: grid; width: 57px; height: 57px; place-items: center; border: 1px solid rgba(231,196,127,.36); border-radius: 50%; background: rgba(231,196,127,.11); color: #e7c47f; }
+.ot-app-call-current .ot-thanks-mark svg { width: 22px; height: 22px; }
+.ot-app-call-current .ot-post-thanks > p { max-width: 270px; }
+.ot-app-call-current .ot-post-thanks .ot-post-primary { width: min(100%,320px); margin-top: 12px; }
+.ot-app-call-current button:focus-visible,
+.ot-app-call-current textarea:focus-visible { outline: 2px solid #e7c47f; outline-offset: 3px; }
+@media (min-width: 760px) {
+  .ot-app-call-current { padding: 20px; }
+  .ot-app-call-current .ot-card { width: min(100%,490px); height: min(920px,calc(100dvh - 40px)); margin: auto; border: 1px solid rgba(255,255,255,.13); border-radius: 30px; box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+}

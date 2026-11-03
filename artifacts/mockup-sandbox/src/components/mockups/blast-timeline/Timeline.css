@@ -1,0 +1,147 @@
+/*
+ * A denser, continuous treatment for the existing Blast post stream.
+ * Stories, feed controls, header, and navigation deliberately remain untouched.
+ */
+.blast-timeline-refresh .community-content-grid {
+  gap: 0;
+  padding: 0;
+}
+
+.blast-timeline-refresh .community-post-card {
+  min-width: 0;
+  margin: 0;
+  padding: 13px 15px 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(37, 35, 41, 0.12);
+  border-radius: 0;
+  background: #fff;
+  color: #252329;
+}
+
+.blast-timeline-refresh .community-post-author-row {
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.blast-timeline-refresh .community-post-avatar {
+  width: 37px;
+  height: 37px;
+  flex-basis: 37px;
+  background: #7a838c;
+}
+
+.blast-timeline-refresh .community-post-card:nth-child(2) .community-post-avatar {
+  background: #a36d58;
+}
+
+.blast-timeline-refresh .community-post-identity {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.blast-timeline-refresh .community-post-identity b {
+  min-width: 0;
+  flex: 0 1 auto;
+  color: #211f24;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.blast-timeline-refresh .community-post-identity small {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: #68666d;
+  font-size: 11px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blast-timeline-refresh .community-post-copy {
+  margin: 8px 0 0 47px;
+  width: calc(100% - 47px);
+  color: #252329;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.012em;
+}
+
+.blast-timeline-refresh .community-post-media {
+  margin: 10px 0 0 47px;
+  max-width: calc(100% - 47px);
+  gap: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 35, 41, 0.12);
+  border-radius: 12px;
+  background: #f1efef;
+}
+
+.blast-timeline-refresh .community-post-media-item {
+  background: #e8e5e4;
+}
+
+.blast-timeline-refresh .community-post-media-item img {
+  object-fit: cover;
+}
+
+.blast-timeline-refresh .community-post-actions {
+  min-height: 38px;
+  margin: 5px 0 0 39px;
+  gap: 4px;
+}
+
+.blast-timeline-refresh .community-post-actions button {
+  min-width: 42px;
+  min-height: 38px;
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 9px;
+  color: #54515a;
+  font-size: 11px;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.blast-timeline-refresh .community-post-actions button .navic {
+  width: 18px;
+  height: 18px;
+}
+
+.blast-timeline-refresh .community-post-actions button.is-active {
+  color: #bd3342;
+}
+
+.blast-timeline-refresh .community-post-actions button:active {
+  background: rgba(198, 55, 70, 0.08);
+}
+
+.blast-timeline-refresh .community-post-copy:focus-visible,
+.blast-timeline-refresh .community-post-media-item:focus-visible,
+.blast-timeline-refresh .community-post-actions button:focus-visible {
+  outline: 2px solid #a92e3b;
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  .blast-timeline-refresh .community-post-card {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .blast-timeline-refresh .community-post-copy,
+  .blast-timeline-refresh .community-post-media {
+    margin-left: 44px;
+    width: calc(100% - 44px);
+    max-width: calc(100% - 44px);
+  }
+
+  .blast-timeline-refresh .community-post-actions {
+    margin-left: 36px;
+  }
+}

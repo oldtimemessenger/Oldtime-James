@@ -1,0 +1,56 @@
+/* Profile header refinement: equal social count cards, compact meta row, rounded full-width actions. */
+.edit-profile-screen .profile-editor-avatar-section input[type="file"] { display:none; }
+.edit-profile-screen .profile-editor-cover-preview { grid-column:1/-1; width:100%; height:72px; object-fit:cover; border-radius:12px; }
+.edit-profile-screen .profile-editor-cover-preview[hidden] { display:none; }
+/* Legacy generated identities may remain in saved records; never erase uploaded photos. */
+img[src*="/brand/avatars/"],
+img[src*="linearGradient%20id%3D%22tone%22"] { visibility:hidden; }
+.profile-intro .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+.profile-intro .profile-stats {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:10px;
+  margin-top:14px; color:#17191c; font-size:13px;
+}
+.profile-intro .profile-stats > .profile-count-card {
+  display:flex; align-items:center; gap:10px; min-width:0; min-height:58px;
+  padding:9px 12px; border-radius:14px;
+  background:rgba(247,249,255,.95); box-shadow:0 6px 18px -12px rgba(14,30,80,.55);
+  white-space:normal;
+}
+.profile-count-faces { display:flex; flex:0 0 auto; }
+.profile-count-faces img {
+  width:30px; height:30px; border-radius:50%; object-fit:cover;
+  border:2px solid #f7f9ff; background:#dfe6f7;
+}
+.profile-count-faces img + img { margin-left:-11px; }
+.profile-count-text { display:flex; flex-direction:column; min-width:0; line-height:1.15; }
+.profile-intro .profile-stats > span b {
+  color:#17191c; font-size:clamp(20px,5.2vw,24px); font-weight:var(--fw-strong);
+  letter-spacing:-.035em; line-height:1; font-variant-numeric:tabular-nums;
+}
+.profile-count-text small { color:#17191c; font-size:12.5px; font-weight:var(--fw-control); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.profile-meta-row {
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; margin-top:12px;
+  font-size:13px; text-shadow:none;
+}
+.profile-meta-row > .profile-city,
+.profile-meta-row > .profile-interest-list { margin:0; gap:6px; }
+.profile-meta-row > .profile-city { color:rgba(255,255,255,.9); }
+.profile-meta-row .profile-interest-chip { font-size:13px; }
+.profile-meta-icon { display:inline-grid; place-items:center; color:#fff; }
+.profile-meta-icon svg,.profile-meta-icon .navic { width:16px; height:16px; }
+.profile-meta-row > .profile-add-interests { flex-basis:100%; width:max-content; max-width:100%; }
+
+.profile-intro .profile-primary-actions { margin-top:14px; }
+.profile-intro .profile-edit-primary,
+.profile-intro .profile-follow-button { min-height:46px; border-radius:14px; border-color:rgba(255,255,255,.9); background:#f7f9ff; color:#16213d; }
+.profile-intro .profile-follow-button[aria-pressed="false"] { background:#1f4fd1; border-color:#1f4fd1; color:#fff; }
+.profile-intro .profile-icon-action { flex-basis:46px; width:46px; height:46px; border-radius:14px; }
+
+@media (max-width:360px) {
+  .profile-intro .profile-stats { gap:8px; }
+  .profile-intro .profile-stats > .profile-count-card { gap:7px; padding:8px 9px; }
+  .profile-count-faces img { width:24px; height:24px; }
+  .profile-count-faces img + img { margin-left:-9px; }
+}

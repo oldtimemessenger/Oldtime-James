@@ -1,0 +1,21 @@
+# The format of this file is identical to `.dockerignore`.
+# It is used to reduce the size of deployed images to make the process of publishing faster.
+
+# No need to store the pnpm store twice.
+.local
+/generated-artifacts/
+**/.wrangler/
+/attached_assets/*.glb
+/attached_assets/*.zip
+**/media-data/
+
+# Exclude local credentials from publishing.
+.env
+.env.*
+.dev.vars
+credentials.json
+*.p8
+*.p12
+*.mobileprovision
+*.jks
+*.keystore

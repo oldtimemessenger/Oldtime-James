@@ -1,0 +1,8 @@
+.interest-custom-entry { min-width:0; margin-top:12px; }
+.interest-custom-entry > div { display:flex; align-items:flex-end; gap:8px; min-width:0; }
+.interest-custom-entry label { display:grid; flex:1; min-width:0; gap:5px; color:var(--ink,#17191c); font:500 12px/1.4 var(--font); }
+.interest-custom-entry input { box-sizing:border-box; width:100%; min-width:0; height:40px; padding:8px 10px; border:1px solid #dfe2e8; border-radius:10px; background:transparent; color:inherit; font:400 16px var(--font); }
+.interest-custom-entry button { flex:none; min-height:40px; padding:0 14px; border:0; border-radius:10px; color:#fff; background:var(--color-primary,#1456d9); font:600 13px var(--font); }
+.interest-entry-status { margin:5px 0 0; color:var(--muted,#666); font:400 12px/1.4 var(--font); overflow-wrap:anywhere; }
+.interest-entry-status:empty { display:none; }
+.profile-interest-option,.signup-interest-grid .signup-interest { max-width:100%; min-width:0; overflow-wrap:anywhere; white-space:normal; }

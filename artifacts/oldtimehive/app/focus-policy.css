@@ -1,0 +1,12 @@
+/* Editable controls live both in the app shell and in body-mounted sheets. */
+:root body :is(input, textarea, select, [contenteditable="true"], [contenteditable=""]):is(:focus, :focus-visible) {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keep normal caret, text selection, copying and keyboard navigation intact. */
+:root body :is(button, a, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+}

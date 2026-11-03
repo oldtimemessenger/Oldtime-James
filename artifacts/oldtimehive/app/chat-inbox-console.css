@@ -1,0 +1,83 @@
+/* Messages inbox: one row of round story photos (own first) with note bubbles, then a plain list. */
+#app .chat-list-screen .cic { --cic-blue:#1456d9; --cic-ink:#17191c; --cic-gray:#6b6f76; --cic-line:#e5e7eb; --cic-seen:#d5d8dd;
+  position:relative; padding:4px 0 8px; background:transparent; border-bottom:1px solid var(--cic-line); max-width:100%; overflow:hidden; }
+#app .chat-list-screen .cic-head { position:absolute; top:2px; right:8px; z-index:3; }
+#app .chat-list-screen .cic-head:empty { display:none; }
+#app .chat-list-screen .cic-pause { width:32px; height:32px; display:grid; place-items:center; padding:0; border:0; border-radius:50%; color:var(--cic-gray); background:transparent; }
+#app .chat-list-screen .cic-pause[aria-pressed="true"] { color:var(--cic-blue); }
+#app .chat-list-screen .cic-pause .navic { width:16px; height:16px; }
+#app .chat-list-screen .cic-track { list-style:none; margin:0; padding:2px 14px 2px; display:flex; flex-wrap:nowrap; gap:14px; overflow-x:auto; overflow-y:hidden;
+  scroll-snap-type:x proximity; scroll-padding:0 14px; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+#app .chat-list-screen .cic-track::-webkit-scrollbar { display:none; }
+#app .chat-list-screen .cic-track:focus-visible { outline:2px solid var(--cic-blue); outline-offset:-2px; border-radius:10px; }
+/* Space above photos is reserved only when some card in the row has a note bubble. */
+#app .chat-list-screen .cic-card { position:relative; flex:0 0 72px; width:72px; min-width:0; scroll-snap-align:start; display:grid; gap:4px; align-content:start; padding-top:0; }
+#app .chat-list-screen .cic-track:has(.cic-note) .cic-card { padding-top:40px; }
+#app .chat-list-screen .cic-card[hidden], #app .chat-list-screen .cic-card.is-new { display:none; }
+#app .chat-list-screen .cic-open { display:grid; justify-items:center; gap:4px; width:72px; padding:0; border:0; background:transparent; color:var(--cic-ink); text-align:center; cursor:pointer; }
+#app .chat-list-screen .cic-avatar-wrap { position:relative; display:block; width:72px; }
+#app .chat-list-screen .cic-story-add { position:absolute; top:48px; right:1px; z-index:2; display:grid; place-items:center; width:24px; height:24px; min-height:24px; padding:2px; border:2px solid var(--bg,#fff); border-radius:50%; background:var(--cic-blue); color:#fff; }
+#app .chat-list-screen .cic-story-add svg { width:16px; height:16px; }
+#app .chat-list-screen .cic-open:focus-visible { outline:2px solid var(--cic-blue); outline-offset:3px; border-radius:50%; }
+#app .chat-list-screen .cic-portrait { position:relative; display:block; width:64px; height:64px; border-radius:50%; }
+#app .chat-list-screen .cic-photo { display:block; width:64px; height:64px; border-radius:50%; object-fit:cover; background:#f2f4f7; border:1px solid var(--cic-line); box-shadow:none; transform:none; transition:none; }
+#app .chat-list-screen .cic-initial { display:grid; place-items:center; color:var(--cic-gray); }
+#app .chat-list-screen .cic-initial .navic { width:28px; height:28px; }
+#app .chat-list-screen .cic-card.has-story .cic-photo { border:2px solid #fff; outline:2px solid var(--cic-blue); outline-offset:0; }
+#app .chat-list-screen .cic-card.has-story.is-seen .cic-photo { outline-color:var(--cic-seen); }
+#app .chat-list-screen .cic-card.is-close .cic-photo { outline-color:var(--close-friends-ring,#35a85b); }
+#app .chat-list-screen .cic-add-story { position:absolute; right:-1px; bottom:-1px; display:grid; place-items:center; width:22px; height:22px;
+  border:2px solid #fff; border-radius:50%; background:var(--cic-blue); color:#fff; pointer-events:none; }
+#app .chat-list-screen .cic-add-story .navic { width:13px; height:13px; stroke-width:2.5; }
+#app .chat-list-screen .cic-name { max-width:72px; overflow:hidden; color:var(--cic-gray); font-size:11.5px; font-weight:500; line-height:14px; text-overflow:ellipsis; white-space:nowrap; }
+#app .chat-list-screen .cic-note { position:absolute; left:-4px; right:-4px; top:0; min-height:32px; max-height:36px; z-index:2; display:flex; align-items:center; justify-content:center; overflow:visible;
+  margin:0; padding:4px 7px; border:1px solid var(--cic-line); border-radius:14px; color:var(--cic-ink); background:#fff; font:inherit; font-size:11px; line-height:13px; text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.06); cursor:pointer; }
+#app .chat-list-screen .cic-note::after { content:""; position:absolute; bottom:-5px; left:50%; width:8px; height:8px; margin-left:-4px; border-right:1px solid var(--cic-line); border-bottom:1px solid var(--cic-line); border-radius:0 0 3px 0; background:inherit; transform:rotate(45deg); }
+#app .chat-list-screen .cic-note-text { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; overflow-wrap:anywhere; }
+#app .chat-list-screen .cic-note.is-empty { color:var(--cic-gray); }
+#app .chat-list-screen .cic-card.is-featured .cic-note { background:#eef3fa; }
+#app .chat-list-screen .cic-note:focus-visible { outline:2px solid var(--cic-blue); outline-offset:2px; }
+#app .chat-list-screen .cic-card-action { min-height:28px; padding:0; display:flex; gap:3px; align-items:center; justify-content:center; border:0; background:none; color:var(--cic-gray); font-size:11px; }
+#app .chat-list-screen .cic-card-action .navic { width:13px; height:13px; }
+#app .chat-list-screen .cic-empty { margin:4px 14px 0; color:var(--cic-gray); font-size:12.5px; }
+
+/* Plain conversation list with round profile pictures. */
+#app .chat-list-screen .chat-inbox-row { min-height:64px; gap:12px; padding:8px 14px; background:#fff; border-bottom:0; }
+#app .chat-list-screen .chat-inbox-avatar { width:52px; height:52px; flex:0 0 52px; padding:0; border-radius:50%; background:#f2f4f7; }
+#app .chat-list-screen .chat-inbox-avatar.has-story { padding:2px; background:#1456d9; }
+#app .chat-list-screen .chat-inbox-avatar img { border:0; border-radius:50%; }
+#app .chat-list-screen .chat-inbox-avatar.has-story img { border:2px solid #fff; border-radius:50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  #app .chat-list-screen .cic-card, #app .chat-list-screen .cic-note, #app .chat-list-screen .cic-photo { transition:none; }
+}
+
+/* Add status: compact bottom sheet (native popover=auto; scoped to #csc-chooser only). */
+#app .chat-list-screen #csc-chooser.csc-chooser{--csc-bg:#fff;--csc-ink:#17191c;--csc-gray:#6b6f76;--csc-line:#e5e7eb;--csc-tile:#f4f6f9;--csc-blue:#1456d9;
+  position:fixed;inset:auto 0 0 0;top:auto;width:min(480px,100%);max-width:100%;max-height:calc(100dvh - 48px);overflow:auto;box-sizing:border-box;margin:0 auto;
+  padding:6px 16px calc(16px + env(safe-area-inset-bottom,0px));display:none;flex-direction:column;gap:0;z-index:1500;
+  background:var(--csc-bg);color:var(--csc-ink);border:0;border-top:1px solid var(--csc-line);border-radius:18px 18px 0 0;box-shadow:0 -8px 28px rgba(15,20,30,.14);font:inherit}
+#app .chat-list-screen #csc-chooser.csc-chooser[hidden]:not(:popover-open){display:none}
+#app .chat-list-screen #csc-chooser.csc-chooser:popover-open{display:flex;animation:csc-up .2s ease-out}
+#app .chat-list-screen #csc-chooser.csc-chooser::backdrop{background:rgba(10,14,20,.32)}
+@keyframes csc-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+#app .chat-list-screen #csc-chooser .csc-grip{align-self:center;width:36px;height:4px;border-radius:2px;background:var(--csc-line);margin:0 0 6px}
+#app .chat-list-screen #csc-chooser .csc-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px}
+#app .chat-list-screen #csc-chooser .csc-sheet-title{margin:0;font-size:17px;font-weight:650;line-height:22px;color:var(--csc-ink)}
+#app .chat-list-screen #csc-chooser .csc-sheet-close{width:48px;height:48px;margin-right:-12px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--csc-gray);min-height:0;box-shadow:none}
+#app .chat-list-screen #csc-chooser .csc-sheet-close .navic{width:22px;height:22px}
+#app .chat-list-screen #csc-chooser .csc-sheet-desc{display:flex;align-items:center;gap:6px;margin:0 0 14px;color:var(--csc-gray);font-size:13px;line-height:18px}
+#app .chat-list-screen #csc-chooser .csc-sheet-desc .navic{width:15px;height:15px;flex:0 0 15px}
+#app .chat-list-screen #csc-chooser .csc-sources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#app .chat-list-screen #csc-chooser .csc-source{display:grid;justify-items:center;align-content:center;gap:4px;min-height:104px;min-width:48px;margin:0;padding:12px 6px;
+  border:1px solid var(--csc-line);border-radius:14px;background:var(--csc-tile);color:var(--csc-ink);font:inherit;text-align:center;box-shadow:none;cursor:pointer;transition:transform .12s ease,opacity .12s ease}
+#app .chat-list-screen #csc-chooser .csc-source:active{transform:scale(.97)}
+#app .chat-list-screen #csc-chooser .csc-source:focus-visible,#app .chat-list-screen #csc-chooser .csc-sheet-close:focus-visible{outline:2px solid var(--csc-blue);outline-offset:2px}
+#app .chat-list-screen #csc-chooser .csc-source-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--csc-bg);color:var(--csc-blue);margin-bottom:2px}
+#app .chat-list-screen #csc-chooser .csc-source-ic .navic{width:22px;height:22px}
+#app .chat-list-screen #csc-chooser .csc-source-label{font-size:13.5px;font-weight:600;line-height:17px}
+#app .chat-list-screen #csc-chooser .csc-source-sub{font-size:11.5px;line-height:14px;color:var(--csc-gray)}
+@media (max-width:340px){#app .chat-list-screen #csc-chooser .csc-sources{grid-template-columns:1fr}#app .chat-list-screen #csc-chooser .csc-source{min-height:56px;grid-template-columns:40px 1fr;justify-items:start;text-align:left;column-gap:12px}#app .chat-list-screen #csc-chooser .csc-source-ic{grid-row:span 2;margin:0}}
+@media (prefers-color-scheme:dark){#app .chat-list-screen #csc-chooser.csc-chooser{--csc-bg:#16181d;--csc-ink:#eceef2;--csc-gray:#9aa0a8;--csc-line:#2b2f36;--csc-tile:#1e2128;--csc-blue:#5b8ef0}#app .chat-list-screen #csc-chooser.csc-chooser::backdrop{background:rgba(0,0,0,.5)}}
+@media (prefers-reduced-motion:reduce){#app .chat-list-screen #csc-chooser.csc-chooser:popover-open{animation:none}#app .chat-list-screen #csc-chooser .csc-source{transition:none}}
