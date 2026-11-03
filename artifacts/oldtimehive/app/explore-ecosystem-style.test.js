@@ -27,3 +27,11 @@ test("Cloud Explore uses the shared blue focus and compact touch targets", () =>
   assert.match(explore, /\.xe-ghost, \.xe-save\s*\{[^}]*min-height:\s*44px/);
   assert.match(explore, /\.xe-empty\s*\{[^}]*padding:\s*28px 24px 32px/);
 });
+
+test("Search keeps Oldtime chrome while using a staggered visual discovery grid", () => {
+  assert.match(search, /\.search-screen \.xe-grid\\s*\\{[^}]*grid-auto-flow:\\s*dense;[^}]*grid-auto-rows:\\s*1px;[^}]*padding:\\s*10px 12px 20px/s);
+  assert.match(search, /\.search-screen \.xe-card:nth-child\\(6n \\+ 1\\)\\s*\\{\\s*grid-row:\\s*span 27/s);
+  assert.match(search, /\.search-screen \.xe-card \.xe-tile\\s*\\{[^}]*border-radius:\\s*14px/s);
+  assert.match(search, /\.search-screen \.xe-card \.xe-cap-topic\\s*\\{[^}]*background:\\s*#f0f3f9/s);
+  assert.match(search, /prefers-reduced-motion:\\s*reduce/);
+});
