@@ -4,7 +4,7 @@ import { ART_HOLES } from "./status-sticker-art.js";
 import { ART_SIZE, questionAnswerSeed } from "./status-sticker-editor.js";
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const label = s => s.title || ({ questions: "Questions", trendsetters: "Add Yours", "hey-world": "Add Yours", answer: "Answer" }[s.kind]);
+const label = s => s.title || ({ questions: "Questions", trendsetters: "Add your own", "hey-world": "Add your own", answer: "Answer" }[s.kind]);
 const safePosition = (n, fallback, min = 0, max = 1) => Math.max(min, Math.min(max, Number.isFinite(Number(n)) ? Number(n) : fallback));
 
 export function mountStoryStickerInteractions(view, story, { onCreate, onOpenStory, toast = () => {} } = {}) {
@@ -120,7 +120,7 @@ export function mountStoryStickerInteractions(view, story, { onCreate, onOpenSto
   }
   async function trend(sticker) {
     const content = openDialog(label(sticker));
-    content.innerHTML = `<p class="ss-prompt">${esc(sticker.prompt)}</p><button class="ss-primary" data-ss-join>Add Yours</button>
+    content.innerHTML = `<p class="ss-prompt">${esc(sticker.prompt)}</p><button class="ss-primary" data-ss-join>Add your own</button>
       <div class="ss-participants" aria-label="Swipe through participants"></div><button class="ss-more" hidden>More</button><p class="ss-message" role="status"></p>`;
     content.querySelector("[data-ss-join]").onclick = () => startJoin(sticker);
     const list = content.querySelector(".ss-participants"), more = content.querySelector(".ss-more"), message = content.querySelector("[role=status]");
@@ -153,7 +153,7 @@ export function mountStoryStickerInteractions(view, story, { onCreate, onOpenSto
     if (!["questions", "trendsetters", "hey-world"].includes(sticker.kind)) continue;
     const button = document.createElement("button");
     button.type = "button"; button.className = "ss-hit";
-    button.setAttribute("aria-label", sticker.kind === "questions" ? (owned ? "Open your private questions" : sticker.prompt || "Ask a question") : `${label(sticker)} — Add Yours`);
+    button.setAttribute("aria-label", sticker.kind === "questions" ? (owned ? "Open your private questions" : sticker.prompt || "Ask a question") : `${label(sticker)} — Add your own`);
     button.style.cssText = `left:${safePosition(sticker.x, .5) * 100}%;top:${safePosition(sticker.y, .55) * 100}%;width:${safePosition(sticker.width, .7, .15) * 100}%;height:${safePosition(sticker.height, .24, .08, .8) * 100}%;transform:translate(-50%,-50%) rotate(${safePosition(sticker.rotation, 0, -180, 180)}deg)`;
     if (!story.hasMedia) { button.classList.add("ss-hit-visible"); button.textContent = `${sticker.title || label(sticker)} · ${sticker.prompt || "Ask me anything"}`; }
     button.onclick = e => {
