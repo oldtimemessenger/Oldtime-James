@@ -125,11 +125,15 @@
 .sc-stk-card b{font-size:14px;font-weight:800;padding:0 2px}
 .sc-stk-card small{font-size:11.5px;line-height:1.3;color:#5d5870;padding:0 2px}
 .sc-stk-card:not(:disabled):active{transform:scale(.97)}
-.sc-stk-thumb{display:grid;place-items:center;height:78px;border-radius:12px;background:#efe9fd;overflow:hidden;position:relative}
-.sc-stk-thumb img{max-width:92%;max-height:70px;object-fit:contain}
-.sc-stk-questions .sc-stk-thumb{background:#fff;border:1px solid #e4def5;align-content:start;padding:0}
-.sc-stk-questions .sc-stk-thumb i{display:block;width:100%;height:24px;background:#6a3fd8}
-.sc-stk-questions .sc-stk-thumb em{font-style:normal;font-weight:700;font-size:12px;background:#efe9fd;border-radius:8px;padding:8px 10px;margin:9px 8px 0}
+.sc-stk-thumb{display:grid;place-items:center;height:78px;border-radius:12px;background:#edf2ff;overflow:hidden;position:relative;padding:5px}
+.sc-stk-mini{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:9px;background:#fff;box-shadow:0 2px 7px #1112;padding:5px;box-sizing:border-box;text-align:center}
+.sc-stk-mini b{font-size:7px;letter-spacing:.08em;color:#667085;font-weight:800}
+.sc-stk-mini i{font-style:normal;font-size:10px;line-height:1.15;font-weight:800;color:#17191c}
+.sc-stk-mini em{font-style:normal;font-size:7px;line-height:1.2;font-weight:800;border-radius:999px;padding:5px 8px;background:#1456d9;color:#fff}
+.sc-stk-mini-questions{background:linear-gradient(#1456d9 0 48%,#fff 48%);gap:3px}
+.sc-stk-mini-questions b,.sc-stk-mini-questions i{color:#fff}
+.sc-stk-mini-questions em{background:#f0f2f6;color:#667085;width:84%}
+.sc-stk-mini-trendsetters,.sc-stk-mini-hey-world{background:#fff}
 /* Sticker text form */
 .sc-stk-form{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;flex-direction:column;gap:10px;background:#fbfaff;color:#16141c;
   border-radius:22px 22px 0 0;padding:16px 16px calc(var(--sc-kb,0px) + env(safe-area-inset-bottom,0px) + 14px)}
