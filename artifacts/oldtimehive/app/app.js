@@ -7533,14 +7533,14 @@ function search() {
             ? `<div class="sub" role="status">No matching Oldtime accounts.</div>` : "";
     input = `<input class="search" id="q" placeholder="People, posts, #tags, places" value="${esc(searchQ)}" />`;
     body = `<div class="chips classic-search-tags">${tags.map(tag => `<button class="chip" data-tag="${esc(tag)}">#${esc(tag)}</button>`).join("")}</div>
-      ${users.map(user => `<button class="listbtn search-person" data-profile="${esc(user.id)}"><img data-avatar-hit ${profileMediaSource(user.avatar)} alt="" />
+      ${users.map(user => `<button class="listbtn search-person" data-profile="${esc(user.id)}"><img data-avatar-hit ${profileMediaSource(user.avatar)} alt="" loading="lazy" decoding="async" fetchpriority="low" />
         <div><b>${esc(user.name || user.username)}</b><div class="sub">@${esc(user.username)}</div></div></button>`).join("")}
       ${peopleStatus}
       <div class="grid3 classic-search-grid">${posts.slice(0, 12).map(post => {
         const media = profilePostMedia(post)[0] || "";
         const attrs = isLocalMedia(media) ? `data-local-media="${esc(media)}" data-local-media-owner="${esc(post.author)}"` : `src="${esc(renderMediaUrl(media))}"`;
         return `<button class="cell" data-open="${esc(post.id)}">${post.creativeProject ? creativeMediaMarkup(post, esc, false, true) : media ?
-          (post.kind === "video" ? `<video ${attrs} muted></video>` : `<img ${attrs} />`) :
+          (post.kind === "video" ? `<video ${attrs} muted playsinline preload="none"></video>` : `<img ${attrs} alt="" loading="lazy" decoding="async" fetchpriority="low" />`) :
           `<div class="textpost"><p>${esc(post.caption.slice(0, 30))}</p></div>`}</button>`;
       }).join("")}</div>
       ${!users.length && !posts.length && !peopleStatus ? `<div class="empty">${searchQ.trim() ? "No results. Try a username, name, hashtag, or place." : "Search for people, posts, hashtags, or places."}</div>` : ""}`;
