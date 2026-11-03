@@ -1,4 +1,5 @@
 const paths = {
+  chevronRight: '<path d="m9 18 6-6-6-6"/>',
   up: '<path d="m6 14 6-6 6 6"/>',
   down: '<path d="m6 10 6 6 6-6"/>',
   home: '<path d="M3.5 10.5 11 3.8a1.5 1.5 0 0 1 2 0l7.5 6.7M5.5 9.4v10.1h5v-6h4v6h4V9.4"/>',
