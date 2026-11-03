@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 
 const search = readFileSync(new URL("./search-discovery.css", import.meta.url), "utf8");
 const explore = readFileSync(new URL("./explore-ecosystem.css", import.meta.url), "utf8");
+const exploreJs = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
+const appJs = readFileSync(new URL("./app.js", import.meta.url), "utf8");
 
 test("Explore controls stay compact, reachable, and inside the mobile viewport", () => {
   assert.match(search, /\.search-screen \.page\s*\{\s*padding:\s*0 0 calc\(78px \+ env\(safe-area-inset-bottom, 0px\)\)/);
@@ -44,4 +46,20 @@ test("Search video cards reuse the Places post layout without restyling other ti
   assert.match(search, /\.explore-video-card \.places-post-caption\s*\{[^}]*font-size:\s*11px;[^}]*font-weight:\s*600/s);
   assert.match(search, /\.explore-video-card \.places-post-author img\s*\{[^}]*width:\s*22px;[^}]*height:\s*22px/s);
   assert.match(search, /\.explore-feed-grid:has\(\.explore-video-card\)/);
+});
+
+test("Search's upper video rail follows the Places media and creator layout", () => {
+  assert.match(exploreJs, /<article class="discovery-video-card places-post">/);
+  assert.match(exploreJs, /class="places-post-media"/);
+  assert.match(exploreJs, /class="places-post-caption"/);
+  assert.match(exploreJs, /class="places-post-author" data-xe-profile=/);
+  assert.match(search, /\.search-screen \.discovery-video-card \.places-post-media\s*\{[^}]*aspect-ratio:\s*\.78;[^}]*border-radius:\s*9px/s);
+  assert.match(search, /\.search-screen \.discovery-video-track\s*\{[^}]*overflow-x:\s*auto/s);
+});
+
+test("Search filter menu supports Escape, arrow navigation, and focus restoration", () => {
+  assert.match(appJs, /aria-controls="discover-browse-menu"/);
+  assert.match(appJs, /event\.key === "Escape"/);
+  assert.match(appJs, /event\.key === "ArrowDown" \|\| event\.key === "ArrowUp"/);
+  assert.match(appJs, /closeDiscoverMenu\(\{ restoreFocus: true \}\)/);
 });
