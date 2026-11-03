@@ -14,11 +14,9 @@ test("shared UI foundations load alongside Community feed styles", () => {
   assert.match(foundations, /--ot-color-border:/);
 });
 
-test("Community feed maps its key surfaces and controls to shared semantic tokens", () => {
-  assert.ok(community.includes(".cf-screen {\n  background: var(--ot-color-page"));
-  assert.ok(community.includes(".cf-feed-tabs button[aria-current=page]:after {\n  background: var(--ot-color-brand"));
-  assert.ok(community.includes(".cf-dialog {\n  border-color: var(--ot-color-border"));
-  assert.ok(community.includes("border-radius: var(--ot-radius-xl"));
-  assert.ok(community.includes(".cf-primary {\n  border-radius: var(--ot-radius-pill"));
-  assert.ok(community.includes(".cf-dialog :focus-visible {\n  outline-color: var(--ot-color-brand"));
+test("Community keeps its established colors while sharing consistent control sizing", () => {
+  assert.match(community, /\.cf-screen \{ background:#fff; color:#14171c; \}/);
+  assert.match(community, /\.cf-primary[^}]*background:#1555d8/s);
+  assert.match(community, /\.cf-dialog \{\s*border-radius: var\(--ot-radius-xl, 20px\);\s*\}/);
+  assert.match(community, /\.cf-primary \{\s*border-radius: var\(--ot-radius-pill, 24px\);\s*\}/);
 });
