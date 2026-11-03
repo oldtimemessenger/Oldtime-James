@@ -242,3 +242,46 @@
   #storyview.storyview *::before,
   #storyview.storyview *::after { transition-duration:.01ms!important; animation-duration:.01ms!important; }
 }
+
+/* Instagram-inspired segmented progress, driven by the existing Story timer. */
+#storyview.storyview > .story-progress {
+  display:flex;
+  align-items:center;
+  gap:3px;
+  height:3px;
+  overflow:visible;
+  background:transparent;
+}
+#storyview.storyview > .story-progress > .story-progress-segment {
+  position:relative;
+  display:block;
+  flex:1 1 0;
+  min-width:0;
+  height:3px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.36);
+  box-shadow:0 1px 7px rgba(0,0,0,.24);
+}
+#storyview.storyview > .story-progress > .story-progress-segment.is-complete > b {
+  width:100%;
+}
+#storyview.storyview > .story-progress > .story-progress-segment > b {
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,.36);
+}
+#storyview.storyview > .story-progress > .story-progress-segment.is-active > b {
+  will-change:width;
+}
+@media (min-width:700px) {
+  #storyview.storyview > .story-progress {
+    gap:4px;
+  }
+  #storyview.storyview > .story-progress > .story-progress-segment {
+    height:3px;
+  }
+}
