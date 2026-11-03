@@ -150,3 +150,19 @@ test("Story viewer warms only the next authorized image and respects reduced mot
   assert.match(immersive, /story-stage-arrive/);
   assert.match(immersive, /prefers-reduced-motion:reduce/);
 });
+
+test("app-wide action controls use a consistent menu and contextual icon language", () => {
+  const icons = readFileSync(new URL("./icons.js", import.meta.url), "utf8");
+  const menu = readFileSync(new URL("./post-actions-menu.js", import.meta.url), "utf8");
+  const visual = readFileSync(new URL("./app-wide-visual-language.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/app-wide-visual-language\.css"/);
+  assert.match(js, /mine \? ic\.menu : ic\.tune/);
+  assert.match(js, /aria-label="Comment actions">\$\{ic\.tune\}/);
+  assert.match(js, /aria-label="Reply actions">\$\{ic\.tune\}/);
+  assert.match(menu, /icons\.tune \|\| icons\.more/);
+  assert.match(icons, /tune: '<path d="M4 6h16M4 12h16M4 18h16"/);
+  assert.match(visual, /\.profile-actions-open/);
+  assert.match(visual, /min-height:40px/);
+  assert.match(visual, /min-height:44px/);
+  assert.match(visual, /prefers-reduced-motion:reduce/);
+});
