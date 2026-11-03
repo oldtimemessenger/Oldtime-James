@@ -61,7 +61,7 @@ import { sharedStatusTarget } from "./status-sharing.js";
 import { listSavedPosts, setPostSaved } from "./saved-collections.js";
 import { audioTitle } from "./audio-library.js";
 import { isLocalMedia, renderMediaUrl, hydrateLocalMedia, observeCloudMedia, mediaUrl, loadFeedVideo, putLocalMedia, deleteLocalMedia } from "./local-media.js";
-import { FEED_VIDEO_PREFETCH_ROOT_MARGIN, prefetchFeedVideoMetadata } from "./feed-video-prefetch.js";
+import { FEED_VIDEO_PREFETCH_ROOT_MARGIN, prefetchFeedVideoMetadata, shouldPrefetchFeedVideo } from "./feed-video-prefetch.js";
 import { rankHomeRecommendations } from "./home-feed-ranking.js";
 import { readFeedSoundMuted, saveFeedSoundMuted } from "./feed-sound-preference.js";
 import { finishStartup } from "./startup.js";
@@ -2550,6 +2550,7 @@ function observeVideos() {
       }
     };
     prefetchObserver = new IntersectionObserver(entries => {
+      if (!shouldPrefetchFeedVideo()) return;
       entries
         .filter(entry => entry.isIntersecting && !queued.has(entry.target))
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
