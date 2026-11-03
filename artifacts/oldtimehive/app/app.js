@@ -5,6 +5,7 @@ import { unreadInboxCount } from "./inbox-unread.js";
 import { openAccountDeletion } from "./account-deletion.js";
 import { reconcileActiveScreen } from "./keyed-ui.js";
 import { releasePostVideos } from "./media-release.js";
+import { selectFeedVideoCandidate } from "./feed-video-focus.js";
 import { installAvatarFallbacks } from "./avatar-fallback.js";
 import { feedFollowButton } from "./feed-follow.js";
 import { tipIllustration } from "./tip-illustrations.js";
@@ -2643,19 +2644,28 @@ function observeVideos() {
       delete v.dataset.playbackStartPending;
     }
   };
-  feedObserver = new IntersectionObserver((ents) => ents.forEach(en => {
+  feedObserver = new IntersectionObserver(ents => {
     if (floatingVideoCleanup) return;
-    const v = en.target;
-    if (en.isIntersecting) {
-      if (activeFeedVideo && activeFeedVideo !== v) activeFeedVideo.pause();
-      activeFeedVideo = v;
-      v.muted = muted;
-      void startPlayback(v);
-    } else {
-      v.pause();
-      if (activeFeedVideo === v) activeFeedVideo = null;
+    const candidate = selectFeedVideoCandidate(ents);
+    if (candidate) {
+      if (activeFeedVideo && activeFeedVideo !== candidate) activeFeedVideo.pause();
+      activeFeedVideo = candidate;
+      candidate.muted = muted;
+      void startPlayback(candidate);
     }
-  }), { threshold: 0.65 });
+    for (const entry of ents) {
+      const video = entry.target;
+      if (video === candidate) continue;
+      if (!entry.isIntersecting) {
+        video.pause();
+        if (activeFeedVideo === video) activeFeedVideo = null;
+      } else if (candidate && video !== candidate) {
+        // Multiple cards can cross the threshold in one frame; only the clearest one plays.
+        video.pause();
+        if (activeFeedVideo === video) activeFeedVideo = null;
+      }
+    }
+  }, { threshold: 0.65 });
   vids.forEach(v => {
     const item=api.post(v.dataset.id);if(item)trackQualifiedView(item,v.closest(".clip")||v,"feed");
     prefetchObserver?.observe(v);
