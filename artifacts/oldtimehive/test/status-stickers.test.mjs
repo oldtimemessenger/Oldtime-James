@@ -12,7 +12,7 @@ test("sticker metadata shape, defaults and limits", () => {
   assert.ok(isUuid(q.id));
   assert.equal(q.prompt, "Ask me anything");
   assert.doesNotMatch(JSON.stringify(DEFAULT_PROMPTS), /Ask OldTime/i);
-  assert.equal(STICKER_CTA, "Add Yours");
+  assert.equal(STICKER_CTA, "Add your own");
   assert.deepEqual([q.x, q.y, q.width, q.rotation], [.5, .55, .7, 0]);
   updateStickerText(q, { title: "t".repeat(90), prompt: "p".repeat(200) });
   assert.equal(q.title.length, 60); assert.equal(q.prompt.length, 140);
@@ -85,7 +85,7 @@ test("editor wiring: seeds survive source choice, Fit/Fill, stickers in preview 
   assert.match(src, /pointers\.size >= 2/);
   assert.match(art, /status-stickers\/trendsetters\.png/); assert.match(art, /status-stickers\/hey-world\.png/);
   for (const s of [src, art]) { assert.doesNotMatch(s, /Ask OldTime/i); assert.doesNotMatch(s, /\p{Extended_Pictographic}/u); }
-  assert.match(art, /Add Yours/); assert.match(art, /1456d9/i);
+  assert.match(art, /Add your own/); assert.match(art, /8e1b24/i);
   assert.match(css, /\.sc-stk-row\{[^}]*overflow-x:auto;scroll-snap-type:x mandatory/);
 });
 
