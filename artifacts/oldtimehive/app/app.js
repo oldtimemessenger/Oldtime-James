@@ -115,6 +115,7 @@ import "./email-verification.css";
 import "./media-style-consistency.css";
 import "./unboxed-interface.css";
 import "./ui-foundations.css";
+import "./app-wide-visual-language.css";
 
 const $ = (s, r = document) => r.querySelector(s);
 const app = $("#app");
@@ -2910,7 +2911,7 @@ async function openPostEditSheet(postId) {
       <h2 id="post-edit-title">${isArchived ? "Archived post" : "Edit post"}</h2>
       <div class="post-edit-header-actions">
         <details class="post-edit-menu">
-          <summary aria-label="More post actions" title="More post actions">${ic.more}</summary>
+          <summary aria-label="More post actions" title="Post options">${ic.tune}</summary>
           <div class="post-edit-menu-items" role="menu">
             <button type="button" role="menuitem" data-post-archive="${esc(post.id)}">${isArchived ? "Restore from archive" : "Archive post"}</button>
             <button type="button" role="menuitem" data-delete-post="${esc(post.id)}">Delete post</button>
@@ -3829,7 +3830,7 @@ function comments(id, focusedCommentId = "") {
           <img ${profileMediaSource(replyAuthor.avatar)} alt="" class="comment-reply-avatar" />
           <div class="comment-reply-content"><b>@${esc(replyAuthor.username)}</b><span>${esc(reply.body)}</span>
             ${reply.attachment?.url ? `<img class="comment-attachment" src="${esc(reply.attachment.url)}" alt="Photo attached to reply" loading="lazy" />` : ""}
-            <small>${ago(reply.created)} <button type="button" data-reply="${esc(reply.id)}">Reply</button> <button type="button" data-comment-share="${esc(reply.id)}" aria-label="Share reply">${ic.share}</button> <button type="button" data-cmore="${esc(reply.id)}" aria-label="Reply actions">${ic.more}</button> ${reply.author === api.me().id ? `<button type="button" data-rdel="${esc(comment.id)}:${esc(reply.id)}">Delete</button>` : ""}</small>
+            <small>${ago(reply.created)} <button type="button" data-reply="${esc(reply.id)}">Reply</button> <button type="button" data-comment-share="${esc(reply.id)}" aria-label="Share reply">${ic.share}</button> <button type="button" data-cmore="${esc(reply.id)}" aria-label="Reply actions">${ic.tune}</button> ${reply.author === api.me().id ? `<button type="button" data-rdel="${esc(comment.id)}:${esc(reply.id)}">Delete</button>` : ""}</small>
           </div>
         </div>`;
       }).join("");
@@ -3847,7 +3848,7 @@ function comments(id, focusedCommentId = "") {
                <button type="button" class="comment-vote ${liked ? "on" : ""}" data-clike="${esc(comment.id)}" aria-label="${liked ? "Unlike" : "Like"} comment" aria-pressed="${liked}">${ic.mediaHeart}<small>${(comment.likes || []).length || ""}</small></button>
                <button type="button" class="comment-vote ${disliked ? "on" : ""}" data-cdislike="${esc(comment.id)}" aria-label="${disliked ? "Remove dislike" : "Dislike"} comment" aria-pressed="${disliked}"><svg viewBox="0 0 24 24" aria-hidden="true"><path transform="rotate(180 12 12)" d="M7 10v11H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3Zm0 0 4-8c1.5 0 2.5 1 2.5 2.5L13 9h6.2a2 2 0 0 1 2 2.4l-1.4 8a2 2 0 0 1-2 1.6H7V10Z"/></svg></button>
             </span>
-            <button type="button" class="comment-more" data-cmore="${esc(comment.id)}" aria-label="Comment actions">${ic.more}</button>
+            <button type="button" class="comment-more" data-cmore="${esc(comment.id)}" aria-label="Comment actions">${ic.tune}</button>
             <button type="button" class="comment-share-action" data-comment-share="${esc(comment.id)}" aria-label="Share comment">${ic.share}</button>
             ${comment.author === api.me().id || post.author === api.me().id ? `<button type="button" class="comment-delete" data-cdel="${esc(comment.id)}">Delete</button>` : ""}
           </div>
@@ -5071,7 +5072,7 @@ function profile(id) {
     const postCaption = String(p.caption || p.text || "Post");
     const postLikes = Number(p.likeCount ?? p.likes?.length ?? 0);
     const profilePostMenu = mine && p.author === u.id && profileMode !== "reposts" ? `<details class="profile-post-menu" data-profile-post-menu>
-      <summary aria-label="Post actions" title="Post actions" data-testid="button-post-options-${esc(p.id)}">${ic.more}</summary>
+      <summary aria-label="Post actions" title="Post actions" data-testid="button-post-options-${esc(p.id)}">${ic.tune}</summary>
       <div class="profile-post-menu-items" role="menu" aria-label="Post actions">
         <button type="button" role="menuitem" data-post-edit="${esc(p.id)}" data-testid="button-edit-post-${esc(p.id)}"><span>Edit post</span></button>
         <button type="button" role="menuitem" data-post-archive="${esc(p.id)}"><span>${p.archivedAt != null ? "Restore from archive" : "Archive post"}</span></button>
@@ -5141,7 +5142,7 @@ function profile(id) {
    shell(`<section class="screen on profile-screen"><div class="scroll profile-page">
     <div class="profile-hero">
        <div class="profile-cover"><img class="profile-cover-background" ${profileMediaSource(coverImage)} alt="" aria-hidden="true" /><img class="profile-cover-landscape" ${profileMediaSource(coverImage)} alt="" /></div>
-       <div class="profile-topbar"><button id="back" aria-label="Back">←</button><div class="row profile-topbar-actions"><button id="sharep" class="profile-share" aria-label="Share profile" title="Share profile">${ic.share}</button><button type="button" class="icon profile-more" id="profile-actions-open" aria-label="${mine ? "Open profile settings and actions" : "More profile actions"}" title="${mine ? "Settings" : "More actions"}">${mine ? ic.gear : ic.more}</button></div></div>
+       <div class="profile-topbar"><button id="back" aria-label="Back">←</button><div class="row profile-topbar-actions"><button id="sharep" class="profile-share" aria-label="Share profile" title="Share profile">${ic.share}</button><button type="button" class="icon profile-more" id="profile-actions-open" aria-label="${mine ? "Open profile settings and actions" : "More profile actions"}" title="${mine ? "Menu" : "Profile actions"}">${mine ? ic.menu : ic.tune}</button></div></div>
       <div class="profile-intro">
         <div class="profile-identity">
           <div class="profile-avatar-wrap">
