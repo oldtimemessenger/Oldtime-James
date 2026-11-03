@@ -132,3 +132,8 @@
 .story-quick-reaction.is-selected .navic { fill:#e5262f; stroke:#e5262f; }
 .story-profile-mini { width:36px; height:36px; flex-basis:36px; }
 .story-bar { grid-template-columns:36px minmax(0,1fr) auto; }
+
+/* Keep the Story viewer visible while its signed media URL resolves. */
+.story-stage-media-pending { position:absolute; inset:0; background:linear-gradient(110deg,rgba(255,255,255,.025) 8%,rgba(255,255,255,.09) 18%,rgba(255,255,255,.025) 33%); background-size:200% 100%; animation:story-media-shimmer 1.5s ease-in-out infinite; }
+@keyframes story-media-shimmer { to { background-position-x:-200%; } }
+@media (prefers-reduced-motion:reduce) { .story-stage-media-pending { animation:none; } }
