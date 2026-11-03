@@ -110,3 +110,19 @@ test("Story playback progress follows video time and photo duration is five seco
   assert.match(js, /: 5000/);
   assert.match(js, /document\.hidden/);
 });
+
+
+test("Stories use the immersive responsive viewer without replacing the existing Story engine", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/story-immersive-redesign\.css"/);
+  assert.match(redesign, /#storyview\.storyview\s*\{[^}]*overscroll-behavior:contain/);
+  assert.match(redesign, /\.story-creator\s*\{[^}]*backdrop-filter:blur/);
+  assert.match(redesign, /\.story-compose:focus-within/);
+  assert.match(redesign, /@media\s*\(min-width:700px\)/);
+  assert.match(redesign, /--story-frame-width:min\(460px/);
+  assert.match(redesign, /\.story-stage\s*\{[^}]*border-radius:26px/);
+  assert.match(redesign, /@media\s*\(max-height:520px\) and \(orientation:landscape\)/);
+  assert.match(redesign, /prefers-reduced-motion:reduce/);
+  assert.match(js, /mountStoryInteractions\(/);
+  assert.match(js, /api\.canSeeStory\(s\)/);
+});
