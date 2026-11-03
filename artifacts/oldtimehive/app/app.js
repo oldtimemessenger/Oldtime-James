@@ -3269,35 +3269,74 @@ function showPostHeart(id, x, y) {
   clip.appendChild(heart);
   window.setTimeout(() => heart.remove(), 1050);
 }
+const pendingCloudLikeIds = new Set();
+
+function syncCloudLikeButtons(id, post, me, pending = false) {
+  if (post && !app.querySelector(".post-viewer-place")) updateLikesRow(post);
+  app.querySelectorAll("[data-like]").forEach(button => {
+    if (button.dataset.like !== id) return;
+    const liked = Boolean(post?.likes?.includes(me.id));
+    button.classList.toggle("on", liked);
+    button.classList.toggle("like-pending", pending);
+    if (pending) button.setAttribute("aria-busy", "true");
+    else button.removeAttribute("aria-busy");
+    button.setAttribute("aria-pressed", String(liked));
+    button.setAttribute("aria-label", liked ? "Unlike post" : "Like post");
+    const isCommunityPost = Boolean(button.closest(".community-post-card"));
+    const heartIcon = isCommunityPost
+      ? (liked ? ic.heartOn : ic.heart)
+      : (liked ? ic.mediaHeartOn : ic.mediaHeart);
+    button.innerHTML = `${heartIcon}<span class="act-count">${fmt(post?.likeCount || 0)}</span>`;
+  });
+}
+
 async function like(id, forceLike = null, rerender = true) {
   const me = api.me();
   const cloudPost = api.cloudPost(id);
   if (cloudPost) {
     const wasLiked = cloudPost.likes.includes(me.id);
     const shouldLike = forceLike === null ? !wasLiked : forceLike;
-    if (shouldLike === wasLiked) return;
+    if (shouldLike === wasLiked || pendingCloudLikeIds.has(id)) return;
+
+    // Reflect the tap immediately; the server remains authoritative and a
+    // failed request restores the exact previous state.
+    const previous = {
+      likes: [...cloudPost.likes],
+      likeCount: cloudPost.likeCount,
+      likedBy: Array.isArray(cloudPost.likedBy) ? [...cloudPost.likedBy] : null,
+    };
+    pendingCloudLikeIds.add(id);
+    cloudPost.likes = shouldLike
+      ? [...cloudPost.likes, me.id]
+      : cloudPost.likes.filter(personId => personId !== me.id);
+    const currentCount = Number.isFinite(Number(previous.likeCount))
+      ? Number(previous.likeCount) : previous.likes.length;
+    cloudPost.likeCount = Math.max(0, currentCount + (shouldLike ? 1 : -1));
+    if (Array.isArray(cloudPost.likedBy)) {
+      cloudPost.likedBy = cloudPost.likedBy.filter(person => person?.id !== me.id);
+      if (shouldLike) cloudPost.likedBy.unshift({
+        id: me.id, displayName: me.name, avatarUrl: me.avatar || "",
+      });
+    }
+    if (rerender) render();
+    syncCloudLikeButtons(id, cloudPost, me, true);
+
     try {
       await api.setCloudLike(id, shouldLike);
-      if(shouldLike)recordActivity("like",cloudPost);
+      if (shouldLike) recordActivity("like", cloudPost);
+      const confirmed = api.cloudPost(id) || cloudPost;
       if (rerender) render();
-      else {
-        const updated = api.cloudPost(id);
-        if(updated && !app.querySelector(".post-viewer-place"))updateLikesRow(updated);
-        app.querySelectorAll("[data-like]").forEach(button => {
-          if (button.dataset.like !== id) return;
-          const liked = updated?.likes.includes(me.id) || false;
-          button.classList.toggle("on", liked);
-          button.setAttribute("aria-pressed", String(liked));
-          button.setAttribute("aria-label", liked ? "Unlike post" : "Like post");
-          const isCommunityPost = Boolean(button.closest(".community-post-card"));
-          const heartIcon = isCommunityPost
-            ? (liked ? ic.heartOn : ic.heart)
-            : (liked ? ic.mediaHeartOn : ic.mediaHeart);
-          button.innerHTML = `${heartIcon}${fmt(updated?.likeCount || 0)}`;
-        });
-      }
+      syncCloudLikeButtons(id, confirmed, me, false);
     } catch (error) {
+      cloudPost.likes = previous.likes;
+      cloudPost.likeCount = previous.likeCount;
+      if (previous.likedBy) cloudPost.likedBy = previous.likedBy;
+      if (rerender) render();
+      syncCloudLikeButtons(id, cloudPost, me, false);
       toast(error.message || "Couldn’t update this like");
+    } finally {
+      pendingCloudLikeIds.delete(id);
+      syncCloudLikeButtons(id, api.cloudPost(id) || cloudPost, me, false);
     }
     return;
   }
