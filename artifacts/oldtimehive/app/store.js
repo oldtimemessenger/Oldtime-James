@@ -509,6 +509,8 @@ function normalizeCloudPost(post) {
         : media.length ? "photo" : "text";
   return {
     id: post.id,
+    threadId: typeof post.threadId === "string" ? post.threadId : null,
+    threadPosition: Number.isInteger(post.threadPosition) ? post.threadPosition : null,
     archivedAt: post.archivedAt == null ? null : Number(post.archivedAt),
     sourceId: post.sourceId || null,
     remixSourcePostId: post.remixSourcePostId || null,
