@@ -3816,7 +3816,8 @@ function comments(id, focusedCommentId = "") {
     $("#comment-sort-label", sheet).textContent = sortMode === "top" ? "Top" : "Newest";
     list.innerHTML = visibleComments.map(comment => {
       const author = api.user(comment.author) || { username: "member", avatar: "" };
-      const replies = comment.replies || [];
+      const flattenReplies = nodes => nodes.flatMap(reply => [reply, ...flattenReplies(reply.replies || [])]);
+      const replies = flattenReplies(comment.replies || []);
       const expanded = expandedReplies.has(comment.id);
       const liked = (comment.likes || []).includes(api.me().id);
       const disliked = (comment.dislikes || []).includes(api.me().id);
