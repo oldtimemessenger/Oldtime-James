@@ -73,7 +73,7 @@ import "./brand-selection.css";
 import { openCreativeEditor } from "./open-creative-editor.js";
 import { purgeAllCreativeDrafts } from "./creative-drafts.js";
 import { SPORTS_MODE_ENABLED } from "../../../lib/sports/feature-state.js";
-import { creativeMediaMarkup, creativeAttribution, mountCreativeViewers } from "./creative-viewer.js";
+import { creativeMediaMarkup, creativeAttribution } from "./creative-markup.js";
 import { CREATOR_TOOL_ROUTES, renderCreatorScreen, resetCreatorScreenState, blueBadgeMarkup, hydrateBlueBadges } from "./creator-center.js";
 import { ACCOUNT_TOOL_ROUTES,getAccountTools,loadAccountTools,resetAccountTools,renderAccountToolsScreen } from "./account-professional.js";
 import { registerOwnActivityContent,trackQualifiedView,recordActivity,recordProfileVisit } from "./activity-tracking.js";
@@ -136,6 +136,13 @@ function deferredModule(importer) {
     });
     return pending;
   };
+}
+const loadCreativeViewerModule = deferredModule(() => import("./creative-viewer.js"));
+function mountCreativeViewers(root, options) {
+  if (!root?.isConnected || !root.querySelector?.("canvas[data-creative-id]")) return;
+  void loadCreativeViewerModule().then(module => {
+    if (root.isConnected) module.mountCreativeViewers(root, options);
+  }).catch(error => console.warn("[Oldtime creative viewer]", error));
 }
 const loadProfileImageCropper = deferredModule(() => import("./profile-image-cropper.js"));
 const loadPlacePicker = deferredModule(() => import("./place-picker.js"));
