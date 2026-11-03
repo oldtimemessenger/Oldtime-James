@@ -22,11 +22,12 @@ import { getPost, hydratePosts, loadPostRows } from "./post-repository";
 import { discoveryIndexStatements, excludedDiscoveryTopics } from "./discovery-index";
 import { downrankNotInterestedCreators } from "./feed-feedback-ranking";
 import { placeRatings } from "./place-rating-summary";
+import { highestVideoSearchInsight, recordVideoSearchClick, videoSearchIndexStatements } from "./video-search-insights";
 
 export function isSocialPath(path: string) {
   return path==="/feed" || path==="/feed/feedback" || path==="/posts" || path.startsWith("/posts/") ||
     path.startsWith("/places/") && path!=="/places/search" ||
-    path.startsWith("/profiles/") || path==="/users/search" || path==="/users/mention-search";
+    path.startsWith("/profiles/") || path.startsWith("/videos/") || path==="/users/search" || path==="/users/mention-search";
 }
 const query = (request: Request) => Object.fromEntries(new URL(request.url).searchParams);
 function jsonStringArray(value: string | null | undefined): string[] {
@@ -231,6 +232,10 @@ async function createPost(
     ...recipients.map(account=>db.prepare(`INSERT INTO content_mentions
       (id,recipient_id,actor_id,kind,post_id,created_at) VALUES(?,?,?,'post',?,?)`).bind(crypto.randomUUID(),account.id,userId,id,now)),
     ...discoveryIndexStatements(db,{id,text,visibility,place:place?JSON.stringify(place):null}),
+    ...(assets.some(asset=>asset.content_type.startsWith("video/"))
+      ? videoSearchIndexStatements(db,{id,creatorId:userId,caption:text,isPublic:visibility==="public"&&["main","both"].includes(postDestination)&&
+          (await db.prepare("SELECT is_private FROM users WHERE id=?").bind(userId).first<{is_private:number}>())?.is_private===0,createdAt:now})
+      : []),
   ];
   try {
     await db.batch(statements);
@@ -471,6 +476,37 @@ export async function socialRequest(
   ai?: WorkersAiBinding,
   bucket?: MediaBucket,
 ): Promise<Response> {
+  const videoInsight=/^\/videos\/([a-f0-9-]{36})\/search-insight$/.exec(path);
+  if(videoInsight&&request.method==="GET"){
+    const post=await getPost(db,userId,videoInsight[1]);
+    if(!post||post.visibility!=="public"||post.author_is_private!==0||
+      !await db.prepare("SELECT 1 FROM videos WHERE id=?").bind(videoInsight[1]).first()){
+      throw new ApiError(404,"Video insight is unavailable.");
+    }
+    const insight=await highestVideoSearchInsight(db,videoInsight[1]);
+    return json({insight:insight&&insight.weight_score>1
+      ? {keyword:insight.keyword,weightScore:insight.weight_score} : null});
+  }
+  const videoClick=/^\/videos\/([a-f0-9-]{36})\/search-click$/.exec(path);
+  if(videoClick&&request.method==="POST"){
+    const input=object(await body(request));
+    if(Object.keys(input).some(key=>!["queryText","watchTimeSeconds"].includes(key))||
+      typeof input.queryText!=="string"||input.queryText.length>120||
+      typeof input.watchTimeSeconds!=="number"||!Number.isFinite(input.watchTimeSeconds)||
+      input.watchTimeSeconds<=5||input.watchTimeSeconds>3600){
+      throw new ApiError(400,"A valid search phrase and watch duration over five seconds are required.");
+    }
+    const post=await getPost(db,userId,videoClick[1]);
+    if(!post||post.visibility!=="public"||post.author_is_private!==0||
+      !await db.prepare("SELECT 1 FROM videos WHERE id=?").bind(videoClick[1]).first()){
+      throw new ApiError(404,"Video is unavailable.");
+    }
+    const recent=await db.prepare("SELECT count(*) AS total FROM search_clicks WHERE user_id=? AND created_at>?")
+      .bind(userId,Date.now()-86400000).first<{total:number}>();
+    if((recent?.total??0)>=100)throw new ApiError(429,"Search learning limit reached for today.");
+    const result=await recordVideoSearchClick(db,{userId,videoId:videoClick[1],queryText:input.queryText,watchTime:input.watchTimeSeconds});
+    return json({ok:true,learned:result.learned});
+  }
   const liked=/^\/posts\/([a-f0-9-]{36})\/likes$/.exec(path);
   if(liked&&request.method==="GET")return postLikes(request,db,userId,liked[1]);
   if (path==="/feed" && request.method==="GET") return feed(request,db,userId);
@@ -589,6 +625,9 @@ export async function socialRequest(
         .bind(input.text,visibility,input.place===undefined ? record.place : input.place ? JSON.stringify(input.place) : null,textFingerprint(input.text),Number(meaningful(input.text)),id,userId),
       db.prepare("DELETE FROM content_mentions WHERE kind='post' AND post_id=?").bind(id),
       ...discoveryIndexStatements(db,{id,text:input.text,visibility,place:input.place===undefined?record.place:input.place?JSON.stringify(input.place):null},discoveryExcluded),
+      ...videoSearchIndexStatements(db,{id,creatorId:userId,caption:input.text,
+        isPublic:attachments.some(asset=>asset.content_type.startsWith("video/"))&&visibility==="public"&&
+          ["main","both"].includes(record.destination)&&record.author_is_private===0,createdAt:Date.now()}),
       ...recipients.map(a=>db.prepare("INSERT INTO content_mentions(id,recipient_id,actor_id,kind,post_id,created_at) VALUES(?,?,?,'post',?,?)").bind(crypto.randomUUID(),a.id,userId,id,Date.now())),
     ]);
     return json({post:(await hydratePosts(db,userId,[(await getPost(db,userId,id))!]))[0]});
