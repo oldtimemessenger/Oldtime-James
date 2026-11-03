@@ -337,3 +337,35 @@ test("Search landing defaults to All and keeps working For You, newest, engageme
   );
   eco.reset();
 });
+
+test("Discover cards expose topic trails as direct, accessible ways to explore related posts", async () => {
+  const { eco } = setup(() => body([post("topic-post")], {
+    postTopics: [{ postId: "topic-post", topics: [{ id: "local-food", label: "Local food" }, { id: "weekend", label: "Weekend plans" }] }],
+  }));
+  eco.markup();
+  await tick();
+  const html = eco.markup().body;
+  assert.match(html, /class="xe-cap-topics"/);
+  assert.match(html, /data-xe-topic="local-food"/);
+  assert.match(html, /See more about Local food/);
+  assert.match(html, /Weekend plans/);
+  eco.reset();
+});
+
+test("Discover shows inline placeholders while the next page loads", async () => {
+  let release;
+  const f = setup(path => {
+    const offset = new URL(path, "https://oldtime.test").searchParams.get("offset");
+    if (offset === "24") return new Promise(resolve => { release = () => resolve(body([post("second")], { hasMore: false, nextOffset: 48 })); });
+    return body([post("first")], { hasMore: true, nextOffset: 24 });
+  });
+  f.eco.markup();
+  await tick();
+  const pending = f.eco.ensureNext("first");
+  assert.match(f.eco.markup().body, /xe-more-skeletons/);
+  assert.match(f.eco.markup().body, /Keep exploring/);
+  release();
+  await pending;
+  assert.match(f.eco.markup().body, /data-xe-post="second"/);
+  f.eco.reset();
+});
