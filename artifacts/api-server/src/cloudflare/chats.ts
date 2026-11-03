@@ -61,10 +61,32 @@ async function messageDtos(db:Database,id:string,list:Member[],messageId?:string
         peers.length>0&&peers.every(peer=>Number(object(peer.state).deliveredThrough||0)>=m.created_at)?"delivered":"sent"};
   });
 }
+async function chatMentionRecipients(db:Database,userId:string,conversationId:string,list:Member[],text:string){
+  const own=list.find(member=>member.user_id===userId);
+  const handles=[...new Set([...text.matchAll(/(?:^|[^A-Za-z0-9_])@([A-Za-z0-9_]{3,24})(?![A-Za-z0-9_])/g)].map(match=>match[1].toLowerCase()))]
+    .filter(handle=>handle!==own?.username.toLowerCase()).slice(0,25);
+  if(!handles.length)return [];
+  const recipients=await rows<{id:string;username:string;data:string|null;follows:number}>(db,
+    `SELECT u.id,u.username,s.data,
+      EXISTS(SELECT 1 FROM user_follows f WHERE f.follower_id=u.id AND f.followed_id=?) AS follows
+     FROM chat_members cm JOIN users u ON u.id=cm.user_id LEFT JOIN account_state s ON s.user_id=u.id
+     WHERE cm.conversation_id=? AND u.is_virtual=0 AND lower(u.username) IN (${handles.map(()=>"?").join(",")})`,
+    userId,conversationId,...handles);
+  const found=new Map(recipients.map(recipient=>[recipient.username.toLowerCase(),recipient]));
+  for(const handle of handles){
+    const recipient=found.get(handle);
+    if(!recipient)throw new ApiError(400,"Only people in this conversation can be mentioned.");
+    const preference=object(object(recipient.data).taggingPreferences).whoCanTag;
+    if(preference==="nobody"||preference==="following"&&!recipient.follows)
+      throw new ApiError(403,"You can’t tag @"+recipient.username+" because of their tagging settings.");
+  }
+  return [...found.values()];
+}
 async function send(request:Request,db:Database,id:string,userId:string,list:Member[]){
   const parsed=CreateChatMessageBody.safeParse(await body(request));
   if(!parsed.success)throw new ApiError(400,"Choose a valid message.");
   const input=parsed.data,caption=input.body.trim(),metadata=metadataSchema.safeParse(input.metadata??{});
+  const mentionRecipients=input.kind==="text"?await chatMentionRecipients(db,userId,id,list,caption):[];
   if(input.kind==="call")throw new ApiError(410,"Calling is disabled.");
   if(!metadata.success)throw new ApiError(400,"Message details are invalid.");
   if(input.kind==="text"&&!caption)throw new ApiError(400,"Write a message before sending.");
@@ -86,6 +108,8 @@ async function send(request:Request,db:Database,id:string,userId:string,list:Mem
   await db.batch([
     db.prepare("INSERT INTO chat_messages(id,conversation_id,author_id,kind,body,metadata,created_at) VALUES(?,?,?,?,?,?,?)").bind(input.clientId,id,userId,input.kind,caption,JSON.stringify(metadata.data),now),
     ...ids.map((mediaId,position)=>db.prepare("INSERT INTO chat_message_media(message_id,media_id,position) VALUES(?,?,?)").bind(input.clientId,mediaId,position)),
+    ...mentionRecipients.map(recipient=>db.prepare("INSERT INTO chat_mentions(id,conversation_id,message_id,recipient_id,actor_id,created_at) VALUES(?,?,?,?,?,?)")
+      .bind(crypto.randomUUID(),id,input.clientId,recipient.id,userId,now)),
     db.prepare("UPDATE chat_conversations SET updated_at=? WHERE id=?").bind(now,id),
   ]);
   return json({message:(await messageDtos(db,id,list,input.clientId))[0]},201);
@@ -167,10 +191,16 @@ export async function chatRequest(request:Request,db:Database,userId:string,path
       const previous=await db.prepare("SELECT body,metadata,edited_at,created_at FROM chat_messages WHERE id=? AND conversation_id=? AND author_id=? AND kind='text'")
         .bind(messageId,id,userId).first<{body:string;metadata:string;edited_at:number|null;created_at:number}>();
       if(!previous)throw new ApiError(404,"Only your text messages can be edited.");
+      const editedRecipients=await chatMentionRecipients(db,userId,id,list,parsed.data.body);
       const metadata=object(previous.metadata),history=Array.isArray(metadata.editHistory)?metadata.editHistory:[];
       const now=Date.now();
-      await db.prepare("UPDATE chat_messages SET body=?,metadata=?,edited_at=? WHERE id=? AND author_id=?")
-        .bind(parsed.data.body,JSON.stringify({...metadata,editHistory:[...history,{body:previous.body,createdAt:previous.edited_at??previous.created_at}].slice(-10)}),now,messageId,userId).run();
+      await db.batch([
+        db.prepare("UPDATE chat_messages SET body=?,metadata=?,edited_at=? WHERE id=? AND author_id=?")
+          .bind(parsed.data.body,JSON.stringify({...metadata,editHistory:[...history,{body:previous.body,createdAt:previous.edited_at??previous.created_at}].slice(-10)}),now,messageId,userId),
+        db.prepare("DELETE FROM chat_mentions WHERE message_id=?").bind(messageId),
+        ...editedRecipients.map(recipient=>db.prepare("INSERT INTO chat_mentions(id,conversation_id,message_id,recipient_id,actor_id,created_at) VALUES(?,?,?,?,?,?)")
+          .bind(crypto.randomUUID(),id,messageId,recipient.id,userId,now)),
+      ]);
       return json({message:(await messageDtos(db,id,list,messageId))[0]});
     }
   }
