@@ -249,7 +249,7 @@
    with the existing full-bleed mobile experience and all existing controls intact. */
 @media (min-width:700px) {
   #storyview.storyview {
-    --story-frame-width:min(480px,calc((100vh - 40px)*.5625));
+    --story-frame-width:min(480px,calc(56.25vh - 22.5px));
     --story-frame-height:min(854px,calc(100vh - 40px));
     background:rgba(7,9,14,.96);
     -webkit-backdrop-filter:blur(18px) saturate(112%);
