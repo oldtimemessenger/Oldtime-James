@@ -1,0 +1,70 @@
+/* Destination landing refresh — deliberately excludes Home, Community and the core Search surface. */
+:root { --landing-blue:#1456d9; --landing-burgundy:#8e1b24; --landing-ink:#17191d; --landing-muted:#707783; --landing-line:#e8ebf2; --landing-wash:#f5f7fc; }
+
+/* Profile: elevated creator identity while retaining the existing profile data, tabs and actions. */
+#app .profile-screen .profile-page { background:var(--landing-wash); }
+#app .profile-screen .profile-hero { position:relative; isolation:isolate; overflow:hidden; background:#fff; }
+#app .profile-screen .profile-cover { height:clamp(164px,48vw,220px); overflow:hidden; background:linear-gradient(125deg,#173f9f 0%,#1456d9 48%,#8e1b24 100%); }
+#app .profile-screen .profile-cover::after { content:""; position:absolute; inset:0 0 auto; height:clamp(164px,48vw,220px); pointer-events:none; background:linear-gradient(180deg,rgba(7,15,38,.08),rgba(7,15,38,.24)); }
+#app .profile-screen .profile-cover-landscape { border-radius:0 0 24px 24px; }
+#app .profile-screen .profile-topbar { z-index:2; }
+#app .profile-screen .profile-topbar > button,
+#app .profile-screen .profile-topbar-actions > button { width:42px; height:42px; min-width:42px; border:1px solid rgba(255,255,255,.28); border-radius:14px; background:rgba(15,24,48,.26); color:#fff; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+#app .profile-screen .profile-intro { position:relative; margin:-28px 12px 0; padding:18px 14px 16px; border:1px solid rgba(22,36,70,.07); border-radius:22px; background:#fff; box-shadow:0 12px 32px rgba(19,35,75,.08); }
+#app .profile-screen .profile-identity { gap:12px; align-items:center; }
+#app .profile-screen .profile-avatar { border:4px solid #fff; box-shadow:0 0 0 2px rgba(20,86,217,.18),0 6px 18px rgba(16,34,78,.12); }
+#app .profile-screen .profile-name { color:var(--landing-ink); letter-spacing:-.025em; }
+#app .profile-screen .profile-intro .profile-stats { margin-top:16px; }
+#app .profile-screen .profile-intro .profile-stats > .profile-count-card { border:1px solid #e9eef9; background:linear-gradient(145deg,#f8faff,#f1f5ff); box-shadow:none; }
+#app .profile-screen .profile-intro .profile-count-card:active { transform:scale(.985); }
+#app .profile-screen .profile-intro .profile-primary-actions { gap:9px; }
+#app .profile-screen .profile-body { margin:14px 12px 0; padding:8px 10px 16px; border:1px solid rgba(22,36,70,.06); border-radius:20px 20px 0 0; background:#fff; }
+#app .profile-screen .profile-section-tabs { border-bottom:1px solid var(--landing-line); }
+
+/* Messages inbox: premium, calm inbox rows; existing stories, folders, filters and chat actions stay intact. */
+#app .chat-list-screen { background:var(--landing-wash); }
+#app .chat-list-screen .chat-list-heading { padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px; background:linear-gradient(125deg,#123d9c 0%,#1456d9 58%,#76202e 100%); color:#fff; }
+#app .chat-list-screen .chat-title { color:#fff; font-size:clamp(27px,7vw,32px); font-weight:780; letter-spacing:-.045em; }
+#app .chat-list-screen .chat-head-icon,
+#app .chat-list-screen .chat-search-trigger { width:42px; height:42px; border:1px solid rgba(255,255,255,.25); border-radius:14px; background:rgba(255,255,255,.13); color:#fff; }
+#app .chat-list-screen .chat-header-search:has(.chat-search-wrap:not([hidden])) { background:#fff; border-radius:14px; }
+#app .chat-list-screen .chat-list-body { padding:8px 10px calc(18px + env(safe-area-inset-bottom,0px)); }
+#app .chat-list-screen .chat-inbox-row { min-height:76px; margin:5px 0; padding:10px 12px; gap:12px; border:1px solid rgba(22,36,70,.055); border-radius:17px; background:#fff; box-shadow:0 4px 14px rgba(22,36,70,.035); }
+#app .chat-list-screen .chat-inbox-avatar { width:54px; height:54px; flex-basis:54px; }
+#app .chat-list-screen .chat-inbox-main { min-height:54px; }
+#app .chat-list-screen .chat-inbox-copy > b { color:var(--landing-ink); font-size:14px; font-weight:720; }
+#app .chat-list-screen .chat-inbox-preview { color:#737986; font-size:12.5px; line-height:1.4; }
+#app .chat-list-screen .chat-inbox-preview.is-unread { color:#252a34; font-weight:650; }
+#app .chat-list-screen .chat-inbox-unread-dot { background:var(--landing-blue); }
+
+/* Notifications: clearer hierarchy and distinct, tappable activity cards without changing filtering or privacy. */
+#app .notifications-screen { background:var(--landing-wash); }
+#app .notifications-screen > .page { padding:calc(8px + env(safe-area-inset-top,0px)) 14px calc(20px + env(safe-area-inset-bottom,0px)); }
+#app .notifications-screen .notifications-header { min-height:56px; margin:0 -2px 12px; padding:0 2px; }
+#app .notifications-screen .notifications-header .h1 { color:var(--landing-ink); font-size:25px; font-weight:780; letter-spacing:-.04em; }
+#app .notifications-screen .notification-insights-button { min-height:38px; padding:0 13px; border:1px solid #dce5f8; border-radius:999px; background:#eef3ff; color:var(--landing-blue); font-size:12px; font-weight:700; }
+#app .notifications-screen .notification-category { min-height:70px; margin:7px 0; padding:12px 13px; border:1px solid rgba(22,36,70,.07); border-radius:17px; background:#fff; box-shadow:0 5px 16px rgba(22,36,70,.035); }
+#app .notifications-screen .notification-category-icon { width:42px; height:42px; border-radius:14px; background:#eef3ff; color:var(--landing-blue); }
+#app .notifications-screen .notification-row,
+#app .notifications-screen .listbtn:not(.notification-category) { min-height:68px; margin:6px 0; padding:11px 12px; border:1px solid rgba(22,36,70,.06); border-radius:16px; background:#fff; text-align:left; box-shadow:0 4px 13px rgba(22,36,70,.03); }
+#app .notifications-screen .notification-row.is-unread { border-color:#dbe6ff; background:linear-gradient(100deg,#f1f5ff,#fff 72%); }
+#app .notifications-screen .notification-row img,
+#app .notifications-screen .listbtn:not(.notification-category) img { width:42px !important; height:42px !important; flex:0 0 42px; border-radius:50%; object-fit:cover; }
+
+/* Create: keep the immersive editor canvas, but give its primary controls the same deliberate finish. */
+#app .cs-studio .cs-rail-btn,
+#app .cs-studio .cs-cam-btn { border:1px solid rgba(255,255,255,.18); border-radius:15px; box-shadow:0 5px 18px rgba(0,0,0,.16); }
+#app .cs-studio .cs-rail-btn:active,
+#app .cs-studio .cs-cam-btn:active { transform:scale(.96); }
+#app .cs-studio .cs-primary,
+#app .cs-studio .ce-primary { border-radius:15px; font-weight:750; letter-spacing:-.01em; }
+@media (max-width:360px) {
+  #app .profile-screen .profile-intro { margin-right:8px; margin-left:8px; padding-right:11px; padding-left:11px; }
+  #app .chat-list-screen .chat-list-body { padding-right:7px; padding-left:7px; }
+  #app .notifications-screen > .page { padding-right:10px; padding-left:10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #app .profile-screen .profile-intro .profile-count-card,
+  #app .cs-studio .cs-rail-btn,
+  #app .cs-studio .cs-cam-btn { transition:none; }
+}
