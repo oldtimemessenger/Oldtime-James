@@ -4089,19 +4089,14 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     storyUi?.dispose(); storyUi = null;
     if (!s) { if (groupIndex < groups.length - 1) changeAuthor(1); else close(); return; }
     if (!isStoryActive(s) || !api.canSeeStory(s)) { i++; show(); return; }
-    if (s.cloud && s.hasMedia && !s.media) {
-      view.innerHTML = `<div class="story-cloud-loading" role="status">Loading Story…</div>`;
-      try { s.media = await api.loadCloudStoryMedia(s.id); }
-      catch (error) {
-        if (list[i] !== s) return;
-        toast(error.message || "Story media could not be loaded.");
-        i++;
-        show();
-        return;
-      }
-      if (list[i] !== s) return;
+    const nextStory = list[i + 1];
+    if (nextStory?.cloud && nextStory.hasMedia && !nextStory.media) {
+      void api.loadCloudStoryMedia(nextStory.id).catch(() => {});
     }
-     const mediaSource = resolveStoryMedia(s, id => api.post(id));
+    const needsCloudMedia = Boolean(s.cloud && s.hasMedia && !s.media);
+    const cloudMediaRequest = needsCloudMedia ? api.loadCloudStoryMedia(s.id) : null;
+    let mediaPending = needsCloudMedia;
+    const mediaSource = resolveStoryMedia(s, id => api.post(id));
        const author = api.user(s.author) || {};
        const creatorName = author.name || author.displayName || author.username || "Oldtime member";
        const age = ago(s.created || s.createdAt);
@@ -4110,7 +4105,7 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
        view.innerHTML = `<div class="progress"><b id="bar"></b></div>
         <div class="story-header"><button type="button" id="story-profile" class="story-creator" aria-label="Open ${esc(author.username || "member")} profile"><img src="${esc(author.avatar || "")}" alt="" /><span class="story-creator-copy"><b>${esc(creatorName)}</b><small>${esc(ageLabel)}</small></span></button>${sharedTarget ? `<button type="button" id="story-source" class="story-source-link">View ${sharedTarget.commentId ? "comment" : "post"}</button>` : ""}</div>
         <button type="button" id="sclose" aria-label="Close Story">${ic.close}</button>
-          <div class="story-stage" style="background:${esc(s.color || "#000")}">${s.creativeProject ? creativeMediaMarkup(s, esc, true) : mediaSource ? (String(mediaSource).startsWith("data:video") || s.kind === "video" ? `<video class="story-stage-media" src="${esc(mediaSource)}" autoplay muted playsinline></video>` : `<img class="story-stage-media" src="${esc(mediaSource)}" alt="" />`) : `<div class="story-stage-empty" role="status">Text Story</div>`}<div class="story-caption">${sharedTarget ? "" : renderMentionText(s.text || s.caption || "")}${s.creativeProject ? creativeAttribution(s, esc) : ""}</div></div>`;
+          <div class="story-stage" style="background:${esc(s.color || "#000")}">${s.creativeProject ? creativeMediaMarkup(s, esc, true) : mediaSource ? (String(mediaSource).startsWith("data:video") || s.kind === "video" ? `<video class="story-stage-media" src="${esc(mediaSource)}" autoplay muted playsinline></video>` : `<img class="story-stage-media" src="${esc(mediaSource)}" alt="" />`) : needsCloudMedia ? `<div class="story-stage-media-pending" aria-hidden="true"></div>` : `<div class="story-stage-empty" role="status">Text Story</div>`}<div class="story-caption">${sharedTarget ? "" : renderMentionText(s.text || s.caption || "")}${s.creativeProject ? creativeAttribution(s, esc) : ""}</div></div>`;
      $("#story-source", view)?.addEventListener("click", async event => {
        const button = event.currentTarget;
        button.disabled = true;
@@ -4127,17 +4122,51 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
        } finally { button.disabled = false; }
      });
      const storyStage = view.querySelector(".story-stage");
-      storyStage?.classList.toggle("is-text-story", !s.creativeProject && !mediaSource);
-     const storyMedia = storyStage?.querySelector(".story-stage-media");
-     storyMedia?.addEventListener("error", () => {
-       storyMedia.remove();
-       storyStage.classList.add("is-media-unavailable");
+      storyStage?.classList.toggle("is-text-story", !s.creativeProject && !mediaSource && !needsCloudMedia);
+     const attachStoryMediaError = media => media?.addEventListener("error", () => {
+       media.remove();
+       storyStage?.classList.add("is-media-unavailable");
        const notice = document.createElement("div");
        notice.className = "story-stage-empty";
        notice.setAttribute("role", "status");
        notice.textContent = "Story media unavailable";
-       storyStage.prepend(notice);
+       storyStage?.prepend(notice);
      }, { once: true });
+     attachStoryMediaError(storyStage?.querySelector(".story-stage-media"));
+     if (cloudMediaRequest) {
+       void cloudMediaRequest.then(url => {
+         if (!view.classList.contains("on") || list[i]?.id !== s.id || !url) return;
+         s.media = url;
+         const resolvedMedia = resolveStoryMedia(s, id => api.post(id));
+         const placeholder = storyStage?.querySelector(".story-stage-media-pending");
+         if (!storyStage || !placeholder || !resolvedMedia) {
+           mediaPending = false;
+           return;
+         }
+         const mediaMarkup = String(resolvedMedia).startsWith("data:video") || s.kind === "video"
+           ? `<video class="story-stage-media" src="${esc(resolvedMedia)}" autoplay muted playsinline></video>`
+           : `<img class="story-stage-media" src="${esc(resolvedMedia)}" alt="" />`;
+         placeholder.outerHTML = mediaMarkup;
+         storyStage.classList.remove("is-text-story", "is-media-unavailable");
+         const loadedMedia = storyStage.querySelector(".story-stage-media");
+         attachStoryMediaError(loadedMedia);
+         if (loadedMedia?.tagName === "VIDEO") void loadedMedia.play?.().catch(() => {});
+         mediaPending = false;
+       }).catch(error => {
+         if (!view.classList.contains("on") || list[i]?.id !== s.id) return;
+         mediaPending = false;
+         const placeholder = storyStage?.querySelector(".story-stage-media-pending");
+         if (placeholder) {
+           const notice = document.createElement("div");
+           notice.className = "story-stage-empty";
+           notice.setAttribute("role", "status");
+           notice.textContent = "Story media unavailable";
+           placeholder.replaceWith(notice);
+         }
+         storyStage?.classList.add("is-media-unavailable");
+         toast(error.message || "Story media could not be loaded.");
+       });
+     }
     if (s.creativeProject) mountCreativeViewers(view, { onSource: (postId, commentId) => {
       close(); openPostViewer(postId, commentId);
     } });
@@ -4213,7 +4242,7 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     let w = 0; clearInterval(storyTimer);
     storyTimer = setInterval(() => {
       if (!isStoryActive(s) || !api.canSeeStory(s) || !api.stories().some(item => item.id === s.id)) { i++; show(); return; }
-      if (paused || view.dataset.stickerOpen === "true") return;
+      if (paused || mediaPending || view.dataset.stickerOpen === "true") return;
       w += s.creativeProject ? 100 / ((s.trim || s.creativeProject.duration) * 1000 / 90) : 2;
       const bar = $("#bar"); if (bar) bar.style.width = w + "%"; if (w >= 100) { i++; show(); }
     }, 90);

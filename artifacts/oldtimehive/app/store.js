@@ -43,6 +43,7 @@ let cloudPrivacyOwnerToken = null;
 let cloudStoryMedia = new Map();
 let cloudStoryMediaExpiries = new Map();
 let cloudStoryThumbnails = new Map();
+const cloudStoryMediaRequests = new Map();
 let cloudStoryComments = new Map();
 let cloudStoryCommentVersions = new Map();
 let cloudPostComments = new Map();
@@ -148,6 +149,7 @@ function clearCloudContent() {
   cloudStoryMedia = new Map();
   cloudStoryMediaExpiries = new Map();
   cloudStoryThumbnails = new Map();
+  cloudStoryMediaRequests.clear();
   cloudStoryComments = new Map();
   cloudStoryCommentVersions = new Map();
   cloudPostComments = new Map();
@@ -2761,20 +2763,32 @@ export const api = {
     if (!session?.accessToken || !cloudStories.some(story => story.id === id)) {
       throw new Error("Story media is no longer available.");
     }
-    const result = await cloudRequest(`/api/stories/${encodeURIComponent(id)}/media-url`, { session });
-    if (!result?.url) throw new Error("Story media is no longer available.");
-    if (cloudStoryMedia.size >= 10) {
-      const oldest = cloudStoryMedia.keys().next().value;
-      const urlToRevoke = cloudStoryMedia.get(oldest);
-      if (urlToRevoke?.startsWith("blob:")) URL.revokeObjectURL(urlToRevoke);
-      cloudStoryMedia.delete(oldest);
-      cloudStoryMediaExpiries.delete(oldest);
-      cloudStoryThumbnails.delete(oldest);
+    const requestKey = `${session.account.id}:${id}`;
+    const pending = cloudStoryMediaRequests.get(requestKey);
+    if (pending) return pending;
+    const request = (async () => {
+      const result = await cloudRequest(`/api/stories/${encodeURIComponent(id)}/media-url`, { session });
+      ensureCurrentCloudSession(session);
+      if (!result?.url) throw new Error("Story media is no longer available.");
+      if (cloudStoryMedia.size >= 10) {
+        const oldest = cloudStoryMedia.keys().next().value;
+        const urlToRevoke = cloudStoryMedia.get(oldest);
+        if (urlToRevoke?.startsWith("blob:")) URL.revokeObjectURL(urlToRevoke);
+        cloudStoryMedia.delete(oldest);
+        cloudStoryMediaExpiries.delete(oldest);
+        cloudStoryThumbnails.delete(oldest);
+      }
+      cloudStoryMedia.set(id, result.url);
+      cloudStoryThumbnails.set(id, typeof result.thumbnailUrl === "string" ? result.thumbnailUrl : "");
+      cloudStoryMediaExpiries.set(id, Date.now() + 4 * 60 * 1000);
+      return result.url;
+    })();
+    cloudStoryMediaRequests.set(requestKey, request);
+    try {
+      return await request;
+    } finally {
+      if (cloudStoryMediaRequests.get(requestKey) === request) cloudStoryMediaRequests.delete(requestKey);
     }
-    cloudStoryMedia.set(id, result.url);
-    cloudStoryThumbnails.set(id, typeof result.thumbnailUrl === "string" ? result.thumbnailUrl : "");
-    cloudStoryMediaExpiries.set(id, Date.now() + 4 * 60 * 1000);
-    return result.url;
   },
   async loadCloudStoryPreview(id) {
     const url = await this.loadCloudStoryMedia(id);
