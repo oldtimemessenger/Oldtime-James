@@ -1,0 +1,71 @@
+/* Oldtime shared UI foundations.
+ * These semantic tokens alias the established palette and dimensions so screens
+ * can converge on one system without changing the current brand or layout.
+ */
+:root {
+  --ot-color-brand: var(--color-primary, #1456d9);
+  --ot-color-brand-pressed: var(--color-primary-pressed, #1048bd);
+  --ot-color-brand-deep: var(--color-burgundy, #8e1b24);
+  --ot-color-danger: var(--color-danger, #b42318);
+  --ot-color-text: var(--text, #17191c);
+  --ot-color-muted: var(--muted, #6b6f76);
+  --ot-color-border: var(--line, #e5e7eb);
+  --ot-color-page: var(--bg, #fff);
+  --ot-color-surface: var(--card, #fff);
+  --ot-color-surface-subtle: var(--panel, #f2f4f7);
+
+  --ot-space-1: 4px;
+  --ot-space-2: 8px;
+  --ot-space-3: 12px;
+  --ot-space-4: 16px;
+  --ot-space-5: 20px;
+  --ot-space-6: 24px;
+  --ot-space-8: 32px;
+  --ot-space-10: 40px;
+  --ot-space-12: 48px;
+
+  --ot-radius-sm: 8px;
+  --ot-radius-md: 12px;
+  --ot-radius-lg: 16px;
+  --ot-radius-xl: 24px;
+  --ot-radius-pill: 999px;
+
+  --ot-control-height: var(--ui-control-height, 44px);
+  --ot-icon-size: var(--ui-icon-size, 20px);
+  --ot-font-page: var(--fs-page, 20px);
+  --ot-font-section: var(--fs-section, 17px);
+  --ot-font-body: var(--fs-body, 14px);
+  --ot-font-caption: var(--fs-caption, 12px);
+
+  --ot-motion-fast: var(--motion-fast, 140ms);
+  --ot-motion-base: var(--motion-base, 200ms);
+  --ot-motion-screen: var(--motion-screen, 220ms);
+  --ot-motion-ease: var(--motion-ease, cubic-bezier(.2,.7,.2,1));
+
+  --ot-shadow-overlay: var(--shadow, 0 20px 50px rgba(20,24,30,.12));
+  --ot-layer-base: 0;
+  --ot-layer-sticky: 5;
+  --ot-layer-header: 10;
+  --ot-layer-menu: 20;
+  --ot-layer-sheet: 40;
+  --ot-layer-dialog: 60;
+  --ot-layer-toast: 80;
+}
+
+/* Consistent keyboard visibility without changing pointer interactions. */
+#app :is(button, a, input, textarea, select, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--ot-color-brand);
+  outline-offset: 3px;
+}
+
+/* Honor platform motion preferences across screen transitions and micro-interactions. */
+@media (prefers-reduced-motion: reduce) {
+  #app *,
+  #app *::before,
+  #app *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
