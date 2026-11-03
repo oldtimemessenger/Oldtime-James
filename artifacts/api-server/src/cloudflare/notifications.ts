@@ -68,7 +68,7 @@ export async function notificationsRequest(request:Request,db:Database,userId:st
   const [results,chatMentions]=await Promise.all([
     db.batch<Activity>(statements),
     db.prepare(`${viewerCte} SELECT 'chat-mention:'||m.id AS id,'chat-mention' AS kind,
-      'mentioned you in a group chat' AS body,NULL AS postId,NULL AS storyId,NULL AS commentId,
+      'mentioned you in a chat' AS body,NULL AS postId,NULL AS storyId,NULL AS commentId,
       m.created_at AS createdAt,u.id AS actorId,u.username,u.display_name AS displayName,
       json_extract(s.data,'$.profile.avatar') AS avatar,m.conversation_id AS conversationId,m.message_id AS messageId
       FROM chat_mentions m JOIN chat_members cm ON cm.conversation_id=m.conversation_id AND cm.user_id=${V}
