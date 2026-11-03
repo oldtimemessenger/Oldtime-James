@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createBurst, validateStoryComment, insertAtCursor, createPause, createPressPause, STORY_HOLD_DELAY_MS, isIgnoredTap, MAX_BURSTS, REPLY_FADE_MS, REPLY_FADE_STAGGER_MS, storyReplyFadeDelay } from "./story-interactions.js";
+import { createBurst, validateStoryComment, insertAtCursor, createPause, createPressPause, createVisibilityPolling, STORY_HOLD_DELAY_MS, isIgnoredTap, MAX_BURSTS, REPLY_FADE_MS, REPLY_FADE_STAGGER_MS, storyReplyFadeDelay } from "./story-interactions.js";
 
 const node = () => { const n = { style: { setProperty() {} }, removed: false, setAttribute() {}, remove() { n.removed = true; } }; return n; };
 const host = () => ({ nodes: [], append(n) { this.nodes.push(n); } });
@@ -86,4 +86,74 @@ test("Story hold cancels on movement and releases when interrupted", () => {
   assert.deepEqual(log, ["pause", "resume"]);
   assert.equal(press.consumeClick(), false);
   press.dispose();
+});
+
+
+test("Story reply polling pauses in the background and resumes once visible", () => {
+  const listeners = new Map(), timers = new Map();
+  let nextTimer = 0, polls = 0;
+  const doc = {
+    hidden: false,
+    addEventListener: (name, fn) => listeners.set(name, fn),
+    removeEventListener: (name, fn) => { if (listeners.get(name) === fn) listeners.delete(name); },
+  };
+  const polling = createVisibilityPolling({
+    document: doc,
+    poll: () => { polls++; },
+    delay: 5000,
+    setIntervalFn: fn => { const id = ++nextTimer; timers.set(id, fn); return id; },
+    clearIntervalFn: id => timers.delete(id),
+  });
+
+  assert.equal(polls, 1, "poll immediately when the visible Story opens");
+  assert.equal(polling.isActive(), true);
+  assert.equal(timers.size, 1);
+
+  doc.hidden = true;
+  listeners.get("visibilitychange")();
+  assert.equal(polling.isActive(), false);
+  assert.equal(timers.size, 0);
+
+  doc.hidden = false;
+  listeners.get("visibilitychange")();
+  assert.equal(polls, 2, "refresh once when the app becomes visible");
+  assert.equal(polling.isActive(), true);
+  [...timers.values()][0]();
+  assert.equal(polls, 3, "continue the normal foreground interval");
+
+  polling.dispose();
+  assert.equal(polling.isActive(), false);
+  assert.equal(timers.size, 0);
+  assert.equal(listeners.size, 0, "remove the visibility listener on disposal");
+});
+
+test("Story reply polling respects disabled replies and never restarts after disposal", () => {
+  const listeners = new Map(), timers = new Map();
+  let nextTimer = 0, polls = 0, enabled = false;
+  const doc = {
+    hidden: false,
+    addEventListener: (name, fn) => listeners.set(name, fn),
+    removeEventListener: (name, fn) => { if (listeners.get(name) === fn) listeners.delete(name); },
+  };
+  const polling = createVisibilityPolling({
+    document: doc,
+    poll: () => { polls++; },
+    shouldPoll: () => enabled,
+    setIntervalFn: fn => { const id = ++nextTimer; timers.set(id, fn); return id; },
+    clearIntervalFn: id => timers.delete(id),
+  });
+  assert.equal(polls, 0);
+  assert.equal(polling.isActive(), false);
+
+  enabled = true;
+  polling.start();
+  assert.equal(polls, 1);
+  assert.equal(polling.isActive(), true);
+  polling.stop();
+  assert.equal(polling.isActive(), false);
+  polling.dispose();
+  polling.start();
+  assert.equal(polls, 1, "disposed poller must remain inactive");
+  assert.equal(timers.size, 0);
+  assert.equal(listeners.size, 0);
 });
