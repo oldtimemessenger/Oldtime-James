@@ -169,4 +169,9 @@ test("app-wide action controls use a consistent menu and contextual icon languag
   assert.match(visual, /min-height:40px/);
   assert.match(visual, /min-height:44px/);
   assert.match(visual, /prefers-reduced-motion:reduce/);
+  assert.ok(js.includes('title="${mine ? "Settings" : "Profile actions"}">${mine ? ic.menu : ic.tune}</button>'), "The hamburger keeps the accessible Settings label");
+  assert.match(visual, /\.phone > \.nav:not\(\.nav-hidden\)/);
+  assert.match(visual, /backdrop-filter:blur\(18px\)/);
+  assert.match(visual, /\.chat-header/);
+  assert.match(visual, /\.notification-filter/);
 });
