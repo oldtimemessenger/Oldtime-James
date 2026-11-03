@@ -5,6 +5,7 @@ import { unreadInboxCount } from "./inbox-unread.js";
 import { openAccountDeletion } from "./account-deletion.js";
 import { reconcileActiveScreen } from "./keyed-ui.js";
 import { releasePostVideos } from "./media-release.js";
+import { feedPaginationRootMargin } from "./feed-pagination.js";
 import { installAvatarFallbacks } from "./avatar-fallback.js";
 import { feedFollowButton } from "./feed-follow.js";
 import { tipIllustration } from "./tip-illustrations.js";
@@ -2518,7 +2519,7 @@ function updates() {
       api.authMode() === "cloud" && "IntersectionObserver" in window) {
     feedPageObserver = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) void loadMoreCloudPosts();
-    }, { root: $("#feed"), rootMargin: "320px 0px" });
+    }, { root: $("#feed"), rootMargin: feedPaginationRootMargin({ viewportHeight: window.innerHeight }) });
     feedPageObserver.observe(feedPager);
   }
 }
