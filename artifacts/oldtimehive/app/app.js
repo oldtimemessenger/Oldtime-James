@@ -3675,7 +3675,7 @@ function comments(id, focusedCommentId = "") {
   let actionLayer = null;
   let mentionCleanup = () => {};
   const expandedReplies = new Set();
-  const totalCount = comments => comments.reduce((total, comment) => total + 1 + (comment.replies || []).length, 0);
+  const totalCount = comments => comments.reduce((total, comment) => total + 1 + totalCount(comment.replies || []), 0);
   const close = () => {
     actionLayer?.remove();
     actionLayer = null;
@@ -3816,23 +3816,26 @@ function comments(id, focusedCommentId = "") {
     $("#comment-sort-label", sheet).textContent = sortMode === "top" ? "Top" : "Newest";
     list.innerHTML = visibleComments.map(comment => {
       const author = api.user(comment.author) || { username: "member", avatar: "" };
-      const flattenReplies = nodes => nodes.flatMap(reply => [reply, ...flattenReplies(reply.replies || [])]);
-      const replies = flattenReplies(comment.replies || []);
+      const replies = comment.replies || [];
+      const replyCount = totalCount(replies);
       const expanded = expandedReplies.has(comment.id);
       const liked = (comment.likes || []).includes(api.me().id);
       const disliked = (comment.dislikes || []).includes(api.me().id);
       const commentDate = comment.created ? new Date(comment.created) : null;
       const dateLabel = commentDate ? `${commentDate.getMonth() + 1}-${String(commentDate.getDate()).padStart(2, "0")}` : ago(comment.created);
-      const replyMarkup = replies.map(reply => {
+      const renderReply = reply => {
         const replyAuthor = api.user(reply.author) || { username: "member", avatar: "" };
+        const nested = reply.replies || [];
         return `<div class="comment-reply ${reply.id === enteringCommentId ? "comment-item-entering" : ""}" id="reply-${esc(reply.id)}">
           <img ${profileMediaSource(replyAuthor.avatar)} alt="" class="comment-reply-avatar" />
-          <div class="comment-reply-content"><b>@${esc(replyAuthor.username)}</b><span>${esc(reply.body)}</span>
+          <div class="comment-reply-content"><b>@${esc(replyAuthor.username)}</b><span>${renderMentionText(reply.body)}</span>
             ${reply.attachment?.url ? `<img class="comment-attachment" src="${esc(reply.attachment.url)}" alt="Photo attached to reply" loading="lazy" />` : ""}
             <small>${ago(reply.created)} <button type="button" data-reply="${esc(reply.id)}">Reply</button> <button type="button" data-comment-share="${esc(reply.id)}" aria-label="Share reply">${ic.share}</button> <button type="button" data-cmore="${esc(reply.id)}" aria-label="Reply actions">${ic.more}</button> ${reply.author === api.me().id ? `<button type="button" data-rdel="${esc(comment.id)}:${esc(reply.id)}">Delete</button>` : ""}</small>
+            ${nested.length ? `<div class="comment-replies comment-replies-nested">${nested.map(renderReply).join("")}</div>` : ""}
           </div>
         </div>`;
-      }).join("");
+      };
+      const replyMarkup = replies.map(renderReply).join("");
       const favoriteKey = `${id}:${comment.id}`;
       const isFavorite = Array.isArray(api.me().commentFavorites) && api.me().commentFavorites.includes(favoriteKey);
       return `<article class="comment-item ${comment.id === enteringCommentId ? "comment-item-entering" : ""}" id="comment-${esc(comment.id)}">
@@ -3851,7 +3854,7 @@ function comments(id, focusedCommentId = "") {
             <button type="button" class="comment-share-action" data-comment-share="${esc(comment.id)}" aria-label="Share comment">${ic.share}</button>
             ${comment.author === api.me().id || post.author === api.me().id ? `<button type="button" class="comment-delete" data-cdel="${esc(comment.id)}">Delete</button>` : ""}
           </div>
-          ${replies.length ? `<button type="button" class="comment-view-replies" data-toggle-replies="${esc(comment.id)}" aria-expanded="${expanded}">${expanded ? "Hide" : "View"} ${replies.length} ${replies.length === 1 ? "reply" : "replies"}</button>` : ""}
+          ${replyCount ? `<button type="button" class="comment-view-replies" data-toggle-replies="${esc(comment.id)}" aria-expanded="${expanded}">${expanded ? "Hide" : "View"} ${replyCount} ${replyCount === 1 ? "reply" : "replies"}</button>` : ""}
           ${expanded ? `<div class="comment-replies">${replyMarkup}</div>` : ""}
         </div>
       </article>`;
@@ -6779,12 +6782,11 @@ function openCommunityNoteComposer() {
     const field = wrap.querySelector("textarea");
     threadParts.push(field); partKeys.push(null); threadList.appendChild(wrap);
     threadMentionCleanups.push(bindMentionAutocomplete(field, { api }));
-    field.oninput = () => { wrap.querySelector("small").textContent = `${[...field.value].length.toLocaleString()} / 1,000`; contentChanged(index); syncSubmit(); };
+    field.oninput = () => { const currentIndex=threadParts.indexOf(field)+1; wrap.querySelector("small").textContent = `${[...field.value].length.toLocaleString()} / 1,000`; contentChanged(currentIndex); syncSubmit(); };
     wrap.querySelector("[data-thread-remove]").onclick = () => {
-      if (index < publishedIds.length || busy()) return;
-      const at = threadParts.indexOf(field); if (at < 0) return;
+      const at = threadParts.indexOf(field); if (at < 0 || at+1 < publishedIds.length || busy()) return;
       threadParts.splice(at,1); partKeys.splice(at+1,1); threadMentionCleanups.splice(at,1)[0]?.(); wrap.remove();
-      [...threadList.children].forEach((item,i)=>{ item.querySelector("header span").textContent = `Post ${i+2} of 10`; });
+      [...threadList.children].forEach((item,i)=>{ item.querySelector("header span").textContent = `Post ${i+2} of 10`; item.querySelector("textarea").setAttribute("aria-label",`Thread post ${i+2}`); });
       syncSubmit();
     };
     field.focus(); syncSubmit();
