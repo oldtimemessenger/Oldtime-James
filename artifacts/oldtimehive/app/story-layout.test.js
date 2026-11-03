@@ -93,6 +93,15 @@ test("stories share one expiry rule and the retired Hey Word prompt is absent", 
   assert.doesNotMatch(interactions, /Hey Word|hey-word/i);
 });
 
+test("Stories reuse the Home feed action icon scale and shared menu rhythm", () => {
+  const shared = readFileSync(new URL("./ecosystem-consistency.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/ecosystem-consistency\.css"/);
+  assert.match(shared, /\.story-heart \.navic,[\s\S]*?\.story-reaction-open \.navic\s*\{[^}]*width:24px;[^}]*height:24px/);
+  assert.match(shared, /\.story-more-item\s*\{[^}]*min-height:44px/);
+  assert.match(shared, /\.post-actions-menu-items button,[\s\S]*?\{[^}]*min-height:44px/);
+  assert.match(shared, /prefers-reduced-motion:reduce/);
+});
+
 test("Story playback progress follows video time and photo duration is five seconds", () => {
   assert.match(js, /const progressBar = \$\("#bar"\)/);
   assert.match(js, /video\.currentTime \/ video\.duration/);

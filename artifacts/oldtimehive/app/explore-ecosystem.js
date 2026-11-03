@@ -229,7 +229,10 @@ export function createExploreEcosystem(deps) {
     const authorName = author.name || author.displayName || author.username || "Oldtime member";
     const likes = Number.isFinite(post.likeCount) ? post.likeCount : Array.isArray(post.likes) ? post.likes.length : null;
     const caption = media && text ? `<span class="xe-cap-text">${esc(text.slice(0, 80))}</span>` : "";
-    return `<div class="xe-card"><div class="xe-tile ${isVideo ? "is-video" : media ? "is-photo" : "is-text"}">
+    const topicChips = topics.slice(0, 2).map(item =>
+      `<button type="button" class="xe-cap-topic" data-xe-topic="${esc(item.id)}" aria-label="See more about ${esc(item.label)}">${esc(item.label)}</button>`
+    ).join("");
+    return `<article class="xe-card" aria-label="${esc(label)}"><div class="xe-tile ${isVideo ? "is-video" : media ? "is-photo" : "is-text"}">
       <button type="button" class="xe-open" data-xe-post="${esc(post.id)}" aria-label="${esc(label + (isVideo ? ", video" : ""))}">${inner}
         ${isVideo ? `<span class="xe-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>` : ""}
       </button>
@@ -237,7 +240,7 @@ export function createExploreEcosystem(deps) {
     </div>
     <div class="xe-cap">${caption}<span class="xe-cap-meta"><button type="button" class="xe-cap-author" data-xe-profile="${esc(post.author)}"><img src="${esc(author.avatar || (typeof automaticAvatar === "function" ? automaticAvatar(post.author || "oldtime") : ""))}" alt="" loading="lazy" /><span>${esc(authorName)}</span></button>
       ${likes !== null && likes > 0 ? `<span class="xe-cap-likes" aria-label="${likes} likes">${ic.mediaHeart}${compact(likes)}</span>` : ""}
-      ${mine ? "" : `<button type="button" class="xe-cap-more" data-xe-why="${esc(post.id)}" aria-label="Why this post and Not interested">${ic.more}</button>`}</span></div></div>`;
+      ${mine ? "" : `<button type="button" class="xe-cap-more" data-xe-why="${esc(post.id)}" aria-label="Why this post and Not interested">${ic.more}</button>`}</span>${topicChips ? `<div class="xe-cap-topics" aria-label="Post topics">${topicChips}</div>` : ""}</div></article>`;
   }
 
   function videoPreviewRailMarkup(limit = 12) {
@@ -369,9 +372,10 @@ export function createExploreEcosystem(deps) {
           ? "Try another word, or switch the result type." : type === "videos" ? "Try another interest or switch to People to find creators." : "Try another interest or result type to find public posts."}</p></div>`);
       }
       body = parts.join("");
-      if (loading && d.posts.length) body += `<div class="xe-state" role="status">Updating…</div>`;
+      if (loading && d.posts.length) body += `<div class="xe-state" role="status">Refreshing your results…</div>`;
+      if (state.loadingMore) body += `<div class="xe-more-skeletons" aria-label="Loading more posts" role="status"><span></span><span></span><span></span></div>`;
       if (state.moreError) body += `<div class="xe-state" role="alert">${esc(state.moreError)} <button type="button" class="xe-link" data-xe-more>Try again</button></div>`;
-      if (state.hasMore && (POST_TYPES.has(type)||type==="people")) body += `<button type="button" class="xe-more" data-xe-more ${state.loadingMore ? "disabled" : ""}>${state.loadingMore ? "Loading…" : "Load more"}</button>`;
+      if (state.hasMore && (POST_TYPES.has(type)||type==="people")) body += `<button type="button" class="xe-more" data-xe-more ${state.loadingMore ? "disabled" : ""}>${state.loadingMore ? "Loading more…" : "Keep exploring"}</button>`;
     }
     return {
       input,
@@ -465,7 +469,9 @@ export function createExploreEcosystem(deps) {
         if(!more.isConnected){pageObserver?.disconnect();return;}
         if(entries.some(entry=>entry.isIntersecting)&&isActive()){
           pageObserver?.disconnect();
-          void load({append:true});
+          const pending = load({append:true});
+          rerender();
+          void pending;
         }
       },{root:root.querySelector(".search-screen .page"),rootMargin:"500px"});
       pageObserver.observe(more);
@@ -511,7 +517,12 @@ export function createExploreEcosystem(deps) {
       rerender();
     });
     root.querySelectorAll("[data-xe-retry]").forEach(b => b.onclick = () => load({ force: true }));
-    root.querySelectorAll("[data-xe-more]").forEach(b => b.onclick = () => load({ append: true, force: true }));
+    root.querySelectorAll("[data-xe-more]").forEach(b => b.onclick = () => {
+      if (state.loadingMore) return;
+      const pending = load({ append: true, force: true });
+      rerender();
+      void pending;
+    });
     root.querySelectorAll("[data-xe-profile]").forEach(b => b.onclick = () => navigateToProfile(b.dataset.xeProfile));
     root.querySelectorAll("[data-xe-place]").forEach(b => b.onclick = () => selectPlace({
       id: b.dataset.xePlace, label: b.dataset.placeLabel, source: b.dataset.placeSource,

@@ -21,3 +21,11 @@ test("post action menu escapes identifiers and labels archived posts for restore
   assert.match(html, />Restore from archive<\/span>/);
   assert.match(html, /<summary aria-label="Post actions" title="Post actions"><svg><\/svg><\/summary>/);
 });
+
+test("post actions are grouped and destructive actions are visually separated", () => {
+  const html = renderPostActionsMenu({ postId: "post-2" });
+  assert.match(html, /role="group" aria-label="Manage post"/);
+  assert.match(html, /role="separator"/);
+  assert.match(html, /role="group" aria-label="Destructive actions"/);
+  assert.match(html, /class="is-destructive" role="menuitem" data-delete-post/);
+});
