@@ -1639,6 +1639,15 @@ export const api = {
     return result.profiles.map(profile => ({ ...profile, localId: cloudAuthorId(profile) }))
       .filter(profile => profile.id !== session.account.id);
   },
+  async searchCloudChatMentionUsers(conversationId, query) {
+    const session = getCloudSession();
+    const normalized = String(query || "").trim();
+    if (!session?.accessToken || !conversationId || normalized.length < 2) return [];
+    const result = await cloudRequest(`/api/chats/${encodeURIComponent(conversationId)}/mention-search?query=${encodeURIComponent(normalized)}`, { session });
+    if (!Array.isArray(result.profiles)) throw new Error("Chat tag suggestions returned an invalid response.");
+    ensureCurrentCloudSession(session);
+    return result.profiles.map(profile => ({ ...profile, localId: cloudAuthorId(profile) }));
+  },
   migrateLegacyChatArchives({ retry = false } = {}) {
     const session = getCloudSession();
     const me = this.me();
