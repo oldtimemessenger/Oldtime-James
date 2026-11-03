@@ -1,0 +1,300 @@
+/* Oldtime Stories immersive redesign v2.
+   Mobile remains edge-to-edge; desktop gets a focused vertical viewer frame.
+   This layer only changes presentation and preserves the existing Story engine. */
+#storyview.storyview {
+  --story-frame-width: min(460px, calc((100dvh - 40px) * .5625), calc(100vw - 48px));
+  --story-frame-height: min(860px, calc(100dvh - 40px));
+  background:#08090c;
+  color:#fff;
+  overflow:hidden;
+  isolation:isolate;
+  overscroll-behavior:contain;
+  -webkit-tap-highlight-color:transparent;
+}
+#storyview.storyview > .progress {
+  z-index:12;
+  height:3px;
+  border-radius:999px;
+  background:rgba(255,255,255,.28);
+  box-shadow:0 1px 10px rgba(0,0,0,.24);
+}
+#storyview.storyview > .progress b {
+  background:linear-gradient(90deg,#fff 0%,#f4f7ff 100%);
+  box-shadow:0 0 10px rgba(255,255,255,.38);
+}
+#storyview.storyview .story-stage {
+  overflow:hidden;
+  isolation:isolate;
+  background:#08090c;
+}
+#storyview.storyview .story-stage-media {
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+#storyview.storyview .story-caption {
+  z-index:4;
+  max-height:34vh;
+  padding:0;
+  text-wrap:pretty;
+  text-shadow:0 2px 18px rgba(0,0,0,.78);
+}
+#storyview.storyview .story-header {
+  z-index:13;
+}
+#storyview.storyview .story-creator {
+  min-height:46px;
+  gap:10px;
+  padding:5px 14px 5px 5px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  background:rgba(9,12,18,.36);
+  box-shadow:0 6px 24px rgba(0,0,0,.12);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  backdrop-filter:blur(18px) saturate(135%);
+  transition:background .18s ease,transform .18s ease;
+}
+#storyview.storyview .story-creator:active { transform:scale(.98); background:rgba(9,12,18,.58); }
+#storyview.storyview .story-creator img {
+  width:36px;
+  height:36px;
+  flex-basis:36px;
+  border:1.5px solid rgba(255,255,255,.92);
+}
+#storyview.storyview .story-creator-copy b {
+  font-size:13px;
+  font-weight:750;
+  letter-spacing:-.015em;
+  text-transform:none;
+}
+#storyview.storyview .story-creator-copy small {
+  color:rgba(255,255,255,.76);
+  font-size:10px;
+}
+#storyview.storyview > #sclose {
+  z-index:14!important;
+  width:40px;
+  height:40px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:50%;
+  background:rgba(9,12,18,.38);
+  box-shadow:0 6px 22px rgba(0,0,0,.14);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+}
+#storyview.storyview .story-side-actions {
+  z-index:13;
+  gap:14px;
+}
+#storyview.storyview .story-heart,
+#storyview.storyview .story-share {
+  width:46px;
+  height:46px;
+  flex-basis:46px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:50%;
+  background:rgba(9,12,18,.38);
+  box-shadow:0 6px 20px rgba(0,0,0,.16);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+#storyview.storyview .story-heart .navic { width:24px; height:24px; }
+#storyview.storyview .story-share .navic { width:22px; height:22px; }
+#storyview.storyview .story-bar {
+  z-index:14;
+  gap:9px;
+}
+#storyview.storyview .story-compose {
+  min-height:50px;
+  height:50px;
+  border-color:rgba(255,255,255,.32);
+  background:rgba(9,12,18,.48);
+  box-shadow:0 8px 28px rgba(0,0,0,.2);
+  -webkit-backdrop-filter:blur(20px) saturate(130%);
+  backdrop-filter:blur(20px) saturate(130%);
+  transition:border-color .18s ease,background .18s ease;
+}
+#storyview.storyview .story-compose:focus-within {
+  border-color:rgba(255,255,255,.72);
+  background:rgba(9,12,18,.62);
+}
+#storyview.storyview .story-reply-input { font-size:14px; }
+#storyview.storyview .story-reply-input::placeholder { color:rgba(255,255,255,.78); }
+#storyview.storyview .story-send {
+  width:36px;
+  height:36px;
+  flex-basis:36px;
+  border-radius:50%;
+  background:var(--color-primary,#1456d9);
+  box-shadow:0 3px 14px rgba(20,86,217,.32);
+}
+#storyview.storyview .story-profile-mini,
+#storyview.storyview .story-activity-open,
+#storyview.storyview .story-more-open {
+  border-color:rgba(255,255,255,.22);
+  background:rgba(9,12,18,.44);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+#storyview.storyview .story-live-chat { z-index:12; }
+#storyview.storyview .story-live-message {
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  background:rgba(9,12,18,.42);
+  box-shadow:0 5px 18px rgba(0,0,0,.12);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+#storyview.storyview .story-more-menu {
+  z-index:30;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:22px;
+  background:rgba(15,18,24,.96);
+  box-shadow:0 22px 64px rgba(0,0,0,.48);
+  -webkit-backdrop-filter:blur(24px) saturate(130%);
+  backdrop-filter:blur(24px) saturate(130%);
+}
+#storyview.storyview .story-reaction-picker button {
+  width:40px;
+  height:44px;
+  flex-basis:40px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:50%;
+  background:rgba(9,12,18,.52)!important;
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  transition:transform .16s ease,background .16s ease;
+}
+#storyview.storyview .story-reaction-picker button:active { transform:scale(1.14); }
+@media (min-width:700px) {
+  #storyview.storyview {
+    --story-frame-width:min(460px, calc((100dvh - 40px) * .5625), calc(100vw - 48px));
+    --story-frame-height:min(860px, calc(100dvh - 40px));
+    background:radial-gradient(ellipse at 50% 42%,#252a34 0%,#11141a 48%,#08090c 100%);
+  }
+  #storyview.storyview > .story-stage {
+    top:50%;
+    left:50%;
+    right:auto;
+    bottom:auto;
+    width:var(--story-frame-width);
+    height:var(--story-frame-height);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:26px;
+    transform:translate(-50%,-50%);
+    box-shadow:0 28px 100px rgba(0,0,0,.58),0 0 0 1px rgba(255,255,255,.035);
+  }
+  #storyview.storyview > .progress {
+    top:calc(50% - var(--story-frame-height) / 2 + 12px);
+    left:calc(50% - var(--story-frame-width) / 2 + 14px);
+    right:calc(50% - var(--story-frame-width) / 2 + 14px);
+  }
+  #storyview.storyview .story-header {
+    top:calc(50% - var(--story-frame-height) / 2 + 28px);
+    left:calc(50% - var(--story-frame-width) / 2 + 14px);
+    right:calc(50% - var(--story-frame-width) / 2 + 60px);
+  }
+  #storyview.storyview > #sclose {
+    top:calc(50% - var(--story-frame-height) / 2 + 26px)!important;
+    right:calc(50% - var(--story-frame-width) / 2 + 12px)!important;
+  }
+  #storyview.storyview .story-caption {
+    left:18px;
+    right:76px;
+    bottom:calc(max(22px,env(safe-area-inset-bottom)) + 88px);
+    max-width:calc(100% - 100px);
+  }
+  #storyview.storyview .story-side-actions {
+    right:calc(50% - var(--story-frame-width) / 2 + 12px);
+    bottom:calc(50% - var(--story-frame-height) / 2 + 112px);
+  }
+  #storyview.storyview .story-bar {
+    left:calc(50% - var(--story-frame-width) / 2 + 12px);
+    right:calc(50% - var(--story-frame-width) / 2 + 12px);
+    bottom:calc(50% - var(--story-frame-height) / 2 + 12px);
+    max-width:calc(var(--story-frame-width) - 24px);
+  }
+  #storyview.storyview .story-live-chat {
+    left:calc(50% - var(--story-frame-width) / 2 + 16px);
+    right:calc(50% - var(--story-frame-width) / 2 + 76px);
+    bottom:calc(50% - var(--story-frame-height) / 2 + 70px);
+    max-width:calc(var(--story-frame-width) - 104px);
+  }
+  #storyview.storyview > .story-more-menu {
+    left:calc(50% - var(--story-frame-width) / 2 + 8px);
+    right:calc(50% - var(--story-frame-width) / 2 + 8px);
+    bottom:calc(50% - var(--story-frame-height) / 2 + 66px);
+    max-width:calc(var(--story-frame-width) - 16px);
+  }
+}
+@media (max-width:380px) {
+  #storyview.storyview .story-side-actions { right:10px; gap:10px; }
+  #storyview.storyview .story-heart,
+  #storyview.storyview .story-share { width:42px; height:42px; flex-basis:42px; }
+}
+@media (max-height:520px) and (orientation:landscape) {
+  #storyview.storyview .story-caption { max-height:24vh; font-size:17px; }
+  #storyview.storyview .story-side-actions { gap:8px; }
+  #storyview.storyview .story-heart,
+  #storyview.storyview .story-share { width:38px; height:38px; flex-basis:38px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #storyview.storyview *,
+  #storyview.storyview *::before,
+  #storyview.storyview *::after { transition-duration:.01ms!important; animation-duration:.01ms!important; }
+}
+
+/* Instagram-inspired segmented progress, driven by the existing Story timer. */
+#storyview.storyview > .story-progress {
+  display:flex;
+  align-items:center;
+  gap:3px;
+  height:3px;
+  overflow:visible;
+  background:transparent;
+}
+#storyview.storyview > .story-progress > .story-progress-segment {
+  position:relative;
+  display:block;
+  flex:1 1 0;
+  min-width:0;
+  height:3px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.36);
+  box-shadow:0 1px 7px rgba(0,0,0,.24);
+}
+#storyview.storyview > .story-progress > .story-progress-segment.is-complete > b {
+  width:100%;
+}
+#storyview.storyview > .story-progress > .story-progress-segment > b {
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,.36);
+}
+#storyview.storyview > .story-progress > .story-progress-segment.is-active > b {
+  will-change:width;
+}
+@media (min-width:700px) {
+  #storyview.storyview > .story-progress {
+    gap:4px;
+  }
+  #storyview.storyview > .story-progress > .story-progress-segment {
+    height:3px;
+  }
+}
+
+
+/* Keep Story changes feeling immediate without imposing a long transition. */
+#storyview.storyview .story-stage {
+  animation: story-stage-arrive 160ms cubic-bezier(.2,.72,.25,1) both;
+}
+@keyframes story-stage-arrive {
+  from { opacity:.82; transform:scale(1.012); }
+  to { opacity:1; transform:scale(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+  #storyview.storyview .story-stage { animation:none; }
+}

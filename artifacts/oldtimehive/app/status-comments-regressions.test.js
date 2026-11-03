@@ -84,3 +84,22 @@ test("Cloudflare accepts an owner's reaction without counting an owner view", ()
   assert.doesNotMatch(reaction, /s\.author_id===userId|another account/);
   assert.match(worker, /if\(s\.author_id!==userId\)await db\.prepare\("INSERT INTO story_views/);
 });
+
+test("a reply can continue an existing reply chain at any depth", async () => {
+  const root = { id: postId, body: "Parent", replies: [] };
+  const firstReply = { id: commentId, body: "First reply", replies: [] };
+  root.replies.push(firstReply);
+  const cache = new Map([[postId, [root]]]), versions = new Map();
+  const session = { accessToken: "local-test", account: { id: "viewer" } };
+  const nestedId = "33333333-3333-4333-8333-333333333333";
+  const create = storeMethod("createCloudPostComment", "setCloudPostCommentReaction", {
+    getCloudSession: () => session, cloudPostComments: cache, cloudPostCommentVersions: versions,
+    cloudRequest: async () => ({ id: nestedId, parentId: commentId, body: "Second-level reply", author: { id: "viewer" }, createdAt: 20 }),
+    cloudAuthorId: author => author.id, forEachCloudPostCopy: () => {},
+  });
+  await create.call({
+    me: () => ({ id: "viewer" }), post: () => ({ comments: [root], commentCount: 2 }),
+    loadCloudPostComments: async () => { throw new Error("Expected refresh failure"); },
+  }, postId, { body: "Second-level reply", parentId: commentId });
+  assert.equal(firstReply.replies[0].id, nestedId);
+});

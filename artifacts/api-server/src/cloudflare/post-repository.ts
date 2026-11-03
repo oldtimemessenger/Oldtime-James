@@ -4,6 +4,7 @@ import { rows, object, publicDetails, V, viewerCte, visiblePost, type Database }
 
 export interface PostRow {
   id: string; source_id: string | null; remix_source_post_id: string | null; audio_source_post_id: string | null;
+  thread_id: string | null; thread_position: number | null;
   author_id: string; text: string; visibility: SocialPost["visibility"];
   archived_at: number | null;
   audio_reuse_allowed: number;
@@ -141,7 +142,7 @@ export async function hydratePosts(db: Database, userId: string, records: PostRo
     const top = comments.find(c => c.post_id===p.id);
     const friendRows = friends.filter(f => f.post_id===p.id);
     const confirmedFriendRows=friendRows.filter(f=>Boolean(f.is_friend));
-    return {
+    return Object.assign({
       id:p.id, sourceId:p.source_id, remixSourcePostId:p.remix_source_post_id,
       audioSourcePostId:p.audio_source_post_id,
       audioSound:(sounds.find(sound=>sound.post_id===p.id) ? (() => {
@@ -180,6 +181,6 @@ export async function hydratePosts(db: Database, userId: string, records: PostRo
       repostedByFriends:confirmedFriendRows.slice(0,3).map(f=>({
         id:f.id,username:f.username,displayName:f.display_name,joinedAt:f.created_at,...publicDetails(f.data),
       })),
-    };
+    }, {threadId:p.thread_id || null,threadPosition:p.thread_position == null ? null : Number(p.thread_position)});
   });
 }

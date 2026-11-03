@@ -240,7 +240,7 @@ export function createExploreEcosystem(deps) {
     </div>
     <div class="xe-cap">${caption}<span class="xe-cap-meta"><button type="button" class="xe-cap-author" data-xe-profile="${esc(post.author)}"><img src="${esc(author.avatar || (typeof automaticAvatar === "function" ? automaticAvatar(post.author || "oldtime") : ""))}" alt="" loading="lazy" /><span>${esc(authorName)}</span></button>
       ${likes !== null && likes > 0 ? `<span class="xe-cap-likes" aria-label="${likes} likes">${ic.mediaHeart}${compact(likes)}</span>` : ""}
-      ${mine ? "" : `<button type="button" class="xe-cap-more" data-xe-why="${esc(post.id)}" aria-label="Why this post and Not interested">${ic.more}</button>`}</span>${topicChips ? `<div class="xe-cap-topics" aria-label="Post topics">${topicChips}</div>` : ""}</div></article>`;
+      ${mine ? "" : `<button type="button" class="xe-cap-more" data-xe-why="${esc(post.id)}" aria-label="Why this post and Not interested">${ic.tune}</button>`}</span>${topicChips ? `<div class="xe-cap-topics" aria-label="Post topics">${topicChips}</div>` : ""}</div></article>`;
   }
 
   function videoPreviewRailMarkup(limit = 12) {

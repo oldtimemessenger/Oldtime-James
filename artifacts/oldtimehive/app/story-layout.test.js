@@ -110,3 +110,105 @@ test("Story playback progress follows video time and photo duration is five seco
   assert.match(js, /: 5000/);
   assert.match(js, /document\.hidden/);
 });
+
+
+test("Stories use the immersive responsive viewer without replacing the existing Story engine", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/story-immersive-redesign\.css"/);
+  assert.match(redesign, /#storyview\.storyview\s*\{[^}]*overscroll-behavior:contain/);
+  assert.match(redesign, /\.story-creator\s*\{[^}]*backdrop-filter:blur/);
+  assert.match(redesign, /\.story-compose:focus-within/);
+  assert.match(redesign, /@media\s*\(min-width:700px\)/);
+  assert.match(redesign, /--story-frame-width\s*:\s*min\(460px/);
+  assert.match(redesign, /\.story-stage\s*\{[^}]*border-radius:26px/);
+  assert.match(redesign, /@media\s*\(max-height:520px\) and \(orientation:landscape\)/);
+  assert.match(redesign, /prefers-reduced-motion:reduce/);
+  assert.match(js, /mountStoryInteractions\(/);
+  assert.match(js, /api\.canSeeStory\(s\)/);
+});
+
+test("Stories use a centered immersive stage on desktop and preserve full-bleed mobile playback", () => {
+  const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(visual, /--story-frame-width:min\(480px/);
+  assert.match(visual, /--story-frame-height:min\(854px/);
+  assert.match(visual, /\.story-stage\s*\{[\s\S]*?border-radius:26px/);
+  assert.match(visual, /\.story-bar\s*\{[\s\S]*?max-width:calc\(var\(--story-frame-width\) - 24px\)/);
+  assert.match(visual, /@media \(max-width:699px\)[\s\S]*?border-radius:0/);
+  assert.match(visual, /\.story-compose:focus-within[\s\S]*?var\(--color-primary/);
+  assert.match(visual, /prefers-reduced-motion:reduce/);
+});
+
+test("Story progress is segmented by item and announces the current position", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /class="progress story-progress" role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
+  assert.match(js, /class="progress-segment\$\{index < i \? " is-complete" : ""\}\$\{index === i \? " is-active" : ""\} story-progress-segment" aria-hidden="true"/);
+  assert.match(js, /index === i \? ' id="bar"'/);
+  assert.match(js, /const progressBar = \$\("#bar"\)/);
+  assert.match(redesign, /\.story-progress\s*\{[^}]*display:flex/);
+  assert.match(redesign, /\.story-progress-segment\.is-complete > b\s*\{[^}]*width:100%/);
+  assert.match(redesign, /\.story-progress-segment\.is-active > b/);
+  assert.match(js, /role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
+  assert.match(js, /progress-segment\$\{index < i \? " is-complete" : ""\}/);
+  const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(visual, /\.progress-segment\s*\{[^}]*flex:1 1 0/);
+  assert.match(visual, /\.progress-segment\.is-complete b\s*\{\s*width:100%/);
+});
+
+
+test("Story viewer warms only the next authorized image and respects reduced motion", () => {
+  assert.match(js, /preloadStoryImage\(nextStory\)/);
+  assert.match(js, /!isStoryActive\(story\) \|\| !api\.canSeeStory\(story\)/);
+  assert.match(js, /story\.kind === "video"/);
+  assert.match(js, /list\[i \+ 1\]\?\.id !== nextStory\.id/);
+  const immersive = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(immersive, /story-stage-arrive/);
+  assert.match(immersive, /prefers-reduced-motion:reduce/);
+});
+
+
+test("Story viewer warms only the next authorized image and respects reduced motion", () => {
+  assert.match(js, /preloadStoryImage\(nextStory\)/);
+  assert.match(js, /!isStoryActive\(story\) \|\| !api\.canSeeStory\(story\)/);
+  assert.match(js, /story\.kind === "video"/);
+  assert.match(js, /list\[i \+ 1\]\?\.id !== nextStory\.id/);
+  const immersive = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(immersive, /story-stage-arrive/);
+  assert.match(immersive, /prefers-reduced-motion:reduce/);
+});
+
+test("app-wide action controls use a consistent menu and contextual icon language", () => {
+  const icons = readFileSync(new URL("./icons.js", import.meta.url), "utf8");
+  const storyInteractions = readFileSync(new URL("./story-interactions.js", import.meta.url), "utf8");
+  const storyStyles = readFileSync(new URL("./story-interactions.css", import.meta.url), "utf8");
+  const explore = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
+  const blastDrawer = readFileSync(new URL("./blast-settings-drawer.js", import.meta.url), "utf8");
+  const blastStyles = readFileSync(new URL("./blast-video-notes.css", import.meta.url), "utf8");
+  const menu = readFileSync(new URL("./post-actions-menu.js", import.meta.url), "utf8");
+  const visual = readFileSync(new URL("./app-wide-visual-language.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/app-wide-visual-language\.css"/);
+  assert.match(js, /mine \? ic\.menu : ic\.tune/);
+  assert.match(js, /aria-label="Comment actions">\$\{ic\.tune\}/);
+  assert.match(js, /aria-label="Reply actions">\$\{ic\.tune\}/);
+  assert.ok(storyInteractions.includes('icon("mediaHeart")'), "Story likes reuse the Home feed media-heart icon");
+  assert.ok(storyInteractions.includes('icon("share")'), "Story sharing reuses the Home feed share icon");
+  assert.match(js, /ic\.mediaHeart/);
+  assert.match(js, /ic\.share/);
+  assert.match(storyStyles, /\.story-heart \.navic \{ width:30px; height:30px/);
+  assert.match(storyStyles, /\.story-share \.navic \{ width:30px; height:30px/);
+  assert.ok(storyInteractions.includes('class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("tune")}'), "Story options use the refined contextual action icon");
+  assert.ok(explore.includes('aria-label="Why this post and Not interested">${ic.tune}</button>'), "Explore uses the shared contextual action icon");
+  assert.ok(blastDrawer.includes('ctx.icon("chevronRight")'), "Blast settings rows use a directional chevron, not an ellipsis");
+  assert.match(blastStyles, /\.bvn-settings-chevron \{ display:grid/);
+  assert.match(menu, /icons\.tune \|\| icons\.more/);
+  assert.match(icons, /tune: '<path d="M4 6h16M4 12h16M4 18h16"/);
+  assert.match(visual, /\.profile-actions-open/);
+  assert.match(visual, /min-height:40px/);
+  assert.match(visual, /min-height:44px/);
+  assert.match(visual, /prefers-reduced-motion:reduce/);
+  assert.ok(js.includes('title="${mine ? "Settings" : "Profile actions"}">${mine ? ic.menu : ic.tune}</button>'), "The hamburger keeps the accessible Settings label");
+  assert.match(visual, /\.phone > \.nav:not\(\.nav-hidden\)/);
+  assert.match(visual, /backdrop-filter:blur\(18px\)/);
+  assert.match(visual, /\.chat-header/);
+  assert.match(visual, /\.notification-filter/);
+  assert.match(visual, /\.xe-cap-more/);
+});

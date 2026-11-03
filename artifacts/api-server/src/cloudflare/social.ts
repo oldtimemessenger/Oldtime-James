@@ -468,6 +468,71 @@ async function searchUsers(request: Request, db: Database, userId: string, menti
   return json({users:accounts.map(u=>({id:u.id,username:u.username,displayName:u.display_name,joinedAt:u.created_at,...publicDetails(u.data)}))});
 }
 
+async function loadCommunityThreadPosts(db: Database, userId: string, rootId: string) {
+  const items = await rows<{id:string}>(db,
+    "SELECT id FROM posts WHERE thread_id=? ORDER BY thread_position ASC,created_at ASC,id ASC",rootId);
+  const records: NonNullable<Awaited<ReturnType<typeof getPost>>>[] = [];
+  for (const item of items) {
+    const post = await getPost(db,userId,item.id);
+    if (post) records.push(post);
+  }
+  return hydratePosts(db,userId,records);
+}
+
+async function communityPostThread(request: Request, db: Database, userId: string, postId: string) {
+  const selected = await getPost(db,userId,postId);
+  if (!selected || selected.archived_at) throw new ApiError(404,"Post not found.");
+  const selectedThread = await db.prepare("SELECT thread_id FROM posts WHERE id=?").bind(postId).first<{thread_id:string|null}>();
+  const rootId = selectedThread?.thread_id || postId;
+  const root = await getPost(db,userId,rootId);
+  if (!root || root.archived_at || root.author_id !== selected.author_id) throw new ApiError(404,"Conversation not found.");
+  if (!["community","both"].includes(root.destination)) throw new ApiError(404,"Community conversation not found.");
+  if (request.method === "GET") {
+    const posts = await loadCommunityThreadPosts(db,userId,rootId);
+    const visiblePosts = posts.length ? posts : await hydratePosts(db,userId,[root]);
+    return json({threadId:rootId,posts:visiblePosts,position:Math.max(0,visiblePosts.findIndex(item=>item.id===postId))});
+  }
+  if (request.method !== "POST") throw new ApiError(405,"Method not allowed.");
+  if (root.author_id !== userId) throw new ApiError(403,"Only the author can add posts to this conversation.");
+  const parsed = z.object({postIds:z.array(z.string().uuid()).min(1).max(9)}).strict().safeParse(await body(request));
+  if (!parsed.success) throw new ApiError(400,"Add between 1 and 9 posts to your conversation.");
+  const childIds = [...new Set(parsed.data.postIds)];
+  if (childIds.length !== parsed.data.postIds.length || childIds.includes(rootId)) {
+    throw new ApiError(400,"Each conversation post must be unique.");
+  }
+  const existing = await rows<{id:string;thread_position:number|null}>(db,
+    "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
+  const already = new Map(existing.map(item=>[item.id,item.thread_position]));
+  const pending = childIds.filter(id=>!already.has(id));
+  const rootAlreadyLinked = existing.some(item=>item.id===rootId);
+  const existingChildren = existing.filter(item=>item.id!==rootId).length;
+  if (existingChildren + pending.length + 1 > 10) throw new ApiError(400,"A conversation can contain up to 10 posts.");
+  const nextPosition = Math.max(0,...existing.map(item=>Number(item.thread_position)||0)) + 1;
+  const children = await Promise.all(pending.map(id=>getPost(db,userId,id)));
+  if (children.some(post=>!post || post.archived_at || post.author_id!==userId ||
+      post.visibility!==root.visibility || post.destination!==root.destination)) {
+    throw new ApiError(400,"Every part must be your own Community post with the same audience.");
+  }
+  const otherThreads = pending.length ? await rows<{id:string;thread_id:string|null}>(db,
+    `SELECT id,thread_id FROM posts WHERE id IN (${pending.map(()=>"?").join(",")})`,...pending) : [];
+  if (otherThreads.some(item=>item.thread_id && item.thread_id!==rootId)) {
+    throw new ApiError(409,"A post can belong to only one conversation.");
+  }
+  const statements = [
+    db.prepare("UPDATE posts SET thread_id=?,thread_position=0 WHERE id=? AND thread_id IS NULL").bind(rootId,rootId),
+    ...pending.map((id,index)=>db.prepare("UPDATE posts SET thread_id=?,thread_position=? WHERE id=? AND author_id=? AND thread_id IS NULL")
+      .bind(rootId,nextPosition+index,id,userId)),
+  ];
+  if (statements.length) await db.batch(statements);
+  const verified = await rows<{id:string;thread_position:number|null}>(db,
+    "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
+  if (verified.length !== existing.length + pending.length + (rootAlreadyLinked ? 0 : 1)) {
+    throw new ApiError(409,"The conversation changed while it was being saved. Refresh and try again.");
+  }
+  const posts = await loadCommunityThreadPosts(db,userId,rootId);
+  return json({threadId:rootId,posts,position:0});
+}
+
 export async function socialRequest(
   request: Request,
   db: Database,
@@ -566,6 +631,8 @@ export async function socialRequest(
   if (profileListMatch && request.method==="GET") return publicProfileList(request,db,userId,profileListMatch[1],profileListMatch[2] as "followers"|"following");
   if (path.startsWith("/profiles/") && request.method==="GET") return profiles(request,db,userId,path);
   if ((path==="/users/search" || path==="/users/mention-search") && request.method==="GET") return searchUsers(request,db,userId,path.includes("mention"));
+  const threadMatch=/^\/posts\/([a-f0-9-]{36})\/thread$/.exec(path);
+  if(threadMatch) return communityPostThread(request,db,userId,threadMatch[1]);
   const match=/^\/posts\/([a-f0-9-]{36})(?:\/(like|repost))?$/.exec(path);
   if (!match) throw new ApiError(404,"Post not found.");
   const [,id,action]=match;

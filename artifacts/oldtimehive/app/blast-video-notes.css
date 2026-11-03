@@ -220,8 +220,8 @@
 .bvn-settings-copy { display:grid; flex:1; min-width:0; gap:4px; }
 .bvn-settings-copy b { font-size:11px; }
 .bvn-settings-copy small { color:var(--bvn-muted); font-size:9px; line-height:1.35; }
-.bvn-settings-chevron { color:var(--bvn-muted); transform:rotate(-90deg); }
-.bvn-settings-chevron .navic { width:14px; height:14px; }
+.bvn-settings-chevron { display:grid; place-items:center; color:var(--bvn-muted); }
+.bvn-settings-chevron .navic { width:16px; height:16px; stroke-width:1.8; }
 .bvn-settings-footnote { margin:12px 3px 0; color:var(--bvn-muted); font-size:10px; line-height:var(--lh-body); }
 @keyframes bvn-backdrop-in { from { opacity:0 } to { opacity:1 } }
 @keyframes bvn-drawer-in { from { transform:translateX(18px); opacity:.65 } to { transform:translateX(0); opacity:1 } }

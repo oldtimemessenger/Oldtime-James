@@ -1,0 +1,204 @@
+/* App-wide visual language: clearer controls, consistent touch targets, and calmer surfaces. */
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]) {
+  width:40px;
+  min-width:40px;
+  height:40px;
+  min-height:40px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:50%;
+  background:transparent;
+  color:var(--muted,#687181);
+  list-style:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background-color 140ms ease,border-color 140ms ease,color 140ms ease,transform 140ms ease;
+}
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary)::-webkit-details-marker {
+  display:none;
+}
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]) .navic {
+  width:20px;
+  height:20px;
+  stroke-width:1.85;
+}
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]):hover,
+#app :is(.post-actions-menu[open] > summary,.profile-post-menu[open] > summary,.post-edit-menu[open] > summary) {
+  border-color:var(--line,#e5e7eb);
+  background:var(--panel,#f2f4f7);
+  color:var(--text,#17191c);
+}
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]):active {
+  transform:scale(.94);
+}
+#app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]):focus-visible {
+  outline:2px solid var(--color-primary,#1456d9);
+  outline-offset:2px;
+}
+#app .profile-actions-open {
+  border-color:var(--line,#e5e7eb);
+  background:var(--panel,#f2f4f7);
+  color:var(--text,#17191c);
+}
+#app :is(.post-actions-menu-items,.profile-post-menu-items,.post-edit-menu-items) {
+  border:1px solid var(--line,#e5e7eb);
+  border-radius:18px;
+  background:var(--card,#fff);
+  box-shadow:0 18px 52px rgba(18,22,30,.18);
+}
+#app :is(.post-actions-menu-items,.profile-post-menu-items,.post-edit-menu-items) button {
+  min-height:44px;
+  border-radius:11px;
+  transition:background-color 140ms ease,color 140ms ease;
+}
+#app :is(.post-actions-menu-items,.profile-post-menu-items,.post-edit-menu-items) button:hover {
+  background:var(--panel,#f2f4f7);
+}
+#app :is(.post-actions-menu-items,.profile-post-menu-items,.post-edit-menu-items) button.is-destructive:hover {
+  background:#fff1f2;
+}
+@media (prefers-reduced-motion:reduce) {
+  #app :is(.post-actions-menu > summary,.profile-post-menu > summary,.post-edit-menu > summary,.comment-more,.profile-actions-open,[data-cmore]),
+  #app :is(.post-actions-menu-items,.profile-post-menu-items,.post-edit-menu-items) button {
+    transition:none;
+  }
+}
+
+/* Primary navigation: a quiet, consistent dock across routed screens. */
+#app .phone > .nav:not(.nav-hidden) {
+  border-top:1px solid color-mix(in srgb,var(--ot-color-border,#e5e7eb) 78%,transparent);
+  background:color-mix(in srgb,var(--ot-color-surface,#fff) 94%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(1.25);
+  backdrop-filter:blur(18px) saturate(1.25);
+}
+#app .phone > .nav:not(.nav-hidden) > button {
+  min-width:0;
+  border-radius:14px;
+  transition:background-color 150ms ease,color 150ms ease,transform 150ms ease;
+}
+#app .phone > .nav:not(.nav-hidden) > button .navic {
+  width:23px;
+  height:23px;
+  stroke-width:1.9;
+}
+#app .phone > .nav:not(.nav-hidden) > button.on {
+  background:color-mix(in srgb,var(--ot-color-brand,#1456d9) 9%,transparent);
+  color:var(--ot-color-brand,#1456d9);
+}
+#app .phone > .nav:not(.nav-hidden) > button:active:not(.nav-create-button) {
+  transform:scale(.96);
+}
+#app .phone > .nav:not(.nav-hidden) > .nav-create-button .nav-create-icon {
+  box-shadow:0 4px 14px color-mix(in srgb,var(--ot-color-brand,#1456d9) 24%,transparent);
+}
+#app .phone > .nav:not(.nav-hidden) > button:focus-visible {
+  outline:2px solid var(--ot-color-brand,#1456d9);
+  outline-offset:-2px;
+}
+
+/* Shared header rhythm without flattening immersive Home or Story headers. */
+#app .phone :is(.community-header,.chat-header,.search-screen .search-app-header) {
+  min-width:0;
+  border-bottom:1px solid color-mix(in srgb,var(--ot-color-border,#e5e7eb) 82%,transparent);
+}
+#app .phone :is(.community-header-actions,.chat-actions,.search-screen .search-app-header .community-header-actions) {
+  gap:6px;
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button) {
+  min-width:40px;
+  min-height:40px;
+  border-radius:50%;
+  transition:background-color 140ms ease,color 140ms ease,transform 140ms ease;
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button):active {
+  transform:scale(.95);
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button) .navic {
+  width:20px;
+  height:20px;
+  stroke-width:1.9;
+}
+
+/* Consistent chip behavior across filters and section switches. */
+#app .phone :is(.notification-filter,.chat-inbox-filter,.home-topic-tab,.community-feed-tabs button,.pills button) {
+  transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease;
+}
+#app .phone :is(.notification-filter,.chat-inbox-filter):focus-visible,
+#app .phone :is(.community-feed-tabs button,.pills button):focus-visible {
+  outline:2px solid var(--ot-color-brand,#1456d9);
+  outline-offset:2px;
+}
+
+/* Calm, accessible field focus; existing field fills and dimensions remain unchanged. */
+#app .phone :is(.field,.search,.chatsearch,.discovery-search,.composer input,.conversation-screen textarea):focus-visible {
+  outline:2px solid color-mix(in srgb,var(--ot-color-brand,#1456d9) 55%,transparent);
+  outline-offset:2px;
+}
+#app .phone :is(.field,.search):focus-within {
+  border-color:color-mix(in srgb,var(--ot-color-brand,#1456d9) 45%,var(--ot-color-border,#e5e7eb));
+}
+
+/* Shared card rhythm: keep each screen's existing layout, just smooth state changes. */
+#app .phone :is(.card,.community-post-card,.notification-row,.chat-row,.search-result,.settings-entry) {
+  transition:background-color 140ms ease,border-color 140ms ease;
+}
+
+/* Explore recommendation controls share the same contextual action affordance. */
+#app .xe-cap-more {
+  width:40px;
+  min-width:40px;
+  height:40px;
+  margin:-6px -4px -6px 0;
+  border:1px solid transparent;
+  border-radius:50%;
+  background:transparent;
+  color:var(--ot-color-muted,#687181);
+  transition:background-color 140ms ease,color 140ms ease,transform 140ms ease;
+}
+#app .xe-cap-more .navic {
+  width:20px;
+  height:20px;
+  transform:none;
+  stroke-width:1.85;
+}
+#app .xe-cap-more:hover,
+#app .xe-cap-more:active {
+  background:var(--ot-color-surface-subtle,#f2f4f7);
+  color:var(--ot-color-text,#17191c);
+}
+#app .xe-cap-more:active { transform:scale(.95); }
+
+/* Installed PWA and mobile Safari ergonomics. The app is intentionally phone-only. */
+@media (hover:none) and (pointer:coarse) {
+  #app .phone {
+    width:100%;
+    max-width:none;
+    height:100vh;
+    height:100dvh;
+    min-height:100vh;
+    min-height:100dvh;
+    border-radius:0;
+    overflow:hidden;
+  }
+  #app .phone .scroll {
+    padding-bottom:max(92px,calc(78px + env(safe-area-inset-bottom,0px)));
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scrollbar-width:none;
+  }
+  #app .phone .feed,
+  #app .phone [data-scroll-region] {
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scrollbar-width:none;
+  }
+  #app .phone button,
+  #app .phone a,
+  #app .phone [role="button"] {
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app .phone :is(button,a,[role="button"],input,textarea,select) {
+    touch-action:manipulation;
+  }
+}
