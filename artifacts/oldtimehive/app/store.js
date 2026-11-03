@@ -3645,8 +3645,8 @@ export const api = {
       throw new Error("The posts were published, but the conversation link could not be confirmed. Retry to finish connecting them.");
     }
     const posts = result.posts.map(normalizeCloudPost);
-    for (const post of posts) {
-      forEachCloudPostCopy(post.id, copy => { copy.threadId = result.threadId; });
+    for (const [index,post] of posts.entries()) {
+      forEachCloudPostCopy(post.id, copy => { copy.threadId = result.threadId; copy.threadPosition = index; });
     }
     return { threadId:String(result.threadId), posts };
   },
