@@ -463,6 +463,17 @@ async function searchUsers(request: Request, db: Database, userId: string, menti
   return json({users:accounts.map(u=>({id:u.id,username:u.username,displayName:u.display_name,joinedAt:u.created_at,...publicDetails(u.data)}))});
 }
 
+async function loadCommunityThreadPosts(db: Database, userId: string, rootId: string) {
+  const items = await rows<{id:string}>(db,
+    "SELECT id FROM posts WHERE thread_id=? ORDER BY thread_position ASC,created_at ASC,id ASC",rootId);
+  const records = [];
+  for (const item of items) {
+    const post = await getPost(db,userId,item.id);
+    if (post) records.push(post);
+  }
+  return hydratePosts(db,userId,records);
+}
+
 async function communityPostThread(request: Request, db: Database, userId: string, postId: string) {
   const selected = await getPost(db,userId,postId);
   if (!selected || selected.archived_at) throw new ApiError(404,"Post not found.");
@@ -472,9 +483,9 @@ async function communityPostThread(request: Request, db: Database, userId: strin
   if (!root || root.archived_at || root.author_id !== selected.author_id) throw new ApiError(404,"Conversation not found.");
   if (!["community","both"].includes(root.destination)) throw new ApiError(404,"Community conversation not found.");
   if (request.method === "GET") {
-    const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
-    const posts = records.length ? await hydratePosts(db,userId,records) : await hydratePosts(db,userId,[root]);
-    return json({threadId:rootId,posts,position:Math.max(0,records.findIndex(item=>item.id===postId))});
+    const posts = await loadCommunityThreadPosts(db,userId,rootId);
+    const visiblePosts = posts.length ? posts : await hydratePosts(db,userId,[root]);
+    return json({threadId:rootId,posts:visiblePosts,position:Math.max(0,visiblePosts.findIndex(item=>item.id===postId))});
   }
   if (request.method !== "POST") throw new ApiError(405,"Method not allowed.");
   if (root.author_id !== userId) throw new ApiError(403,"Only the author can add posts to this conversation.");
@@ -513,8 +524,8 @@ async function communityPostThread(request: Request, db: Database, userId: strin
   if (verified.length !== existing.length + pending.length + (rootAlreadyLinked ? 0 : 1)) {
     throw new ApiError(409,"The conversation changed while it was being saved. Refresh and try again.");
   }
-  const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
-  return json({threadId:rootId,posts:await hydratePosts(db,userId,records),position:0});
+  const posts = await loadCommunityThreadPosts(db,userId,rootId);
+  return json({threadId:rootId,posts,position:0});
 }
 
 export async function socialRequest(
