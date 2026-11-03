@@ -259,11 +259,31 @@ export function createExploreEcosystem(deps) {
         ? `<img class="discovery-video-poster" ${mediaAttributes(poster, post.author)} alt="" loading="lazy" decoding="async" />`
         : videoStillMarkup(post, "discovery-video-poster");
       const author = typeof api.user === "function" ? api.user(post.author) || {} : {};
-      const label = author.username ? `@${author.username}` : author.displayName || author.name || "Oldtime member";
-      return `<button type="button" class="discovery-video-card" data-xe-post="${esc(post.id)}" aria-label="Open video by ${esc(label)}">
-        ${preview}<span class="discovery-video-card-shade"></span>
-        <span class="discovery-video-card-type">Video</span><span class="discovery-video-card-name">${esc(label)}</span>
-      </button>`;
+      const authorName = author.displayName || author.name || author.username || "Oldtime member";
+      const avatar = author.avatar || (typeof automaticAvatar === "function" ? automaticAvatar(post.author || "oldtime") : "");
+      const caption = String(post.caption || post.text || "").trim();
+      const likes = Array.isArray(post.likes) ? post.likes.length : Number(post.likeCount ?? 0);
+      const likesMarkup = Number.isFinite(likes) && likes > 0
+        ? `<span class="places-post-stats" aria-label="${compact(likes)} likes"><span aria-hidden="true">♡</span> ${compact(likes)}</span>`
+        : "";
+      return `<article class="discovery-video-card places-post">
+        <button type="button" class="places-post-main discovery-video-open" data-xe-post="${esc(post.id)}" aria-label="Open video by ${esc(authorName)}">
+          <span class="places-post-media">
+            ${preview}
+            <span class="places-post-type" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>
+          </span>
+        </button>
+        <div class="places-post-detail">
+          ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+          <div class="places-post-byline">
+            <button type="button" class="places-post-author" data-xe-profile="${esc(post.author)}">
+              ${avatar ? `<img src="${esc(avatar)}" alt="" loading="lazy" decoding="async" />` : ""}
+              <span>${esc(authorName)}</span>
+            </button>
+            ${likesMarkup}
+          </div>
+        </div>
+      </article>`;
     }).join("");
     return `<section class="discovery-video-rail" aria-label="Video previews"><div class="discovery-video-track">${cards}</div></section>`;
   }
