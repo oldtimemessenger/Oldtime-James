@@ -96,7 +96,7 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
   bar.prepend(profileButton);
   const sideActions = doc.createElement("div");
   sideActions.className = "story-side-actions";
-  sideActions.innerHTML = `<button type="button" class="story-heart" aria-label="Like Story" aria-pressed="false">${icon("heart")}</button>
+  sideActions.innerHTML = `<button type="button" class="story-heart" aria-label="Like Story" aria-pressed="false">${icon("mediaHeart")}</button>
     <button type="button" class="story-share" aria-label="Share Story">${icon("share")}</button>`;
   view.append(bar);
   view.append(sideActions);
