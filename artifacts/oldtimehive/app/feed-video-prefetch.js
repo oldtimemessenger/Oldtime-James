@@ -1,5 +1,13 @@
 export const FEED_VIDEO_PREFETCH_ROOT_MARGIN = "0px 0px 320px 0px";
 
+// Avoid background video transfers when the browser signals a constrained connection.
+// Playback itself remains available when the viewer reaches the video.
+export function shouldPrefetchFeedVideo(connection = globalThis.navigator?.connection) {
+  if (!connection) return true;
+  if (connection.saveData === true) return false;
+  return !["slow-2g", "2g"].includes(String(connection.effectiveType || "").toLowerCase());
+}
+
 export async function prefetchFeedVideoMetadata(video, loadLocalVideo) {
   if (!video?.isConnected || !video.dataset) return false;
   if (["pending", "ready"].includes(video.dataset.feedInitialBufferPrefetched)) return false;
