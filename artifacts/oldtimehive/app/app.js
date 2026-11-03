@@ -3867,7 +3867,7 @@ function comments(id, focusedCommentId = "") {
       const author = api.user(comment.author);
       const input = $("#cbody", sheet);
       input.value = author ? `@${author.username} ` : "";
-      input.dataset.reply = comment.parentId || comment.id;
+      input.dataset.reply = comment.id;
       input.placeholder = `Reply to @${author?.username || "member"}`;
       input.focus();
     });
