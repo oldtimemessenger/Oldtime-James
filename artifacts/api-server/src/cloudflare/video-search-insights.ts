@@ -63,6 +63,13 @@ export function videoSearchIndexStatements(
   return statements;
 }
 
+// The table stores whole seconds and requires more than five, so fractions below six are invalid, not rounded up.
+export function wholeSearchWatchSeconds(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  const whole = Math.floor(value);
+  return whole > 5 && whole <= 3600 ? whole : null;
+}
+
 export async function recordVideoSearchClick(
   db: Database,
   input: { userId: string; videoId: string; queryText: string; watchTime: number; now?: number },
@@ -70,7 +77,8 @@ export async function recordVideoSearchClick(
   const now = input.now ?? Date.now();
   const phrase = normalizeVideoSearchText(input.queryText);
   const terms = videoSearchTerms(phrase);
-  if (!phrase || !terms.length || input.watchTime <= 5 || input.watchTime > 3600) {
+  const watchSeconds = wholeSearchWatchSeconds(input.watchTime);
+  if (!phrase || !terms.length || watchSeconds === null) {
     return { learned: false, keywords: [] };
   }
   const clickId = crypto.randomUUID();
@@ -79,7 +87,7 @@ export async function recordVideoSearchClick(
     VALUES(?,?,?,?,?,?,?)
     ON CONFLICT(user_id,query_text,video_id,day_bucket) DO NOTHING
     RETURNING id`)
-    .bind(clickId,input.userId,phrase,input.videoId,Math.floor(input.watchTime),Math.floor(now/86400000),now)
+    .bind(clickId,input.userId,phrase,input.videoId,watchSeconds,Math.floor(now/86400000),now)
     .first<{id:string}>();
   if (!inserted) return { learned: false, keywords: [] };
 
@@ -100,7 +108,13 @@ export async function recordVideoSearchClick(
   return { learned: true, keywords: [phrase,...terms] };
 }
 
+export const MIN_INSIGHT_DISTINCT_USERS = 2;
+
+// Learned phrases are only revealed once at least two different accounts contributed, so one person's search is never exposed.
 export async function highestVideoSearchInsight(db: Database, videoId: string) {
+  const contributors = await db.prepare("SELECT COUNT(DISTINCT user_id) AS total FROM search_clicks WHERE video_id=?")
+    .bind(videoId).first<{total:number}>();
+  if ((contributors?.total ?? 0) < MIN_INSIGHT_DISTINCT_USERS) return null;
   return db.prepare(`SELECT keyword, SUM(weight_score) AS weight_score
     FROM video_search_index WHERE video_id=?
     GROUP BY keyword

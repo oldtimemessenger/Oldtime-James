@@ -115,6 +115,7 @@ import { mountEmailVerificationReminder, openEmailVerificationSheet, emailManual
 import { openProfileListSheet } from "./profile-list-sheet.js";
 import "./email-verification.css";
 import "./media-style-consistency.css";
+import { createSearchPlaybackTracker } from "./search-insights.js";
 import "./ui-foundations.css";
 import "./app-wide-visual-language.css";
 import "./unboxed-interface.css";
@@ -375,6 +376,8 @@ function syncFeedSoundControls() {
 }
 let viewer = null;
 let viewerSource = "";
+let viewerSearchQuery = "";
+let unbindSearchPlayback = null;
 let profileMore = false;
 let settingsView = "home";
 let hasPendingSettingsChanges = false;
@@ -1784,7 +1787,7 @@ function captureNavigationState() {
   const screen = app.querySelector(".screen.on");
   return {
     tab, homeView, homeTopic, communityView, communityTopic, nearbyCity, profileId, profileMode, chatId,
-    profileReturnChatId, viewer, viewerSource, settingsView, settingsViewStack: [...settingsViewStack], searchQ,
+    profileReturnChatId, viewer, viewerSource, viewerSearchQuery, settingsView, settingsViewStack: [...settingsViewStack], searchQ,
     scrollContext: screen?.dataset.scrollContext || "",
     scroll: capturePreservedScroll(screen),
   };
@@ -1923,6 +1926,7 @@ function restoreNavigationState(state) {
   ({ tab, homeView, homeTopic, communityView, nearbyCity, profileId, profileMode, chatId, profileReturnChatId, viewer, viewerSource, settingsView, searchQ } = state);
   settingsViewStack.splice(0, settingsViewStack.length, ...(state.settingsViewStack || []));
   viewerSource ||= "";
+  viewerSearchQuery = viewerSource === "search" && typeof state.viewerSearchQuery === "string" ? state.viewerSearchQuery : "";
   communityView = state.communityView === "following" ? "following" : "for-you";
   communityTopic = typeof state.communityTopic === "string" ? state.communityTopic : "";
   pendingNavigationScrollRestore = state.scrollContext
@@ -1957,11 +1961,12 @@ function openPersonAvatar(id) {
   if (id === api.me()?.id) return openStory(id);
   return navigateToProfile(id);
 }
-function openPostViewer(id, commentId = "", { source = "" } = {}) {
+function openPostViewer(id, commentId = "", { source = "", searchQuery = "" } = {}) {
   if (notificationsReturnStack.length) notificationsReturnStack.push(captureNavigationState());
   else navigationStack.push(captureNavigationState());
   viewer = id;
   viewerSource = ["places", "explore", "search"].includes(source) ? source : "";
+  viewerSearchQuery = viewerSource === "search" ? String(searchQuery || "").trim().slice(0, 120) : "";
   profileId = null;
   render();
   if (commentId) comments(id, commentId);
@@ -6244,6 +6249,15 @@ function postViewer(id) {
   bindPosts();
   if (mediaViewer) bindMediaViewerComments(id);
   else bindMediaViewerComments.cleanup?.();
+  unbindSearchPlayback?.();
+  unbindSearchPlayback = null;
+  if (viewerSource === "search" && viewerSearchQuery && api.authMode() === "cloud" && viewerFeed && searchPlayback.start(viewerSearchQuery, api.cloudAccountId() || "")) {
+    unbindSearchPlayback = searchPlayback.bind(viewerFeed, video => {
+      const clipId = video.closest(".clip[data-id]")?.dataset.id;
+      const clipPost = clipId && clipId === viewer && viewerSource === "search" ? api.post(clipId) : null;
+      return clipPost && (clipPost.kind === "video" || postHasVideo(clipPost)) ? clipId : "";
+    });
+  } else searchPlayback.stop();
   if (["explore", "search"].includes(viewerSource)) bindExploreViewerSwipe(id, viewerSource);
   else if (fromPlaces) bindExploreViewerSwipe(id, "places");
   else { bindExploreViewerSwipe.offKey?.(); }
@@ -7208,6 +7222,10 @@ const exploreEco = createExploreEcosystem({
     const next = document.querySelector(".search-screen .page");
     if (next && top) next.scrollTop = top;
   },
+});
+const searchPlayback = createSearchPlaybackTracker({
+  send: ({ videoId, queryText, watchTimeSeconds }) => requestCloudApi(`/api/videos/${encodeURIComponent(videoId)}/search-click`,
+    { method: "POST", body: { queryText, watchTimeSeconds }, timeoutMs: 10000 }),
 });
 function exploreIsCloud() {
   return api.authMode() === "cloud" && (searchSection === "trending" || searchSection === "search") && !discoveryTopic;

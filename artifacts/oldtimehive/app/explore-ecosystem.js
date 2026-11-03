@@ -6,6 +6,7 @@ export function exploreViewerSource(query) {
 // All results come from GET /api/discovery/explore; nothing is persisted in the browser.
 import { isDefaultAvatarMediaReference } from "./story-media.js";
 import { isFeedHomePost } from "./post-surfaces.js";
+import { createInsightLoader } from "./search-insights.js";
 import { createVideoStillQueue, stillPlaceholderMarkup, bindStillPlaceholders, saveDataOn } from "./video-still.js";
 const TYPES = [
   ["all", "All"], ["videos", "Videos"], ["photos", "Photos"], ["posts", "Posts"],
@@ -66,6 +67,27 @@ export function createExploreEcosystem(deps) {
   // Poster-less public videos: one real first-frame decode at a time, reusing cloud media URL resolution.
   const stills = createVideoStillQueue({ resolveUrl: async ref => (await import("./local-media.js")).mediaUrl(ref) });
   let unbindStills = null;
+  let insightRoot = null;
+  let insightObserver = null;
+  const insightText = keyword => `People find this with “${keyword}”`;
+  const insights = createInsightLoader({
+    request: id => requestCloudApi(`/api/videos/${encodeURIComponent(id)}/search-insight`, { timeoutMs: 8000 }),
+    onChange: id => {
+      const hit = insights.get(id);
+      insightRoot?.querySelectorAll("[data-xe-insight]").forEach(node => {
+        if (node.dataset.xeInsight !== id || !hit) return;
+        node.textContent = insightText(hit.keyword);
+        node.hidden = false;
+      });
+    },
+  });
+  // Only public, visible cloud videos can have learned phrases; the server re-checks every request.
+  function insightMarkup(post) {
+    const author = (typeof api.user === "function" && api.user(post.author)) || {};
+    if (!owner || !post?.id || author.private || (post.visibility && post.visibility !== "public")) return "";
+    const hit = insights.get(post.id);
+    return `<p class="xe-insight places-post-insight" data-xe-insight="${esc(post.id)}"${hit ? "" : " hidden"}>${hit ? esc(insightText(hit.keyword)) : ""}</p>`;
+  }
   function videoStillMarkup(post, className = "") {
     const id = String(post.id || "");
     const ref = post.media?.[0];
@@ -80,6 +102,7 @@ export function createExploreEcosystem(deps) {
     if (next === owner) return;
     owner = next;
     stills.clear();
+    insights.reset();
     requestId++;
     if (timer) clearTimeout(timer);
     timer = null;
@@ -199,6 +222,7 @@ export function createExploreEcosystem(deps) {
     cache.clear();
     closeSheet();
     dismissed.clear(); clearWarm();
+    insights.reset();
     owner = ""; query = ""; type = "all"; topic = ""; sort="top"; shuffleSeed = ""; sentSignals.clear(); preferences = null; started = false;
     searchOpen = false; resultsQuery = "";
     state = { status: "idle", error: "", hasMore: false, nextOffset: 0, loadingMore: false, moreError: "", data: emptyData() };
@@ -228,6 +252,7 @@ export function createExploreEcosystem(deps) {
     const author = (typeof api.user === "function" && api.user(post.author)) || {};
     const authorName = author.name || author.displayName || author.username || "Oldtime member";
     const likes = Number.isFinite(post.likeCount) ? post.likeCount : Array.isArray(post.likes) ? post.likes.length : null;
+    const insight = isVideo ? insightMarkup(post) : "";
     const caption = media && text ? `<span class="xe-cap-text">${esc(text.slice(0, 80))}</span>` : "";
     const topicChips = topics.slice(0, 2).map(item =>
       `<button type="button" class="xe-cap-topic" data-xe-topic="${esc(item.id)}" aria-label="See more about ${esc(item.label)}">${esc(item.label)}</button>`
@@ -238,7 +263,7 @@ export function createExploreEcosystem(deps) {
       </button>
       ${mine ? `<button type="button" class="xe-adjust" data-xe-adjust="${esc(post.id)}" aria-label="Adjust topics for this post">Topics</button>` : ""}
     </div>
-    <div class="xe-cap">${caption}<span class="xe-cap-meta"><button type="button" class="xe-cap-author" data-xe-profile="${esc(post.author)}"><img src="${esc(author.avatar || (typeof automaticAvatar === "function" ? automaticAvatar(post.author || "oldtime") : ""))}" alt="" loading="lazy" /><span>${esc(authorName)}</span></button>
+    <div class="xe-cap">${caption}${insight}<span class="xe-cap-meta"><button type="button" class="xe-cap-author" data-xe-profile="${esc(post.author)}"><img src="${esc(author.avatar || (typeof automaticAvatar === "function" ? automaticAvatar(post.author || "oldtime") : ""))}" alt="" loading="lazy" /><span>${esc(authorName)}</span></button>
       ${likes !== null && likes > 0 ? `<span class="xe-cap-likes" aria-label="${likes} likes">${ic.mediaHeart}${compact(likes)}</span>` : ""}
       ${mine ? "" : `<button type="button" class="xe-cap-more" data-xe-why="${esc(post.id)}" aria-label="Why this post and Not interested">${ic.tune}</button>`}</span>${topicChips ? `<div class="xe-cap-topics" aria-label="Post topics">${topicChips}</div>` : ""}</div></article>`;
   }
@@ -275,6 +300,7 @@ export function createExploreEcosystem(deps) {
         </button>
         <div class="places-post-detail">
           ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+          ${insightMarkup(post)}
           <div class="places-post-byline">
             <button type="button" class="places-post-author" data-xe-profile="${esc(post.author)}">
               ${avatar ? `<img src="${esc(avatar)}" alt="" loading="lazy" decoding="async" />` : ""}
@@ -496,6 +522,20 @@ export function createExploreEcosystem(deps) {
       },{root:root.querySelector(".search-screen .page"),rootMargin:"500px"});
       pageObserver.observe(more);
     }
+    insightObserver?.disconnect();
+    insightObserver = null;
+    insightRoot = root;
+    const insightNodes = [...root.querySelectorAll("[data-xe-insight]")];
+    if (insightNodes.length && typeof IntersectionObserver === "function") {
+      insightObserver = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          insightObserver?.unobserve(entry.target);
+          insights.request(entry.target.querySelector?.("[data-xe-insight]")?.dataset.xeInsight);
+        }
+      }, { root: root.querySelector(".search-screen .page"), rootMargin: "200px" });
+      insightNodes.forEach(node => insightObserver.observe(node.closest("article") || node.parentElement));
+    }
     unbindStills?.();
     unbindStills = bindStillPlaceholders(root, stills, { saveData: saveDataOn(), esc });
     const input = bindQuery ? root.querySelector("#q") : null;
@@ -551,7 +591,7 @@ export function createExploreEcosystem(deps) {
     root.querySelectorAll("[data-xe-post]").forEach(b => b.onclick = async () => {
       const id = b.dataset.xePost;
       // Typed query results are Search media: no Discover neighbor swiping.
-      openPostViewer(id, "", { source: exploreViewerSource(query) });
+      openPostViewer(id, "", { source: exploreViewerSource(query), searchQuery: query });
     });
     root.querySelectorAll("[data-xe-adjust]").forEach(b => b.onclick = () => openTopicsSheet(b.dataset.xeAdjust, b));
     root.querySelectorAll("[data-xe-why]").forEach(b => b.onclick = event => { event.stopPropagation(); openWhySheet(b.dataset.xeWhy, b); });
