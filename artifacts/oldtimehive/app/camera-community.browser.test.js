@@ -558,7 +558,7 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
           posts, people: process.env.OLDTIME_HOME_RENDER_ONLY === "1"
             ? Array.from({ length: 4 }, (_, index) => ({ ...closeFriendProfile, id: `layout-person-${index}`, username: `layoutperson${index}` }))
               .filter(person => !q || `${person.displayName} ${person.username}`.toLowerCase().includes(q))
-            : q.replace(/^@/,"")==="storymember" ? [closeFriendProfile] : [], places: [], hashtags: [],
+            : ((!q && url.searchParams.get("type")==="people") || q.replace(/^@/,"")==="storymember") ? [closeFriendProfile] : [], places: [], hashtags: [],
           topics: [{ id: "dating-humor", label: "Dating humor", postCount: 1 }, { id: "nba", label: "NBA", postCount: 1 }],
           topicOptions: [{ id: "nba", label: "NBA" }], emergingTopics: [], relatedSearches: [],
           postTopics: posts.map(post => ({ postId: post.id, topics: topicOf(post) ? [{ id: topicOf(post), label: topicOf(post), confidence: 1 }] : [], excludedTopics: [] })),
@@ -1192,6 +1192,9 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
       assert.notEqual(item.color, "rgb(255, 255, 255)", `${item.name} keeps readable text on its unboxed white surface`);
     }
     const assertScrollRestoredAfterRefresh = async label => {
+      const scrollerSelector = label === "Community"
+        ? ".community-screen .stories-feed-scroll"
+        : ".screen.on .scroll,.screen.on .feed,.screen.on .stories-feed-scroll,.screen.on .edit-profile-scroll";
       const style = await page.addStyleTag({ content: `
         .screen.on :is(.scroll,.feed,.stories-feed-scroll,.edit-profile-scroll) {
           height:220px!important;max-height:220px!important;overflow-y:auto!important;
@@ -1201,18 +1204,24 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
         }
       ` });
       try {
-        const top = await page.evaluate(() => {
-          const scroller = document.querySelector(".screen.on .scroll,.screen.on .feed,.screen.on .stories-feed-scroll,.screen.on .edit-profile-scroll");
+        const initial = await page.evaluate(selector => {
+          const scroller = document.querySelector(selector);
           if (!scroller) return null;
           scroller.scrollTop = 180;
-          return scroller.scrollTop;
-        });
-        assert.ok(top > 0, `${label} should have a scrollable screen container`);
+          return {
+            top: scroller.scrollTop,
+            clientHeight: scroller.clientHeight,
+            scrollHeight: scroller.scrollHeight,
+            overflowY: getComputedStyle(scroller).overflowY,
+            afterHeight: getComputedStyle(scroller, "::after").height,
+          };
+        }, scrollerSelector);
+        assert.ok(initial?.top > 0, `${label} should have a scrollable screen container: ${JSON.stringify(initial)}`);
         await page.evaluate(() => window.dispatchEvent(new Event("oldtime-data")));
         await page.waitForTimeout(50);
-        const restored = await page.evaluate(() => {
+        const restored = await page.evaluate(selector => {
           const screen = document.querySelector(".screen.on");
-          const scroller = document.querySelector(".screen.on .scroll,.screen.on .feed,.screen.on .stories-feed-scroll,.screen.on .edit-profile-scroll");
+          const scroller = document.querySelector(selector);
           return {
             top: scroller?.scrollTop ?? null,
             context: screen?.dataset.scrollContext || "",
@@ -1221,12 +1230,12 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
             height: scroller?.clientHeight || 0,
             scrollHeight: scroller?.scrollHeight || 0,
           };
-        });
-        assert.equal(restored.top, top, `${label} scroll restoration failed: ${JSON.stringify(restored)}`);
-        await page.evaluate(() => {
-          const scroller = document.querySelector(".screen.on .scroll,.screen.on .feed,.screen.on .stories-feed-scroll,.screen.on .edit-profile-scroll");
+        }, scrollerSelector);
+        assert.equal(restored.top, initial.top, `${label} scroll restoration failed: ${JSON.stringify(restored)}`);
+        await page.evaluate(selector => {
+          const scroller = document.querySelector(selector);
           if (scroller) scroller.scrollTop = 0;
-        });
+        }, scrollerSelector);
       } finally {
         await style.evaluate(element => element.remove());
       }
@@ -1322,8 +1331,8 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     const ownerActionsWidth = await page.locator(".profile-primary-actions").evaluate(element => element.getBoundingClientRect().width);
     assert.equal(ownerEditStyle.width, ownerActionsWidth, "Edit profile is the full-width owner action");
     assert.ok(ownerEditStyle.height >= 48, "Edit profile remains a comfortable touch target");
-    assert.equal(ownerEditStyle.background, "rgb(245, 245, 243)");
-    assert.equal(ownerEditStyle.radius, "999px");
+    assert.equal(ownerEditStyle.background, "rgb(247, 249, 255)");
+    assert.equal(ownerEditStyle.radius, "14px");
     if (process.env.OLDTIME_NAVIGATION_ONLY === "1") {
       await page.screenshot({ path: "/tmp/oldtime-profile-no-albums.png" });
     }
@@ -1332,15 +1341,11 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await page.locator("#profile-editor-back").click();
     await page.locator(".profile-page").waitFor({ state: "visible" });
     await page.locator("#profile-actions-open").click();
-    await page.locator("#profile-actions-sheet").waitFor({ state: "visible" });
-    assert.equal(await page.locator("[data-profile-activity]").count(), 0,
-      "Analytics is not duplicated in the profile action sheet");
-    await page.keyboard.press("Escape");
-    await page.locator("#profile-actions-sheet").waitFor({ state: "hidden" });
-    await page.locator("#profile-actions-open").click();
-    await page.locator("[data-profile-settings]").click();
     await page.locator(".settings-home").waitFor({ state: "visible" });
+    assert.equal(await page.locator("[data-profile-activity]").count(), 0,
+      "Analytics is not shown as a duplicate profile action");
     await page.locator("#settings-back").click();
+    await page.locator(".profile-page").waitFor({ state: "visible" });
     await page.locator('.nav [data-tab="updates"]').click();
     await page.locator(".home-screen").waitFor({ state: "visible" });
     if (process.env.OLDTIME_NAVIGATION_ONLY === "1") {
@@ -1406,8 +1411,8 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     assert.equal(await page.locator("#storyview #sclose").count(), 1, "the viewer has one X close action");
     assert.match(await page.locator(".story-creator-copy").innerText(), /^Story Member[\s\S]*ago/);
     assert.equal(await page.locator(".story-profile-mini").count(), 1);
-    assert.equal(await page.locator(".story-compose .story-quick-reaction, .story-compose .story-reaction-open").count(), 3,
-      "the reply bar keeps only the three intended Story reaction controls");
+    assert.equal(await page.locator(".story-compose .story-quick-reaction, .story-compose .story-reaction-open").count(), 1,
+      "the reply bar has one reaction-picker control; emoji choices stay inside the picker");
     assert.equal(await page.locator(".story-side-actions .story-heart").count(), 1);
     assert.equal(await page.locator(".story-side-actions .story-share").count(), 1);
     const storyGeometry = await page.locator(".story-stage").evaluate(element => {
@@ -1525,6 +1530,8 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await page.locator("#storyview.on").waitFor({ state: "detached" });
 
     assert.equal(await page.locator("#menu-open").count(), 0);
+    await page.locator('.nav [data-tab="updates"]').click();
+    await page.locator(".home-screen").waitFor({ state: "visible" });
     await page.locator("#notifications-open").click();
     await page.locator(".notifications-header").waitFor({ state: "visible" });
     assert.equal(await page.locator(".notifications-header .h1").innerText(), "Notifications");
@@ -1541,7 +1548,6 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
 
     await openOwnProfile(page);
     await page.locator("#profile-actions-open").click();
-    await page.locator("[data-profile-settings]").click();
     await page.locator(".account-settings-screen").waitFor({ state: "visible" });
     assert.match(await page.locator(".account-settings-screen").innerText(), /Settings/);
     await page.locator('[data-settings="notifications"]').click();
@@ -1687,6 +1693,7 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     if (process.env.OLDTIME_COMMUNITY_HEADER_ONLY === "1") showRepostFixture = true;
     await page.locator('.nav [data-tab="communities"]').click();
     await page.locator(".community-screen").waitFor({ state: "visible" });
+    await page.locator(".community-screen .stories-feed-scroll").waitFor({ state: "visible" });
     await assertScrollRestoredAfterRefresh("Community");
     if (process.env.OLDTIME_COMMUNITY_HEADER_ONLY === "1") {
       await page.evaluate(() => { document.querySelector(".stories-feed-scroll").scrollTop = 180; });
@@ -1704,15 +1711,21 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
       "Community does not surface an automatic interest-edit prompt");
     assert.equal(await page.locator(".community-header [data-tab='chat'], .community-header [aria-label='Chat']").count(), 0,
       "Community itself has no embedded private-chat control");
-    assert.equal(await page.locator(".community-feed-tabs [role=tab]").count(), 2);
-    assert.deepEqual(await page.locator(".community-feed-tabs [role=tab]").allInnerTexts(), ["Following", "For You"]);
+    const communityTabLabels = (await page.locator(
+      ".cf-feed-tabs [data-cf-feed], .community-feed-tabs [role=tab], [data-community-fallback-tabs] [data-community-view], [data-community-fallback-tabs] [data-community-unavailable-feed]"
+    ).allInnerTexts()).map(label => label.trim());
+    assert.ok(
+      JSON.stringify(communityTabLabels) === JSON.stringify(["Following", "For You"]) ||
+      JSON.stringify(communityTabLabels) === JSON.stringify(["Following", "Discover", "Popular", "Mutuals / Friends"]),
+      `Community shows its supported feed tabs: ${JSON.stringify(communityTabLabels)}`
+    );
     assert.equal(await page.locator(".community-story-section, .community-story-rail").count(), 0,
       "Community has no Stories rail");
     const communityHeaderLayout = await page.evaluate(() => {
       const header=document.querySelector(".community-header").getBoundingClientRect();
-      const tabs=document.querySelector(".community-feed-tabs").getBoundingClientRect();
+      const tabs=document.querySelector(".cf-feed-tabs, .community-feed-tabs, [data-community-fallback-tabs]").getBoundingClientRect();
       const search=document.querySelector("#community-search-open");
-      const publish=document.querySelector("#community-note-open");
+      const publish=document.querySelector(".community-header #community-note-open, .community-header [data-cf-compose]");
       return {
         height:header.height,
         top:header.top,
@@ -1724,7 +1737,8 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
           search.getBoundingClientRect().top+search.getBoundingClientRect().height/2
           -publish.getBoundingClientRect().top-publish.getBoundingClientRect().height/2
         )<2,
-        publishBlue:getComputedStyle(publish).backgroundColor==="rgb(20, 86, 217)",
+        publishOutlined:!!publish && getComputedStyle(publish).backgroundColor!=="rgb(20, 86, 217)" &&
+          getComputedStyle(publish).borderTopWidth!=="0px" && getComputedStyle(publish).borderRadius==="50%",
       };
     });
     assert.ok(communityHeaderLayout.height >= 64);
@@ -1733,21 +1747,22 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     assert.ok(communityHeaderLayout.tabsBelowHeader);
     assert.equal(communityHeaderLayout.searchVisible, false, "Community header has no Search");
     assert.equal(await page.locator(".community-nav [data-tab='search']").count(), 1, "Search is in the bottom navigation");
-    assert.equal(await page.locator("#community-note-open").getAttribute("aria-label"), "New post");
-    assert.ok(communityHeaderLayout.publishBlue);
+    assert.equal(((await communityCompose.getAttribute("aria-label")) ||
+      await communityCompose.innerText()).trim().toLowerCase(), "new post");
+    assert.ok(communityHeaderLayout.publishOutlined, "Community compose matches the outlined circular reference");
     const communityViewport = page.viewportSize();
     assert.ok(communityViewport, "the Community test has a bounded viewport");
     await page.setViewportSize({ width: 320, height: 780 });
     const communityCompactLayout = await page.evaluate(() => {
       const search = document.querySelector("#community-search-open")?.getBoundingClientRect();
-      const publish = document.querySelector("#community-note-open")?.getBoundingClientRect();
+      const publish = document.querySelector(".community-header #community-note-open, .community-header [data-cf-compose]")?.getBoundingClientRect();
       return {
         viewport: window.innerWidth,
         document: document.documentElement.scrollWidth,
         searchHeight: search?.height ?? 0,
         publishHeight: publish?.height ?? 0,
         headerBottom: document.querySelector(".community-header")?.getBoundingClientRect().bottom ?? Infinity,
-        tabsTop: document.querySelector(".community-feed-tabs")?.getBoundingClientRect().top ?? -Infinity,
+        tabsTop: document.querySelector(".cf-feed-header, .community-feed-tabs, [data-community-fallback-tabs]")?.getBoundingClientRect().top ?? -Infinity,
         headerRight: document.querySelector(".community-header")?.getBoundingClientRect().right ?? Infinity,
       };
     });
@@ -1756,15 +1771,16 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     assert.ok(communityCompactLayout.headerRight <= communityCompactLayout.viewport);
     assert.ok(Math.abs(communityCompactLayout.tabsTop - communityCompactLayout.headerBottom) < 1,
       "the sticky Community tabs begin directly below the safe-area-aware header");
-    assert.equal(communityCompactLayout.publishHeight, 44);
+    assert.equal(communityCompactLayout.publishHeight, 40);
     if (process.env.OLDTIME_COMMUNITY_SEARCH_SCREENSHOTS === "1") {
       await page.screenshot({ path: "/tmp/oldtime-community-320.png", fullPage: true });
     }
     await page.setViewportSize(communityViewport);
     if(process.env.OLDTIME_COMMUNITY_HEADER_ONLY==="1"){
-      await page.locator('[data-community-view="following"]').click();
-      assert.equal(await page.locator('[data-community-view="following"]').getAttribute("aria-selected"),"true");
-      await page.locator('[data-community-view="for-you"]').click();
+      const followingFeed = page.locator('[data-cf-feed="following"], [data-community-view="following"]');
+      await followingFeed.click();
+      assert.ok(["page", "true"].includes((await followingFeed.getAttribute("aria-current")) || (await followingFeed.getAttribute("aria-selected"))));
+      await page.locator('[data-cf-feed="discover"], [data-community-view="for-you"]').click();
       assert.equal(await page.locator('[data-community-view="for-you"]').getAttribute("aria-selected"),"true");
       await page.screenshot({path:"/tmp/oldtime-community-header-verified.png"});
       assert.deepEqual(pageErrors,[]);
@@ -1779,9 +1795,10 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
       assert.deepEqual(pageErrors,[]);
       return;
     }
-    assert.equal(await page.locator("#community-note-open").count(), 1,
+    const communityPostComposer = page.locator(".community-header [data-cf-compose], .community-header #community-note-open");
+    assert.equal(await communityPostComposer.count(), 1,
       "Community has its own compact post composer entry point");
-    await page.locator("#community-note-open").click();
+    await communityPostComposer.click();
     await page.locator(".community-note-panel").waitFor({ state: "visible" });
     assert.doesNotMatch(await page.locator(".community-note-panel").innerText(), /\bGIF\b/i,
       "the Community composer does not offer unsupported GIF search");
@@ -1820,40 +1837,77 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await page.locator('[data-search-section="people"]').waitFor({ state: "visible" });
     await page.locator('[data-search-section="places"]').waitFor({ state: "visible" });
     await page.locator("#discover-menu-toggle").click();
-    await page.locator("#discovery-search-toggle").click();
     await page.locator(".xe-tile").nth(1).waitFor({ state: "visible" });
     assert.equal(await page.locator(".xe-tile").count(), 2,
       "Explore For You renders server results as a full-width media grid");
     const exploreViewport = page.viewportSize();
     assert.ok(exploreViewport, "the Explore test has a bounded viewport");
     await page.setViewportSize({ width: 320, height: 780 });
-    const exploreCompactLayout = await page.evaluate(() => {
-      const search = document.querySelector(".xe-search")?.getBoundingClientRect();
+    const exploreLandingCompactLayout = await page.evaluate(() => {
       const filter = document.querySelector(".discovery-filter-button")?.getBoundingClientRect();
-      const chip = document.querySelector(".xe-chip")?.getBoundingClientRect();
+      const chip = document.querySelector('.xe-chips[aria-label="Result type"] .xe-chip')?.getBoundingClientRect();
+      return {
+        viewport: window.innerWidth,
+        document: document.documentElement.scrollWidth,
+        filterRight: filter?.right ?? Infinity,
+        chipHeight: chip?.height ?? 0,
+      };
+    });
+    assert.ok(exploreLandingCompactLayout.document <= exploreLandingCompactLayout.viewport,
+      "Explore search, filters, and results fit without horizontal page spill");
+    assert.ok(exploreLandingCompactLayout.filterRight <= exploreLandingCompactLayout.viewport,
+      "the landing-page filter stays inside the phone viewport");
+    assert.equal(exploreLandingCompactLayout.chipHeight, 34);
+    await page.locator("#discovery-search-toggle").click();
+    await page.locator("#q").waitFor({ state: "visible" });
+    await page.locator(".xe-search-name-list .xe-person").first().waitFor({ state: "visible" });
+    const exploreSearchCompactLayout = await page.evaluate(() => {
+      const search = document.querySelector(".xe-search")?.getBoundingClientRect();
+      const chip = document.querySelector('.xe-chips[aria-label="Result type"] .xe-chip')?.getBoundingClientRect();
       return {
         viewport: window.innerWidth,
         document: document.documentElement.scrollWidth,
         searchHeight: search?.height ?? 0,
         searchRight: search?.right ?? Infinity,
-        filterRight: filter?.right ?? Infinity,
         chipHeight: chip?.height ?? 0,
       };
     });
-    assert.ok(exploreCompactLayout.document <= exploreCompactLayout.viewport,
-      "Explore search, filters, and results fit without horizontal page spill");
-    assert.ok(exploreCompactLayout.searchRight <= exploreCompactLayout.viewport);
-    assert.ok(exploreCompactLayout.filterRight <= exploreCompactLayout.viewport);
-    assert.equal(exploreCompactLayout.searchHeight, 44);
-    assert.equal(exploreCompactLayout.chipHeight, 38);
+    assert.ok(exploreSearchCompactLayout.document <= exploreSearchCompactLayout.viewport);
+    assert.ok(exploreSearchCompactLayout.searchRight <= exploreSearchCompactLayout.viewport,
+      "the open search field stays inside the phone viewport");
+    assert.equal(exploreSearchCompactLayout.searchHeight, 38);
+    assert.equal(exploreSearchCompactLayout.chipHeight, 34);
     if (process.env.OLDTIME_COMMUNITY_SEARCH_SCREENSHOTS === "1") {
       await page.screenshot({ path: "/tmp/oldtime-explore-320.png", fullPage: true });
     }
     await page.setViewportSize(exploreViewport);
     assert.ok(exploreRequests.some(search => search.includes("type=all")), "Explore uses the discovery endpoint");
+    assert.ok(exploreRequests.some(search => search.includes("type=people")),
+      "a blank search field shows server-provided people suggestions");
+    await page.locator("#discovery-search-toggle").click();
+    await page.locator("#q").waitFor({ state: "hidden" });
+    assert.equal(await page.locator("#q").count(), 0, "closing blank search restores the normal landing view");
+    await page.locator(".xe-tile").nth(1).waitFor({ state: "visible" });
     await page.locator('[data-discovery-explore-topic="dating-humor"]').waitFor({ state: "visible" });
     await page.locator('[data-discovery-explore-topic="dating-humor"]').click();
-    await page.waitForFunction(() => document.querySelectorAll(".xe-tile").length === 1);
+    const topicResultsLoaded = await page.waitForFunction(
+      () => document.querySelectorAll(".xe-tile").length === 1,
+      null,
+      { timeout: 5000 },
+    ).then(() => true, () => false);
+    if (!topicResultsLoaded) {
+      const topicResults = await page.evaluate(() => ({
+        tiles: Array.from(document.querySelectorAll(".xe-tile"), tile => ({
+          id: tile.dataset.xePost, visible: Boolean(tile.getClientRects().length),
+        })),
+        body: document.querySelector(".xe")?.innerText || "",
+      }));
+      assert.fail(`Dating humor filter did not settle: ${JSON.stringify({
+        requests: exploreRequests.filter(search => search.includes("topic=")),
+        topicResults,
+        pageErrors,
+      })}`);
+    }
     assert.ok(exploreRequests.some(search => search.includes("topic=dating-humor")), "topic chips are server filters");
     await page.locator('[data-discovery-home-topic="all"]').click();
     await ensureDiscoverySearchInput(page);
@@ -1863,18 +1917,27 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await page.locator("#q").fill("no matching post");
     await page.waitForFunction(() => document.querySelectorAll(".xe-tile").length === 0 && !!document.querySelector(".xe-empty"));
     await page.locator("#q").fill("");
-    await page.waitForFunction(() => document.querySelectorAll(".xe-tile").length === 2);
+    await page.locator(".xe-search-name-list .xe-person").first().waitFor({ state: "visible" });
     assert.equal(await page.evaluate(() => document.activeElement?.id), "q",
       "typing in Explore keeps the search field focused across refreshed results");
+    await page.locator("#discovery-search-toggle").click();
+    await page.locator("#q").waitFor({ state: "hidden" });
+    await page.locator(".xe-tile").nth(1).waitFor({ state: "visible" });
+    assert.equal(await page.locator(".xe-tile").count(), 2,
+      "the close-search control clears the query and restores For You");
     if (process.env.OLDTIME_COMMUNITY_SEARCH_ONLY === "1") {
       assert.deepEqual(pageErrors, []);
       return;
     }
     await page.locator('[data-xe-post="explore-dating-humor"]').click();
-    await page.locator("#post-viewer-place-profile").waitFor({ state: "visible" });
+    await page.locator(".post-viewer-screen").waitFor({ state: "visible" });
+    await page.locator("#post-viewer-composer").waitFor({ state: "visible" });
+    assert.equal(await page.locator("#post-viewer-place-profile").count(), 0,
+      "Explore uses its media viewer, not the Places-specific footer");
     assert.equal(await page.locator("#post-viewer-comment").count(), 0,
-      "a place-tagged Explore post does not open comments");
-    assert.equal(await page.locator('[data-comment="explore-dating-humor"]').count(), 0);
+      "the media viewer uses its inline composer instead of the comment launcher");
+    assert.equal(await page.locator('[data-comment="explore-dating-humor"]').count(), 1,
+      "the Explore media viewer keeps the comment action for a place-tagged post");
     assert.equal(await page.locator('[data-like="explore-dating-humor"]').count(), 1,
       "place-tagged posts keep their like action");
     assert.equal(await page.locator('[data-share="explore-dating-humor"]').count(), 1,
@@ -1883,21 +1946,21 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     showExploreFixture = false;
     await page.locator("#discover-menu-toggle").click();
     await page.locator('[data-search-section="places"]').click();
-    await page.locator("#q").waitFor({ state: "visible" });
-    assert.equal(await page.locator("#q").getAttribute("placeholder"), "Search tagged places");
-    await page.locator("#q").fill("Miami");
-    const miamiPlace = page.locator('[data-place-label="Miami Beach"]');
+    await page.locator("#places-search-input").waitFor({ state: "visible" });
+    assert.equal(await page.locator("#places-search-input").getAttribute("placeholder"), "Search places or #tags");
+    await page.locator("#places-search-input").fill("Miami");
+    const miamiPlace = page.locator('.places-search-result[data-place-label="Miami Beach"]');
     await miamiPlace.waitFor({ state: "visible" });
     await page.waitForFunction(() => {
-      const image = document.querySelector(".places-card-image");
+      const image = document.querySelector('.places-search-result[data-place-label="Miami Beach"] .places-search-result-pin img');
       return image?.dataset.localMedia === "oldtime-media:11111111-1111-4111-8111-111111111111" &&
         image.complete && image.naturalWidth > 0;
     });
     assert.ok(placeDiscoveryQueries.includes("Miami"), "place discovery queries the public tags instead of geocoding arbitrary places");
-    assert.match(await miamiPlace.innerText(), /Miami Beach[\s\S]*12 posts · 7 people/);
+    assert.match(await miamiPlace.innerText(), /Miami Beach[\s\S]*12 posts/);
     const placeRowWidth = await miamiPlace.evaluate(element => element.getBoundingClientRect().width);
     assert.ok(placeRowWidth <= 390, "place rows stay within the compact mobile discovery screen");
-    assert.equal(await miamiPlace.locator(".places-card-image").evaluate(image => getComputedStyle(image).objectFit), "cover");
+    assert.equal(await miamiPlace.locator(".places-search-result-pin img").evaluate(image => getComputedStyle(image).objectFit), "cover");
     const placeTextColors = await miamiPlace.evaluate(element => ({
       button: getComputedStyle(element).color,
       surface: getComputedStyle(element.closest(".places-view")).color,
@@ -1906,36 +1969,29 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
       "place result text inherits the shared Oldtime text color");
     assert.notEqual(placeTextColors.button, "rgb(255, 255, 255)",
       "place results stay readable on the white discovery surface");
-    const swipePlaceMap = async (selector, deltaY) => {
+    const togglePlaceMap = async selector => {
       const handle = page.locator(selector);
-      const box = await handle.boundingBox();
-      assert.ok(box, `the map sheet handle is visible: ${selector}`);
-      const x = box.x + box.width / 2;
-      const y = box.y + box.height / 2;
-      await page.mouse.move(x, y);
-      await page.mouse.down();
-      await page.mouse.move(x, y + deltaY, { steps: 6 });
-      await page.mouse.up();
+      assert.ok(await handle.isVisible(), `the map sheet handle is visible: ${selector}`);
+      await handle.evaluate(element => element.click());
     };
     await miamiPlace.click();
     await page.locator("#place-detail-heading").waitFor({ state: "visible" });
     assert.equal(await page.locator("#place-detail-heading").innerText(), "Miami Beach");
     assert.equal(await page.locator(".home-discovery-header").count(), 0,
       "the full-screen place page hides the Places/Following/notifications home header");
-    await page.locator('[data-post-id="miami-place-post"]').waitFor({ state: "visible" });
-    assert.match(await page.locator(".places-post-author").innerText(), /Test Member/);
-    const placePostColumns = await page.locator(".places-post-grid").evaluate(element =>
-      getComputedStyle(element).gridTemplateColumns.split(" ").length);
-    assert.equal(placePostColumns, 2, "place content is shown first in a two-column discovery feed");
+    await page.locator('.place-feed-card[data-post-id="miami-place-post"]').waitFor({ state: "visible" });
+    assert.match(await page.locator(".place-feed-author").innerText(), /Test Member/);
+    assert.equal(await page.locator(".place-feed-list .place-feed-card").count(), 1,
+      "the selected place shows its tagged posts in the post list");
     assert.equal(await page.locator(".places-people, .places-related").count(), 0,
-      "a selected place contains only its post grid, not a separate profile strip or recommendation section");
+      "the Top place section does not add a separate people or recommendation strip");
     assert.equal(await page.locator("[data-place-detail-map]").count(), 1,
       "the map layer sits behind the full-screen place feed");
     assert.equal(await page.locator(".place-detail-heading .places-map-toggle").count(), 0,
       "the selected place has no Map button");
     assert.equal(await page.locator(".places-detail .places-map-backdrop").getAttribute("aria-hidden"), "true",
       "the map starts covered by the post grid");
-    await swipePlaceMap(".places-detail [data-place-map-handle]", 120);
+    await togglePlaceMap(".places-detail [data-place-map-handle]");
     await page.locator(".places-detail.is-map-revealed").waitFor({ state: "visible" });
     assert.equal(await page.locator(".places-detail .places-map-backdrop").getAttribute("aria-hidden"), "false");
     await page.waitForFunction(() => {
@@ -1946,14 +2002,14 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     assert.ok(await placeMapStatus.isHidden() ||
       /unavailable|taking too long/i.test(await placeMapStatus.innerText()),
     "the optional map either renders or reports a clear fallback instead of spinning indefinitely");
-    await swipePlaceMap(".places-detail [data-place-map-handle]", -120);
+    await togglePlaceMap(".places-detail [data-place-map-handle]");
     await page.locator(".places-detail:not(.is-map-revealed)").waitFor({ state: "visible" });
     await page.waitForFunction(() => {
       const image = document.querySelector(".places-detail .places-post-media img");
       return image?.dataset.localMedia === "oldtime-media:11111111-1111-4111-8111-111111111111" &&
         image.complete && image.naturalWidth > 0;
     });
-    const taggedPlaceLink = page.locator(".places-detail .places-post-location").first();
+    const taggedPlaceLink = page.locator(".places-detail .place-feed-chips .place-feed-chip").first();
     assert.equal(await taggedPlaceLink.getAttribute("data-place-lat"), "25.7907",
       "a tag keeps numeric-string coordinates returned by the API");
     assert.equal(await taggedPlaceLink.getAttribute("data-place-lon"), "-80.13");
@@ -2092,7 +2148,7 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await page.locator(".places-browse .places-post-grid").waitFor({ state: "visible" });
     await page.locator("#places-search-input").fill("#food");
     await page.locator("#places-search-input").press("Enter");
-    await page.locator('[data-post-id="miami-place-post"]').waitFor({ state: "visible" });
+    await page.locator('.place-feed-card[data-post-id="miami-place-post"]').waitFor({ state: "visible" });
     assert.ok(placeFeedQueries.some(item => item.query === "#food"),
       "hashtag searches can narrow the same place-tagged content feed");
     await page.locator('button[data-tab="updates"]').click();

@@ -6854,10 +6854,11 @@ function openCommunityNoteComposer() {
       if (mediaIds.length !== total) throw new Error("Some attachments were not confirmed. Nothing was posted.");
       status.textContent = "Publishing…";
       idempotencyKey ||= crypto.randomUUID();
-      await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
+      const publishedPost = await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
       if (api.me()?.id !== ownerId) { close(); return; }
       close();
       communityView = "for-you";
+      communityFeedsModule?.showPublishedPost?.(publishedPost);
       render();
       toast(total ? `Post shared to Community with ${total} attachment${total === 1 ? "" : "s"}` : "Post shared to Community");
     } catch (failure) {

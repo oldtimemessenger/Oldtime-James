@@ -79,7 +79,7 @@ test("Cloudflare profile photos refresh the displayed profile and retain relatio
     displayName: "No profile photo",
     avatar: "",
   });
-  assert.match(api.user(missingPhotoId).avatar, /^\/brand\/avatars\/.+\.svg$/);
+  assert.equal(api.user(missingPhotoId).avatar, "", "accounts without an uploaded photo do not receive a generated avatar");
 });
 
 test("Close Friends are confirmed Friends; follows and audience visibility stay independent", () => {

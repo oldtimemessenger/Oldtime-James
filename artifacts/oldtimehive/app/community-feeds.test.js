@@ -115,3 +115,22 @@ test("shared-interest row appears once at the very bottom after all posts and fe
   assert.ok(state.html.indexOf("Post 4")<state.html.indexOf("People who share your interests"));
   assert.ok(state.html.indexOf("Mark caught up")<state.html.indexOf("People who share your interests"));
 });
+
+test("a server-confirmed Community post appears immediately in Discover",async()=>{
+  const module=await moduleUnderTest("published-post-discover");
+  const {deps,state}=dependencies(module,async path=>{
+    if(path.endsWith("/preferences"))return {preferences,mutedAccounts:[]};
+    if(path.includes("/lists"))return {lists:[]};
+    if(path.includes("/people"))return {suggestions:[]};
+    return {posts:[],hasMore:false,nextOffset:0};
+  });
+  const post={id:"new-community-post",author:{id:account},destination:"community",text:"Newly published Community post"};
+  deps.api.cloudPost=id=>id===post.id?post:null;
+  deps.renderPost=item=>`<article>${item.text}</article>`;
+  module.renderCommunityFeeds(deps);await settled();
+  assert.equal(module.showPublishedPost(post),true);
+  module.renderCommunityFeeds(deps);
+  assert.match(state.html,/Newly published Community post/);
+  assert.match(state.html,/data-cf-feed="discover" aria-current="page"/);
+  assert.equal(module.showPublishedPost({...post,id:"main-only-post",destination:"main"}),false);
+});

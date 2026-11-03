@@ -14,7 +14,8 @@ test("Community keeps the clean header and preserves the separate non-cloud lega
   assert.match(header, /class="community-new-post[^"]*" id="community-note-open" aria-label="New post">\$\{icon\("plus"\)\}/, "New post is an accessible + icon");
   assert.match(iconSource, /edit:\s*'<path d=/);
   assert.match(iconSource, /stroke="currentColor"/);
-  assert.match(source, /class="community-post-edit"[^`]*\$\{ic\.edit\}/);
+  assert.match(source, /className: "community-post-actions-menu"/);
+  assert.match(source, /data-post-edit="\$\{esc\(p\.id\)\}"[^>]*><span>Edit post<\/span>/);
   assert.match(source, /data-attach-edit="\$\{index\}"[^`]*\$\{ic\.edit\}/);
   assert.doesNotMatch(source, /community-story-section|community-story-rail|data-community-topic/);
 

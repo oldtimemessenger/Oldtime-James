@@ -14,3 +14,9 @@ Profile galleries must remain independent of the currently loaded Home feed. Kee
 **Why:** Published content disappeared from profiles when profiles relied on whichever Home feed page happened to be cached.
 
 **How to apply:** isolate gallery state by signed-in account, preserve confirmed posts on refresh failure, and keep photos in Posts while Videos remains video-only.
+
+After a server-confirmed Community publication, synchronize the returned post into Discover immediately; keep Following strictly follow-only.
+
+**Why:** The Community feed maintains its own cache, so updating only the general store leaves a successful new post invisible until a later fetch.
+
+**How to apply:** Merge the confirmed post into Discover by ID, select Discover after publishing, and never inject the creator’s own post into Following.
