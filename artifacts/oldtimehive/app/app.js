@@ -6,6 +6,7 @@ import { openAccountDeletion } from "./account-deletion.js";
 import { reconcileActiveScreen } from "./keyed-ui.js";
 import { releasePostVideos } from "./media-release.js";
 import { feedPaginationRootMargin } from "./feed-pagination.js";
+import { selectFeedVideoCandidate } from "./feed-video-focus.js";
 import { installAvatarFallbacks } from "./avatar-fallback.js";
 import { feedFollowButton } from "./feed-follow.js";
 import { tipIllustration } from "./tip-illustrations.js";
@@ -62,7 +63,7 @@ import { sharedStatusTarget } from "./status-sharing.js";
 import { listSavedPosts, setPostSaved } from "./saved-collections.js";
 import { audioTitle } from "./audio-library.js";
 import { isLocalMedia, renderMediaUrl, hydrateLocalMedia, observeCloudMedia, mediaUrl, loadFeedVideo, putLocalMedia, deleteLocalMedia } from "./local-media.js";
-import { FEED_VIDEO_PREFETCH_ROOT_MARGIN, prefetchFeedVideoMetadata } from "./feed-video-prefetch.js";
+import { FEED_VIDEO_PREFETCH_ROOT_MARGIN, prefetchFeedVideoMetadata, shouldPrefetchFeedVideo } from "./feed-video-prefetch.js";
 import { rankHomeRecommendations } from "./home-feed-ranking.js";
 import { readFeedSoundMuted, saveFeedSoundMuted } from "./feed-sound-preference.js";
 import { finishStartup } from "./startup.js";
@@ -2551,6 +2552,7 @@ function observeVideos() {
       }
     };
     prefetchObserver = new IntersectionObserver(entries => {
+      if (!shouldPrefetchFeedVideo()) return;
       entries
         .filter(entry => entry.isIntersecting && !queued.has(entry.target))
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
@@ -2643,19 +2645,28 @@ function observeVideos() {
       delete v.dataset.playbackStartPending;
     }
   };
-  feedObserver = new IntersectionObserver((ents) => ents.forEach(en => {
+  feedObserver = new IntersectionObserver(ents => {
     if (floatingVideoCleanup) return;
-    const v = en.target;
-    if (en.isIntersecting) {
-      if (activeFeedVideo && activeFeedVideo !== v) activeFeedVideo.pause();
-      activeFeedVideo = v;
-      v.muted = muted;
-      void startPlayback(v);
-    } else {
-      v.pause();
-      if (activeFeedVideo === v) activeFeedVideo = null;
+    const candidate = selectFeedVideoCandidate(ents);
+    if (candidate) {
+      if (activeFeedVideo && activeFeedVideo !== candidate) activeFeedVideo.pause();
+      activeFeedVideo = candidate;
+      candidate.muted = muted;
+      void startPlayback(candidate);
     }
-  }), { threshold: 0.65 });
+    for (const entry of ents) {
+      const video = entry.target;
+      if (video === candidate) continue;
+      if (!entry.isIntersecting) {
+        video.pause();
+        if (activeFeedVideo === video) activeFeedVideo = null;
+      } else if (candidate && video !== candidate) {
+        // Multiple cards can cross the threshold in one frame; only the clearest one plays.
+        video.pause();
+        if (activeFeedVideo === video) activeFeedVideo = null;
+      }
+    }
+  }, { threshold: 0.65 });
   vids.forEach(v => {
     const item=api.post(v.dataset.id);if(item)trackQualifiedView(item,v.closest(".clip")||v,"feed");
     prefetchObserver?.observe(v);
@@ -6855,10 +6866,11 @@ function openCommunityNoteComposer() {
       if (mediaIds.length !== total) throw new Error("Some attachments were not confirmed. Nothing was posted.");
       status.textContent = "Publishing…";
       idempotencyKey ||= crypto.randomUUID();
-      await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
+      const publishedPost = await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
       if (api.me()?.id !== ownerId) { close(); return; }
       close();
       communityView = "for-you";
+      communityFeedsModule?.showPublishedPost?.(publishedPost);
       render();
       toast(total ? `Post shared to Community with ${total} attachment${total === 1 ? "" : "s"}` : "Post shared to Community");
     } catch (failure) {
@@ -7534,14 +7546,14 @@ function search() {
             ? `<div class="sub" role="status">No matching Oldtime accounts.</div>` : "";
     input = `<input class="search" id="q" placeholder="People, posts, #tags, places" value="${esc(searchQ)}" />`;
     body = `<div class="chips classic-search-tags">${tags.map(tag => `<button class="chip" data-tag="${esc(tag)}">#${esc(tag)}</button>`).join("")}</div>
-      ${users.map(user => `<button class="listbtn search-person" data-profile="${esc(user.id)}"><img data-avatar-hit ${profileMediaSource(user.avatar)} alt="" />
+      ${users.map(user => `<button class="listbtn search-person" data-profile="${esc(user.id)}"><img data-avatar-hit ${profileMediaSource(user.avatar)} alt="" loading="lazy" decoding="async" fetchpriority="low" />
         <div><b>${esc(user.name || user.username)}</b><div class="sub">@${esc(user.username)}</div></div></button>`).join("")}
       ${peopleStatus}
       <div class="grid3 classic-search-grid">${posts.slice(0, 12).map(post => {
         const media = profilePostMedia(post)[0] || "";
         const attrs = isLocalMedia(media) ? `data-local-media="${esc(media)}" data-local-media-owner="${esc(post.author)}"` : `src="${esc(renderMediaUrl(media))}"`;
         return `<button class="cell" data-open="${esc(post.id)}">${post.creativeProject ? creativeMediaMarkup(post, esc, false, true) : media ?
-          (post.kind === "video" ? `<video ${attrs} muted></video>` : `<img ${attrs} />`) :
+          (post.kind === "video" ? `<video ${attrs} muted playsinline preload="none"></video>` : `<img ${attrs} alt="" loading="lazy" decoding="async" fetchpriority="low" />`) :
           `<div class="textpost"><p>${esc(post.caption.slice(0, 30))}</p></div>`}</button>`;
       }).join("")}</div>
       ${!users.length && !posts.length && !peopleStatus ? `<div class="empty">${searchQ.trim() ? "No results. Try a username, name, hashtag, or place." : "Search for people, posts, hashtags, or places."}</div>` : ""}`;

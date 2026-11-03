@@ -18,7 +18,8 @@ test("posted-video controls cover Places, post details, Community attachments an
   const detail=readFileSync(new URL("./post-detail.css",import.meta.url),"utf8");
   assert.doesNotMatch(app,/p\.kind === "video" && !placesViewer \? `<button type="button" class="clip-float-control"/);
   assert.doesNotMatch(detail,/\.clip\.post-detail > \.clip-float-control,/);
-  assert.match(app,/const hasVideo = mediaMarkup\.includes\("<video "\)/);
+  assert.ok(app.includes('renderKind === "video" ? `<button type="button" class="clip-float-control" data-video-float='),
+    "video details keep the floating-player action on the active video");
   assert.match(app,/data-video-profile data-video-float/);
   assert.match(app,/floatingVideoOwner !== api\.me\(\)\?\.id/);
   assert.match(app,/if \(floatingVideoCleanup\) \{ vids\.forEach\(video => video\.pause\(\)\); return; \}/);

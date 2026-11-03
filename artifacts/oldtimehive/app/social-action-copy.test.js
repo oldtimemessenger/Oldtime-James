@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Script } from "node:vm";
 
 const app=readFileSync(new URL("./app.js",import.meta.url),"utf8");
-const handler=app.match(/async function follow\(id\) \{[\s\S]*?\n\}/)?.[0];
+const handler=app.match(/async function follow\(id,\s*\{\s*rerender\s*=\s*true\s*\}\s*=\s*\{\}\)\s*\{[\s\S]*?\n\}/)?.[0];
 assert.ok(handler,"The actual follow handler must be present.");
 
 async function run({privateAccount=false,following=false,requested=false}={}) {

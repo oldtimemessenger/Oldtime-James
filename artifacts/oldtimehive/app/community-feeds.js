@@ -397,5 +397,22 @@ export function renderCommunityFeeds(deps) {
 }
 export function invalidateCommunityFeeds() { feed.loadedAt=0;feed.error=""; }
 export function retryCommunityFeeds() { reset(""); }
+export function showPublishedPost(post) {
+  const currentUser=dependencies?.api.me();
+  const authorId=typeof post?.author==="string"?post.author:post?.author?.id;
+  if(!post?.id||!["community","both"].includes(post.destination)||authorId!==currentUser?.id)return false;
+  if(active!=="discover"){
+    const scroller=dependencies.app.querySelector(".stories-feed-scroll");
+    feedCache.set(active,{...feed,loading:false,scrollTop:scroller?.scrollTop||0});
+    active="discover";
+    feed=feedCache.get(active)||{posts:[],loading:false,error:"",hasMore:false,nextOffset:0,loadedAt:0,reason:null,caughtUpAt:null};
+  }
+  const alreadyListed=feed.posts.some(item=>item.id===post.id);
+  feed={...feed,posts:[post,...feed.posts.filter(item=>item.id!==post.id)],loading:false,
+    nextOffset:Math.max(0,Number(feed.nextOffset)||0)+(alreadyListed?0:1),loadedAt:Date.now()};
+  restoreScroll=0;
+  feedCache.set(active,{...feed});
+  return true;
+}
 if(typeof window!=="undefined")window.addEventListener("oldtime-cloud-session-changed",()=>reset(""));
 if(typeof window!=="undefined")window.addEventListener("oldtime-data",()=>invalidateCommunityFeeds());

@@ -5,7 +5,7 @@ description: User's explicit search layout and separation of profile Community p
 
 Search follows the supplied landing-page layout: interest/category tabs, a horizontally swipeable row of public video posts, flat result-type filters with All selected, then the two-column Discover grid. The video row contains real video posts, not Stories/statuses, and opens the existing full-screen viewer. For You uses signup interests expanded through the existing topic taxonomy, plus learned interests. Newest, Most interacted and Shuffle stay available from the existing filter menu. Keep existing Stories in their other established surfaces.
 
-The single header search control must expand into the typing field without a duplicate magnifier or another search bar. Opening search with no query should offer suggested accounts; clearing a query returns to the landing layout with All selected. Keep result-type filters and category topics distinct. Opened discovery media uses the full viewport, with vertical swiping and continued cloud pagination.
+The single header search control must expand into the typing field without a duplicate magnifier or another search bar. Opening search with no query should offer suggested accounts; clearing a query returns to the landing layout with All selected. Verify the video-grid landing and blank-search suggestions as separate states, and confirm the header X restores the landing. Keep result-type filters and category topics distinct. Opened discovery media uses the full viewport, with vertical swiping and continued cloud pagination.
 
 **Why:** the user supplied a specific Search reference and clarified that only Stories should be removed; the horizontal video previews and mixed-media Discover grid must remain.
 
