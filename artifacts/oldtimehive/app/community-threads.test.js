@@ -17,7 +17,8 @@ test("Community composer creates ordered parts and links them after confirmed pu
     "mediaIds:index===0?mediaIds:[]", "if (publishedIds[index]) continue"]) {
     assert.ok(composer.includes(marker), marker);
   }
-  assert.match(composer, /partInputs\(\)\.forEach\(\(field,index\)=>\{if\(publishedIds\[index\]\)field\.readOnly=true/);
+  assert.match(composer, /partInputs\(\)\.forEach\(\(field,index\)=>\{if\(publishedIds\[index\] \|\| partKeys\[index\]\)field\.readOnly=true/);
+  assert.match(composer, /partInputs\(\)\[index\]\.readOnly = true/);
 });
 
 test("Community cards expose a dedicated viewer for connected thread parts", () => {
@@ -27,6 +28,8 @@ test("Community cards expose a dedicated viewer for connected thread parts", () 
   assert.match(store, /async loadCloudPostThread\(postId\)/);
   assert.match(store, /async linkCloudPostThread\(rootId, postIds\)/);
   assert.match(repository, /threadId:p\.thread_id/);
+  assert.match(social, /ORDER BY thread_position ASC,created_at ASC,id ASC/);
+  assert.match(social, /loadCommunityThreadPosts\(db,userId,rootId\)/);
 });
 
 test("thread API restricts linking to the author and matching audience", () => {
