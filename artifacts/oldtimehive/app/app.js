@@ -4244,11 +4244,21 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     const progressBar = $("#bar");
     const advanceStory = () => { if (list[i] === s) { i++; show(); } };
     let lastTick = Date.now();
+    let backgroundPaused = false;
     storyTimer = setInterval(() => {
       if (list[i] !== s) return;
       if (!isStoryActive(s) || !api.canSeeStory(s) || !api.stories().some(item => item.id === s.id)) { advanceStory(); return; }
-      if (paused || mediaPending || view.dataset.stickerOpen === "true" || document.hidden) { lastTick = Date.now(); return; }
       const video = storyVideo();
+      if (document.hidden) {
+        if (video && !video.paused) { video.pause(); backgroundPaused = true; }
+        lastTick = Date.now();
+        return;
+      }
+      if (backgroundPaused) {
+        backgroundPaused = false;
+        if (!paused && video) void video.play?.().catch(() => {});
+      }
+      if (paused || mediaPending || view.dataset.stickerOpen === "true") { lastTick = Date.now(); return; }
       if (video) {
         if (Number.isFinite(video.duration) && video.duration > 0 && progressBar) {
           progressBar.style.width = Math.min(100, video.currentTime / video.duration * 100) + "%";
