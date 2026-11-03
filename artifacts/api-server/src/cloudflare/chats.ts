@@ -146,6 +146,22 @@ export async function chatRequest(request:Request,db:Database,userId:string,path
     ]);
     return json({chat:await chat(db,input.id,userId)},201);
   }
+  const mentionSearchMatch=/^\/chats\/([^/]{3,80})\/mention-search$/.exec(path);
+  if(mentionSearchMatch&&request.method==="GET"){
+    const id=mentionSearchMatch[1],list=await authorize(db,id,userId);
+    const query=(new URL(request.url).searchParams.get("query")||"").trim().toLowerCase();
+    if(query.length<2||query.length>50)return json({profiles:[]});
+    const profiles=[];
+    for(const member of list){
+      if(member.user_id===userId||!member.username.toLowerCase().includes(query)&&!member.display_name.toLowerCase().includes(query))continue;
+      const preference=object(object(member.data).taggingPreferences).whoCanTag;
+      if(preference==="nobody")continue;
+      if(preference==="following"&&!await db.prepare("SELECT 1 FROM user_follows WHERE follower_id=? AND followed_id=?")
+        .bind(member.user_id,userId).first())continue;
+      profiles.push({id:member.user_id,username:member.username,displayName:member.display_name,...publicDetails(member.data)});
+    }
+    return json({profiles:profiles.slice(0,6)});
+  }
   const groupMatch=/^\/chats\/([^/]{3,80})$/.exec(path);
   if(groupMatch&&request.method==="PATCH"){
     const id=groupMatch[1],list=await authorize(db,id,userId);
