@@ -473,7 +473,7 @@ async function communityPostThread(request: Request, db: Database, userId: strin
   if (!["community","both"].includes(root.destination)) throw new ApiError(404,"Community conversation not found.");
   if (request.method === "GET") {
     const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
-    const posts = records.length ? await hydratePosts(db,userId,records) : [await hydratePosts(db,userId,[root])[0]];
+    const posts = records.length ? await hydratePosts(db,userId,records) : await hydratePosts(db,userId,[root]);
     return json({threadId:rootId,posts,position:Math.max(0,records.findIndex(item=>item.id===postId))});
   }
   if (request.method !== "POST") throw new ApiError(405,"Method not allowed.");
@@ -581,6 +581,8 @@ export async function socialRequest(
   if (profileListMatch && request.method==="GET") return publicProfileList(request,db,userId,profileListMatch[1],profileListMatch[2] as "followers"|"following");
   if (path.startsWith("/profiles/") && request.method==="GET") return profiles(request,db,userId,path);
   if ((path==="/users/search" || path==="/users/mention-search") && request.method==="GET") return searchUsers(request,db,userId,path.includes("mention"));
+  const threadMatch=/^\/posts\/([a-f0-9-]{36})\/thread$/.exec(path);
+  if(threadMatch) return communityPostThread(request,db,userId,threadMatch[1]);
   const match=/^\/posts\/([a-f0-9-]{36})(?:\/(like|repost))?$/.exec(path);
   if (!match) throw new ApiError(404,"Post not found.");
   const [,id,action]=match;
