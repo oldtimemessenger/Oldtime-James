@@ -130,10 +130,13 @@
 .sc-stk-mini b{font-size:7px;letter-spacing:.08em;color:#667085;font-weight:800}
 .sc-stk-mini i{font-style:normal;font-size:10px;line-height:1.15;font-weight:800;color:#17191c}
 .sc-stk-mini em{font-style:normal;font-size:7px;line-height:1.2;font-weight:800;border-radius:999px;padding:5px 8px;background:#1456d9;color:#fff}
-.sc-stk-mini-questions{background:linear-gradient(#1456d9 0 48%,#fff 48%);gap:3px}
-.sc-stk-mini-questions b,.sc-stk-mini-questions i{color:#fff}
-.sc-stk-mini-questions em{background:#f0f2f6;color:#667085;width:84%}
-.sc-stk-mini-trendsetters,.sc-stk-mini-hey-world{background:#fff}
+.sc-stk-mini-questions{background:linear-gradient(#8e1b24 0 42%,#fff 42%);gap:3px}
+.sc-stk-mini-questions b{color:#fff}
+.sc-stk-mini-questions i{color:#17191c}
+.sc-stk-mini-questions em{background:#edf2ff;color:#1456d9;width:84%}
+.sc-stk-mini-trendsetters,.sc-stk-mini-hey-world{background:linear-gradient(#1456d9 0 34%,#fff 34%)}
+.sc-stk-mini-trendsetters b,.sc-stk-mini-hey-world b{color:#fff}
+.sc-stk-mini-trendsetters em,.sc-stk-mini-hey-world em{background:#8e1b24;color:#fff}
 /* Sticker text form */
 .sc-stk-form{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;flex-direction:column;gap:10px;background:#fbfaff;color:#16141c;
   border-radius:22px 22px 0 0;padding:16px 16px calc(var(--sc-kb,0px) + env(safe-area-inset-bottom,0px) + 14px)}
