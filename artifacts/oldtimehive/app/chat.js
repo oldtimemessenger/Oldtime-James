@@ -824,12 +824,10 @@ export function openThread(id, ctx) {
     };
   }
   if (messageInput && !c.legacyArchive && api.authMode() === "cloud") {
-    const memberHandles = new Set(c.members.map(memberId => api.user(memberId)?.username?.toLowerCase()).filter(Boolean));
     stopMentionAutocomplete = bindMentionAutocomplete(messageInput, {
       api: {
         authMode: () => api.authMode(),
-        searchCloudMentionUsers: async query => (await api.searchCloudMentionUsers(query))
-          .filter(profile => memberHandles.has(String(profile.username || "").toLowerCase())),
+        searchCloudMentionUsers: query => api.searchCloudChatMentionUsers(id, query),
       },
     });
   }
