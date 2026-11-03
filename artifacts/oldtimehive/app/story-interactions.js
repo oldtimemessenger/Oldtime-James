@@ -45,6 +45,48 @@ export function createPause({ onPause, onResume }) {
   return { hold() { if (holds++ === 0) onPause(); }, release() { if (holds > 0 && --holds === 0) onResume(); }, active: () => holds > 0, reset() { holds = 0; } };
 }
 
+export const STORY_HOLD_DELAY_MS = 180;
+export function createPressPause({ hold, release, delay = STORY_HOLD_DELAY_MS, movement = 12, setTimer = setTimeout, clearTimer = clearTimeout }) {
+  let pointer = null, timer = null, held = false, suppressClick = false;
+  const finish = (suppress = false) => {
+    if (timer !== null) clearTimer(timer);
+    timer = null;
+    if (held) release();
+    if (held && suppress) suppressClick = true;
+    held = false;
+    pointer = null;
+  };
+  return {
+    start(event) {
+      if (pointer || (event.button !== undefined && event.button !== 0)) return;
+      pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      timer = setTimer(() => {
+        timer = null;
+        if (!pointer) return;
+        held = true;
+        hold();
+      }, delay);
+    },
+    move(event) {
+      if (!pointer || (pointer.id !== undefined && event.pointerId !== pointer.id)) return;
+      if (Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > movement) finish(true);
+    },
+    end(event) {
+      if (!pointer || (pointer.id !== undefined && event.pointerId !== pointer.id)) return;
+      finish(true);
+    },
+    cancel(event) {
+      if (pointer && (pointer.id === undefined || event?.pointerId === undefined || event.pointerId === pointer.id)) finish(false);
+    },
+    consumeClick() {
+      if (!suppressClick) return false;
+      suppressClick = false;
+      return true;
+    },
+    dispose() { finish(false); suppressClick = false; },
+  };
+}
+
 export function mountStoryInteractions({ view, story, api, toast = () => {}, pause, resume, onSave, onDelete, onShare, onProfile, avatar = "", win = window }) {
   const ownerId = api.me()?.id, isOwner = story.cloud && story.author === ownerId, doc = view.ownerDocument;
   const reduced = !!win.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -576,13 +618,28 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
   const panelEscape = event => { if (menuHold && event.key === "Escape") { event.stopPropagation(); closeMenu(); moreButton.focus({preventScroll:true}); } };
   view.addEventListener("keydown", panelEscape);
   const media = view.querySelector(".story-stage");
+  const pressPause = createPressPause({ hold: () => pauser.hold(), release: () => pauser.release(), setTimer: win.setTimeout.bind(win), clearTimer: win.clearTimeout.bind(win) });
+  const pointerDown = event => {
+    if (isIgnoredTap(event.target)) return;
+    pressPause.start(event);
+    try { if (media?.setPointerCapture && event.pointerId !== undefined) media.setPointerCapture(event.pointerId); } catch {}
+  };
+  const pointerMove = event => pressPause.move(event);
+  const pointerEnd = event => pressPause.end(event);
+  const pointerCancel = event => pressPause.cancel(event);
   const tap = event => {
     if (isIgnoredTap(event.target)) return;
+    if (pressPause.consumeClick()) return;
     if (menuHold) { closeMenu(); return; }
     closeMenu();
     hideReactions();
     const box = view.getBoundingClientRect(); burst.spawn(event.clientX - box.left, event.clientY - box.top);
   };
+  media?.addEventListener("pointerdown", pointerDown);
+  media?.addEventListener("pointermove", pointerMove);
+  media?.addEventListener("pointerup", pointerEnd);
+  media?.addEventListener("pointercancel", pointerCancel);
+  media?.addEventListener("lostpointercapture", pointerCancel);
   media?.addEventListener("click", tap);
   return {
     burst,
@@ -597,9 +654,11 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
       if (historyHold) { historyHold = false; pauser.release(); }
       if (menuHold) { menuHold = false; pauser.release(); }
       for (const id of new Set([...replyTimers.keys(), ...fadeTimers.keys()])) clearReplyTimers(id);
-      closeActivity(); burst.dispose(); pauser.reset();
+      closeActivity(); pressPause.dispose(); burst.dispose(); pauser.reset();
       view.removeEventListener("keydown", panelEscape);
-      media?.removeEventListener("click", tap); bar.remove(); moreMenu.remove(); sideActions.remove(); liveChat.remove(); layer.remove();
+      media?.removeEventListener("pointerdown", pointerDown); media?.removeEventListener("pointermove", pointerMove);
+      media?.removeEventListener("pointerup", pointerEnd); media?.removeEventListener("pointercancel", pointerCancel);
+      media?.removeEventListener("lostpointercapture", pointerCancel); media?.removeEventListener("click", tap); bar.remove(); moreMenu.remove(); sideActions.remove(); liveChat.remove(); layer.remove();
     },
     isPaused: () => pauser.active(),
   };
