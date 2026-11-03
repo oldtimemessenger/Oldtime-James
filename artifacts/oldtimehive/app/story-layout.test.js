@@ -153,3 +153,14 @@ test("Story progress is segmented by item and announces the current position", (
   assert.match(visual, /\.progress-segment\s*\{[^}]*flex:1 1 0/);
   assert.match(visual, /\.progress-segment\.is-complete b\s*\{\s*width:100%/);
 });
+
+
+test("Story viewer warms only the next authorized image and respects reduced motion", () => {
+  assert.match(js, /preloadStoryImage\(nextStory\)/);
+  assert.match(js, /!isStoryActive\(story\) \|\| !api\.canSeeStory\(story\)/);
+  assert.match(js, /story\.kind === "video"/);
+  assert.match(js, /list\[i \+ 1\]\?\.id !== nextStory\.id/);
+  const immersive = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(immersive, /story-stage-arrive/);
+  assert.match(immersive, /prefers-reduced-motion:reduce/);
+});
