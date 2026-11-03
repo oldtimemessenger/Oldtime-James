@@ -23,6 +23,10 @@ export interface AccountNotification {
      * @nullable
      */
   questionId?: string | null;
+  /** Private conversation reference visible only to its members */
+  conversationId?: string;
+  /** Private message reference visible only to its conversation members */
+  messageId?: string;
   createdAt: number;
   read: boolean;
 }
