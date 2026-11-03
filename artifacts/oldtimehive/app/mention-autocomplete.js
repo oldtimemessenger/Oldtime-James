@@ -1,5 +1,6 @@
 const HANDLE = /^[a-z0-9_]{3,24}$/i;
 const bindings = new WeakMap();
+let popupSequence = 0;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -29,7 +30,18 @@ export function bindMentionAutocomplete(input, { api, maxResults = 6 } = {}) {
   const doc = input.ownerDocument;
   const popup = doc.createElement("div");
   popup.className = "mention-suggestions";
+  popup.id = `mention-suggestions-${++popupSequence}`;
   popup.setAttribute("role", "listbox");
+  const previousAria = {
+    autocomplete: input.getAttribute("aria-autocomplete"),
+    controls: input.getAttribute("aria-controls"),
+    expanded: input.getAttribute("aria-expanded"),
+    haspopup: input.getAttribute("aria-haspopup"),
+  };
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-controls", popup.id);
+  input.setAttribute("aria-expanded", "false");
+  input.setAttribute("aria-haspopup", "listbox");
   popup.hidden = true;
   doc.body.append(popup);
   let timer = null, requestId = 0, candidates = [], activeIndex = 0, disposed = false;
@@ -38,6 +50,8 @@ export function bindMentionAutocomplete(input, { api, maxResults = 6 } = {}) {
     requestId += 1;
     clearTimeout(timer);
     popup.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
     candidates = [];
   };
   const place = () => {
@@ -67,11 +81,13 @@ export function bindMentionAutocomplete(input, { api, maxResults = 6 } = {}) {
     candidates = profiles.slice(0, maxResults);
     activeIndex = 0;
     popup.innerHTML = candidates.length
-      ? candidates.map((profile, index) => `<button type="button" role="option" aria-selected="${index === 0}" data-mention-index="${index}">
+      ? candidates.map((profile, index) => `<button type="button" id="${popup.id}-option-${index}" role="option" aria-selected="${index === 0}" data-mention-index="${index}">
           <img src="${escapeHtml(profile.avatar || "")}" alt="" /><span><b>${escapeHtml(profile.displayName || profile.name || profile.username)}</b><small>@${escapeHtml(profile.username)}</small></span>
         </button>`).join("")
       : `<p>${query.length < 2 ? "Type at least 2 characters." : "No accounts can be tagged with that search."}</p>`;
     popup.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    if (candidates.length) input.setAttribute("aria-activedescendant", `${popup.id}-option-0`);
     popup.querySelectorAll("[data-mention-index]").forEach(button => {
       button.addEventListener("pointerdown", event => {
         event.preventDefault();
@@ -108,6 +124,7 @@ export function bindMentionAutocomplete(input, { api, maxResults = 6 } = {}) {
       activeIndex = (activeIndex + (event.key === "ArrowDown" ? 1 : -1) + candidates.length) % candidates.length;
       popup.querySelectorAll("[data-mention-index]").forEach((button, index) =>
         button.setAttribute("aria-selected", String(index === activeIndex)));
+      input.setAttribute("aria-activedescendant", `${popup.id}-option-${activeIndex}`);
     } else if (event.key === "Enter" && candidates[activeIndex]) {
       event.preventDefault();
       choose(candidates[activeIndex]);
@@ -136,5 +153,8 @@ export function bindMentionAutocomplete(input, { api, maxResults = 6 } = {}) {
     doc.defaultView?.removeEventListener("resize", place);
     doc.defaultView?.removeEventListener("scroll", place, true);
     popup.remove();
+    for (const [name, value] of Object.entries({ "aria-autocomplete": previousAria.autocomplete, "aria-controls": previousAria.controls, "aria-expanded": previousAria.expanded, "aria-haspopup": previousAria.haspopup })) {
+      if (value === null) input.removeAttribute(name); else input.setAttribute(name, value);
+    }
   };
 }
