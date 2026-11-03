@@ -5,8 +5,8 @@
 - Status media uses a portrait canvas, initially Fill, with an explicit Fit option.
 - Background media, text, stickers and picture overlays can be positioned independently. Pointer gestures support drag and pinch sizing; stickers, text and picture overlays can also rotate.
 - Overlay adds up to six JPEG, PNG or WebP pictures, including on a plain colour background. Each picture retains its aspect ratio and has remove/size controls and keyboard alternatives.
-- The horizontal, closable sticker picker provides Questions, Trendsetters and Hey World. Every sticker can have an optional title of up to 60 characters.
-- Questions starts with an editable “Ask me anything” prompt. Trendsetters and Hey World use the supplied cropped artwork with transparent outer backgrounds and the action **Add your own**.
+- The horizontal, closable sticker picker provides Questions and two Add Yours prompt templates. Questions uses a familiar prompt-and-reply card; Add Yours uses a compact prompt card with a clear Add Yours action. Every sticker can have an optional title of up to 60 characters.
+- Questions starts with an editable “Ask me anything” prompt. Both Add Yours templates retain their distinct default prompts and shared participation threads, while using the same clean, white-and-blue Story card treatment.
 - Preview and photo/video exports use the same composition. Interactive sticker positions are also sent as normalized metadata; overlay photo bytes are baked into the composition, not stored as database blobs.
 
 ## Private questions and public answers
