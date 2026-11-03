@@ -281,9 +281,9 @@
     right:calc(50% - var(--story-frame-width)/2 + 12px) !important;
   }
   #storyview.storyview .story-caption {
-    left:calc(50% - var(--story-frame-width)/2 + 20px);
-    right:calc(50% - var(--story-frame-width)/2 + 78px);
-    bottom:calc(50% - var(--story-frame-height)/2 + 96px);
+    left:20px;
+    right:76px;
+    bottom:96px;
     max-width:calc(var(--story-frame-width) - 112px);
   }
   #storyview.storyview .story-side-actions {
