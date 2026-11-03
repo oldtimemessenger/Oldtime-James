@@ -466,7 +466,7 @@ async function searchUsers(request: Request, db: Database, userId: string, menti
 async function loadCommunityThreadPosts(db: Database, userId: string, rootId: string) {
   const items = await rows<{id:string}>(db,
     "SELECT id FROM posts WHERE thread_id=? ORDER BY thread_position ASC,created_at ASC,id ASC",rootId);
-  const records = [];
+  const records: NonNullable<Awaited<ReturnType<typeof getPost>>>[] = [];
   for (const item of items) {
     const post = await getPost(db,userId,item.id);
     if (post) records.push(post);
@@ -508,8 +508,8 @@ async function communityPostThread(request: Request, db: Database, userId: strin
       post.visibility!==root.visibility || post.destination!==root.destination)) {
     throw new ApiError(400,"Every part must be your own Community post with the same audience.");
   }
-  const otherThreads = await rows<{id:string;thread_id:string|null}>(db,
-    `SELECT id,thread_id FROM posts WHERE id IN (${pending.map(()=>"?").join(",")})`,...pending);
+  const otherThreads = pending.length ? await rows<{id:string;thread_id:string|null}>(db,
+    `SELECT id,thread_id FROM posts WHERE id IN (${pending.map(()=>"?").join(",")})`,...pending) : [];
   if (otherThreads.some(item=>item.thread_id && item.thread_id!==rootId)) {
     throw new ApiError(409,"A post can belong to only one conversation.");
   }
