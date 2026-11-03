@@ -154,6 +154,7 @@ test("Story viewer warms only the next authorized image and respects reduced mot
 test("app-wide action controls use a consistent menu and contextual icon language", () => {
   const icons = readFileSync(new URL("./icons.js", import.meta.url), "utf8");
   const storyInteractions = readFileSync(new URL("./story-interactions.js", import.meta.url), "utf8");
+  const explore = readFileSync(new URL("./explore-ecosystem.js", import.meta.url), "utf8");
   const menu = readFileSync(new URL("./post-actions-menu.js", import.meta.url), "utf8");
   const visual = readFileSync(new URL("./app-wide-visual-language.css", import.meta.url), "utf8");
   assert.match(js, /import "\.\/app-wide-visual-language\.css"/);
@@ -163,6 +164,7 @@ test("app-wide action controls use a consistent menu and contextual icon languag
   assert.ok(storyInteractions.includes('icon("heart")'), "Story likes reuse the Home feed heart icon");
   assert.ok(storyInteractions.includes('icon("share")'), "Story sharing reuses the Home feed share icon");
   assert.ok(storyInteractions.includes('class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("tune")}'), "Story options use the refined contextual action icon");
+  assert.ok(explore.includes('aria-label="Why this post and Not interested">${ic.tune}</button>'), "Explore uses the shared contextual action icon");
   assert.match(menu, /icons\.tune \|\| icons\.more/);
   assert.match(icons, /tune: '<path d="M4 6h16M4 12h16M4 18h16"/);
   assert.match(visual, /\.profile-actions-open/);
@@ -174,4 +176,5 @@ test("app-wide action controls use a consistent menu and contextual icon languag
   assert.match(visual, /backdrop-filter:blur\(18px\)/);
   assert.match(visual, /\.chat-header/);
   assert.match(visual, /\.notification-filter/);
+  assert.match(visual, /\.xe-cap-more/);
 });
