@@ -520,7 +520,7 @@ export function openStatusCapture({ source = "landing", toast = () => {}, onPost
       const used = stickers.some(s => s.kind === kind), full = !canAddSticker(stickers, kind);
       return `<button type="button" role="listitem" class="sc-stk-card sc-stk-${kind}" data-add-sticker="${kind}" ${full ? "disabled" : ""} data-testid="button-add-sticker-${kind}">
         <span class="sc-stk-thumb" aria-hidden="true"><span class="sc-stk-mini sc-stk-mini-${kind}">
-          <b>${kind === "questions" ? "QUESTIONS" : "YOUR COMMUNITY PROMPT"}</b><i>${esc(DEFAULT_PROMPTS[kind] || "Share your take")}</i>
+          <b>${kind === "questions" ? "QUESTIONS" : "ADD YOUR OWN"}</b><i>${esc(DEFAULT_PROMPTS[kind] || "Share your take")}</i>
           <em>${kind === "questions" ? "Send a question" : "+  Add your own"}</em></span></span>
         <b>${esc(STICKER_LABELS[kind])}</b><small>${used ? "Added" : full ? "Limit reached" : kind === "questions" ? "Let people ask you" : "Invite people to join in"}</small></button>`;
     }).join("");
