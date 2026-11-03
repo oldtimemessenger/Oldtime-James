@@ -1,5 +1,5 @@
 // Draws Status stickers into a canvas (preview, image export and every video export frame).
-// Questions and Add Yours are drawn as native Story cards; original Questions art remains for answer cards.
+// Questions and Add your own use a distinct Oldtime card treatment; original artwork remains for answer cards.
 import { STICKER_LABELS, STICKER_JOIN, ART_SIZE } from "./status-sticker-editor.js";
 
 const assetUrl = make => { try { return make(); } catch { return ""; } };
@@ -163,30 +163,33 @@ function drawStickerCard(ctx, s, w, h) {
   ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
   ctx.save(); roundRect(ctx, left, top, w, h, radius); ctx.clip();
   if (isQuestion) {
-    const headerH = h * .34;
-    ctx.fillStyle = "#1456d9"; ctx.fillRect(left, top, w, headerH);
-    ctx.fillStyle = "rgba(255,255,255,.78)"; ctx.font = `800 ${Math.max(10, h * .055)}px Manrope, system-ui, sans-serif`;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(s.title || "QUESTIONS", 0, top + headerH * .27, w * .84);
-    const prompt = fitText(ctx, s.prompt || "Ask me anything", w * .82, 2, h * .105, Math.max(12, h * .055), 800);
-    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`; ctx.fillStyle = "#ffffff";
-    drawLines(ctx, prompt, 0, top + headerH * .48, "#ffffff", 1.12);
-    const fieldY = top + h * .70, fieldH = h * .19;
-    roundRect(ctx, left + w * .08, fieldY, w * .84, fieldH, fieldH * .34);
-    ctx.fillStyle = "#f1f3f7"; ctx.fill();
-    ctx.fillStyle = "#626b7a"; ctx.font = `600 ${Math.max(11, h * .065)}px Manrope, system-ui, sans-serif`;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("Write a reply…", 0, fieldY + fieldH / 2, w * .76);
-  } else {
-    ctx.fillStyle = "#6b7280"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
+    const headerH = h * .25;
+    ctx.fillStyle = "#8e1b24"; ctx.fillRect(left, top, w, headerH);
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(s.title || "ADD YOURS", 0, top + h * .18, w * .84);
+    ctx.fillText(s.title || "QUESTIONS", 0, top + headerH * .52, w * .84);
+    // The prompt remains the editable "Ask me anything" text, not baked-in artwork.
+    const prompt = fitText(ctx, s.prompt || "Ask me anything", w * .82, 2, h * .14, Math.max(12, h * .075), 800);
+    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`;
+    drawLines(ctx, prompt, 0, top + h * .49, "#17191c", 1.12);
+    const fieldY = top + h * .72, fieldH = h * .17;
+    roundRect(ctx, left + w * .12, fieldY, w * .76, fieldH, fieldH * .30);
+    ctx.fillStyle = "#edf2ff"; ctx.fill();
+    ctx.fillStyle = "#1456d9"; ctx.font = `700 ${Math.max(10, h * .058)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("Send a question", 0, fieldY + fieldH / 2, w * .70);
+  } else {
+    ctx.fillStyle = "#1456d9"; ctx.fillRect(left, top, w, h * .23);
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(s.title || "ADD YOUR OWN", 0, top + h * .115, w * .84);
     const prompt = fitText(ctx, s.prompt || "Share your take", w * .82, 2, h * .13, Math.max(12, h * .065), 800);
     ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`;
-    drawLines(ctx, prompt, 0, top + h * .34, "#17191c", 1.12);
+    drawLines(ctx, prompt, 0, top + h * .47, "#17191c", 1.12);
     const buttonY = top + h * .72, buttonH = h * .19;
-    roundRect(ctx, left + w * .20, buttonY, w * .60, buttonH, buttonH * .46);
-    ctx.fillStyle = "#1456d9"; ctx.fill();
+    roundRect(ctx, left + w * .16, buttonY, w * .68, buttonH, buttonH * .28);
+    ctx.fillStyle = "#8e1b24"; ctx.fill();
     ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(11, h * .067)}px Manrope, system-ui, sans-serif`;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("+  Add Yours", 0, buttonY + buttonH / 2, w * .55);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("+  Add your own", 0, buttonY + buttonH / 2, w * .64);
   }
   ctx.restore();
   ctx.lineWidth = Math.max(1, h * .006); ctx.strokeStyle = "#e6e9ef";
@@ -194,7 +197,7 @@ function drawStickerCard(ctx, s, w, h) {
   ctx.restore();
 }
 function drawArt(ctx, s, w, h) {
-  // Questions and Add Yours use clean, native-feeling Story cards. The original
+  // Questions and Add your own use the Oldtime Story card style. The original
   // Questions artwork remains available only for the expanded answer card.
   drawStickerCard(ctx, s, w, h);
 }
