@@ -88,7 +88,7 @@
   margin:2px 0 5px;border-radius:14px;background:#e9edf2;
   object-fit:cover;
 }
-#app .conversation-screen video.message-media { aspect-ratio:16/10; }
+#app .conversation-screen video.message-media { aspect-ratio:16/10;object-fit:contain;background:#171a20; }
 #app .conversation-screen .message-file {
   display:inline-flex;align-items:center;max-width:100%;min-height:38px;
   padding:8px 11px;border:1px solid rgba(120,130,145,.22);
@@ -132,7 +132,7 @@
 }
 #app .conversation-screen .chat-composer textarea::placeholder { color:#8c95a2; }
 #app .conversation-screen .chat-compose-tools {
-  left:0;right:0;bottom:calc(100% + 9px);
+  position:absolute;left:0;right:0;bottom:calc(100% + 9px);
   padding:9px;display:flex;gap:7px;flex-wrap:wrap;
   border:1px solid #e7eaf0;border-radius:17px;
   background:#fff;box-shadow:0 10px 28px rgba(20,30,48,.13);
