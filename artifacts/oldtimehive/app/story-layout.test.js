@@ -160,6 +160,9 @@ test("app-wide action controls use a consistent menu and contextual icon languag
   assert.match(js, /mine \? ic\.menu : ic\.tune/);
   assert.match(js, /aria-label="Comment actions">\$\{ic\.tune\}/);
   assert.match(js, /aria-label="Reply actions">\$\{ic\.tune\}/);
+  assert.ok(storyInteractions.includes('icon("heart")'), "Story likes reuse the Home feed heart icon");
+  assert.ok(storyInteractions.includes('icon("share")'), "Story sharing reuses the Home feed share icon");
+  assert.ok(storyInteractions.includes('class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("tune")}'), "Story options use the refined contextual action icon");
   assert.match(menu, /icons\.tune \|\| icons\.more/);
   assert.match(icons, /tune: '<path d="M4 6h16M4 12h16M4 18h16"/);
   assert.match(visual, /\.profile-actions-open/);
