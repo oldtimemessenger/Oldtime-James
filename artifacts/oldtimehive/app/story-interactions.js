@@ -76,7 +76,7 @@ export function createPressPause({ hold, release, delay = STORY_HOLD_DELAY_MS, m
       finish(true);
     },
     cancel(event) {
-      if (pointer && (pointer.id === undefined || event?.pointerId === undefined || event.pointerId === pointer.id)) finish(true);
+      if (pointer && (pointer.id === undefined || event?.pointerId === undefined || event.pointerId === pointer.id)) finish(false);
     },
     consumeClick() {
       if (!suppressClick) return false;
@@ -619,7 +619,11 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
   view.addEventListener("keydown", panelEscape);
   const media = view.querySelector(".story-stage");
   const pressPause = createPressPause({ hold: () => pauser.hold(), release: () => pauser.release(), setTimer: win.setTimeout.bind(win), clearTimer: win.clearTimeout.bind(win) });
-  const pointerDown = event => { if (!isIgnoredTap(event.target)) pressPause.start(event); };
+  const pointerDown = event => {
+    if (isIgnoredTap(event.target)) return;
+    pressPause.start(event);
+    try { if (media?.setPointerCapture && event.pointerId !== undefined) media.setPointerCapture(event.pointerId); } catch {}
+  };
   const pointerMove = event => pressPause.move(event);
   const pointerEnd = event => pressPause.end(event);
   const pointerCancel = event => pressPause.cancel(event);
