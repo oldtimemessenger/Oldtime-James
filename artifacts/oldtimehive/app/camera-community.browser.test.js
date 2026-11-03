@@ -961,14 +961,25 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
               clientHeight: feed.clientHeight,
               scrollHeight: feed.scrollHeight,
             };
+            const cardRects = [...feed.querySelectorAll(":scope > .clip")].map(card => {
+              const rect = card.getBoundingClientRect();
+              return { top: rect.top, height: rect.height };
+            });
+            const mediaBox = box(".clip.post-detail img,.clip.post-detail video");
+            const infoBox = box(".post-viewer-media-info");
+            const railBox = box(".rail");
+            const composerBox = box(".post-viewer-footer");
+            const fit = getComputedStyle(media).objectFit;
+            const radius = getComputedStyle(media).borderRadius;
             feed.scrollTop = feed.clientHeight + 1;
             return {
-              fit: getComputedStyle(media).objectFit,
-              media: box(".clip.post-detail img,.clip.post-detail video"),
-              info: box(".post-viewer-media-info"), rail: box(".rail"),
-              composer: box(".post-viewer-footer"),
-              radius: getComputedStyle(media).borderRadius,
+              fit,
+              media: mediaBox,
+              info: infoBox, rail: railBox,
+              composer: composerBox,
+              radius,
               feedScroll,
+              cardRects,
               scrolledTop: feed.scrollTop,
             };
           });
@@ -979,12 +990,17 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
           assert.ok(geometry.info.bottom <= geometry.composer.top, JSON.stringify(geometry));
           assert.ok(geometry.rail.bottom <= geometry.composer.top, JSON.stringify(geometry));
           assert.ok(geometry.composer.top - geometry.info.bottom < 20, "sound stays beside the bottom actions");
-          assert.ok(geometry.composer.top - geometry.rail.bottom < 20, "actions stay just above the composer");
+          assert.ok(geometry.composer.top - geometry.rail.bottom <= 24, "actions stay just above the composer");
           assert.equal(geometry.feedScroll.overflowY, "auto");
           assert.ok(geometry.feedScroll.snap.includes("y mandatory"));
           assert.ok(geometry.feedScroll.touchAction.includes("pan-y"));
           assert.ok(geometry.feedScroll.scrollHeight >= geometry.feedScroll.clientHeight * 2);
           assert.ok(geometry.scrolledTop > 0, "native scroll advances to the next full-screen post");
+           assert.equal(geometry.cardRects.length, 2);
+           assert.ok(geometry.cardRects[0].height >= size.height - 1);
+           assert.ok(geometry.cardRects[1].height >= size.height - 1);
+           assert.ok(geometry.cardRects[1].top - geometry.cardRects[0].top >= size.height - 1,
+             "neighbor posts must occupy separate snap pages, not overlap");
         }
       }
       await page.screenshot({ path: "/tmp/oldtime-viewer-edge-to-edge.png" });

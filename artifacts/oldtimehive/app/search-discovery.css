@@ -779,14 +779,6 @@
   display: block;
   aspect-ratio: 3 / 4;
   background: #ededee;
-  animation: explore-skeleton-pulse 1.25s ease-in-out infinite alternate;
-}
-.explore-feed-skeleton span:nth-child(3n + 2) { animation-delay: .15s; }
-.explore-feed-skeleton span:nth-child(3n) { animation-delay: .3s; }
-
-@keyframes explore-skeleton-pulse {
-  from { opacity: .55; }
-  to { opacity: 1; }
 }
 
 .discovery-empty.explore-feed-empty {
@@ -911,7 +903,7 @@
 .profile-community-state { margin:12px; padding:12px; border:1px solid var(--line,#e8e8eb); border-radius:11px; color:#62646b; font-size:12px; }
 .profile-community-state button { border:0; background:none; color:var(--color-primary,#1456d9); font:inherit; font-weight:650; cursor:pointer; }
 .profile-community-skeleton { display:grid; gap:10px; padding:12px; }
-.profile-community-skeleton span { display:block; height:84px; border-radius:12px; background:#eef1f5; animation:xe-pulse 1s ease-in-out infinite alternate; }
+.profile-community-skeleton span { display:block; height:84px; border-radius:12px; background:#eef1f5; }
 
 .post-viewer-explore .post-viewer-feed { overscroll-behavior: contain; }
 .post-viewer-swipe-hint { position:fixed; left:50%; bottom:calc(74px + env(safe-area-inset-bottom,0px)); z-index:25; display:flex; gap:8px; transform:translateX(-50%); pointer-events:none; animation:pv-hint 2.6s ease forwards; }

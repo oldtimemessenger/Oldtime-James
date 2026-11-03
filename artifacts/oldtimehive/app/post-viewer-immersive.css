@@ -114,3 +114,24 @@
 #app .post-viewer-screen.post-viewer-media .post-viewer-composer-form .post-viewer-footer-send {
   width:32px; height:32px; flex:0 0 32px;
 }
+
+/* Search/Discover viewers are a native vertical feed, not three cards layered
+   in the single-post viewer. Keep neighboring posts in document flow so each
+   snap shows exactly one post and its own metadata. */
+#app .post-viewer-screen.post-viewer-media.post-viewer-explore .post-viewer-feed {
+  position:absolute!important; inset:0!important; display:block!important;
+  width:100%!important; height:100%!important; min-height:0!important;
+  margin:0!important; padding:0!important; border:0!important; border-radius:0!important;
+  overflow-x:hidden!important; overflow-y:auto!important;
+  overscroll-behavior-y:contain; -webkit-overflow-scrolling:touch;
+  scroll-snap-type:y mandatory; touch-action:pan-y;
+}
+#app .post-viewer-screen.post-viewer-media.post-viewer-explore .post-viewer-feed > .clip.post-detail {
+  position:relative!important; inset:auto!important; display:block!important;
+  width:100%!important; height:100%!important; min-height:100%!important;
+  max-height:none!important; flex:0 0 100%!important;
+  margin:0!important; border:0!important; border-radius:0!important;
+  scroll-snap-align:start; scroll-snap-stop:always;
+}
+#app .post-viewer-screen.post-viewer-explore .clip.motion-feed-entry { animation:none!important; }
+#app .post-viewer-download[hidden] { display:none!important; }

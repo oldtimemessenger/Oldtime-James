@@ -376,7 +376,7 @@ h2 { font-size:var(--fs-section); }
 .feed-loading-skeletons { display:grid; gap:20px; padding:150px 12px calc(88px + env(safe-area-inset-bottom)); }
 .feed-loading-skeleton-post { display:grid; gap:12px; }
 .feed-loading-skeleton-author { display:flex; align-items:center; gap:10px; }
-.feed-loading-skeleton-author i,.feed-loading-skeleton-author span,.feed-loading-skeleton-media { display:block; background:linear-gradient(100deg,#14161a 20%,#20232a 42%,#14161a 64%); background-size:220% 100%; animation:oldtime-feed-shimmer 1.25s ease-in-out infinite; }
+.feed-loading-skeleton-author i,.feed-loading-skeleton-author span,.feed-loading-skeleton-media { display:block; background:linear-gradient(100deg,#17191d,#20232a,#17191d); background-size:100% 100%; }
 .feed-loading-skeleton-author i { width:38px; height:38px; flex:none; border-radius:50%; }
 .feed-loading-skeleton-author span { width:42%; height:12px; border-radius:99px; }
 .feed-loading-skeleton-media { height:min(43dvh,380px); min-height:230px; border-radius:14px; }

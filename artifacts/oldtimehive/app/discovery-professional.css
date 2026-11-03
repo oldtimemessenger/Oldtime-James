@@ -32,5 +32,4 @@
 #app .post-viewer-explore .clip.post-detail>.rail .act{color:#fff;min-width:44px;min-height:44px}
 .post-viewer-download{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;padding:10px;border:0;background:transparent;color:inherit}
 .post-viewer-download svg{width:24px;height:24px}
-.post-viewer-explore[aria-busy=true]:after{content:"Loading next post…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:10px 14px;border-radius:12px;background:#000b;color:white;z-index:40}
 @media(prefers-color-scheme:dark){.search-screen .search-app-header{background:var(--bg,#111318);color:var(--text,#eee)}}

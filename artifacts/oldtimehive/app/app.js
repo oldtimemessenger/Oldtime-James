@@ -1540,6 +1540,10 @@ function shell(inner, mode, { hideNav = false } = {}) {
   const communityTabChange = previousScreen?.classList.contains("community-screen") &&
     inner.includes("community-screen") && !sameScreen;
   const currentScrollSnapshot = previousScreen ? capturePreservedScroll(previousScreen) : [];
+  if (previousScreen?.classList.contains("post-viewer-screen") && !inner.includes("post-viewer-screen")) {
+    bindExploreViewerSwipe.offKey?.();
+    bindMediaViewerComments.cleanup?.();
+  }
   if (previousScrollContext) cacheScreenScroll(previousScrollContext, currentScrollSnapshot);
   const navigationSnapshot = pendingNavigationScrollRestore?.context === nextScrollContext
     ? pendingNavigationScrollRestore.scroll
@@ -3118,13 +3122,13 @@ function bindPostEditActions(root = app) {
   bindPostDeleteActions(root);
 }
 
-function bindPosts() {
+function bindPosts({ observe = true } = {}) {
   mountRepostAffordances(app);
   app.querySelectorAll("article.clip").forEach(element=>{
     if(element.querySelector("video"))return;
     const item=api.post(element.dataset.id);if(item)trackQualifiedView(item,element,tab==="communities"?"community":"feed");
   });
-  observeVideos();
+  if (observe) observeVideos();
   void hydrateLocalMedia(app);
   mountCreativeViewers(app, { onSource: openPostViewer, muted });
   const useAudioInCreate=({source,title})=>{
@@ -3163,12 +3167,13 @@ function bindPosts() {
     event.stopPropagation();
     const id = b.dataset.like;
     const isPlaceViewer = Boolean(b.closest(".post-viewer-place"));
+    const isMediaViewer = Boolean(b.closest(".post-viewer-media"));
     const post = api.post(id);
     if (isPlaceViewer && !post?.likes?.includes(api.me()?.id)) {
       const clip = b.closest(".clip");
       showPostHeart(id, clip ? clip.clientWidth * .62 : 0, clip ? clip.clientHeight * .66 : 0);
     }
-    void like(id, null, !isPlaceViewer);
+    void like(id, null, !isPlaceViewer && !isMediaViewer);
   });
   app.querySelectorAll("[data-save]").forEach(b => b.onclick = (e) => { e.stopPropagation(); save(b.dataset.save); });
   app.querySelectorAll("[data-comment]").forEach(b => b.onclick = (e) => { e.stopPropagation(); comments(b.dataset.comment); });
@@ -3181,7 +3186,10 @@ function bindPosts() {
     e.stopPropagation();
     openRepostNote(b.dataset.repostNote, { esc, toast, onSaved: () => render() });
   });
-  app.querySelectorAll("[data-follow]").forEach(b => b.onclick = (e) => { e.stopPropagation(); follow(b.dataset.follow); });
+  app.querySelectorAll("[data-follow]").forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    void follow(b.dataset.follow, { rerender: !Boolean(b.closest(".post-viewer-media")) });
+  });
   app.querySelectorAll("[data-place-explore]").forEach(b => b.onclick = e => {
     e.stopPropagation();
     selectPlace({
@@ -3462,7 +3470,21 @@ function showSocialSheet(id, mode, options = {}) {
     onRepost: repost,
   });
 }
-async function follow(id) {
+function syncFollowButtons(id) {
+  const me = api.me();
+  const author = api.user(id);
+  if (!me || !author) return;
+  const following = me.following.includes(id);
+  const requested = api.db().requests.some(request => request.from === me.id && request.to === id);
+  const label = following ? "Following" : requested ? "Requested" : "Follow";
+  app.querySelectorAll("[data-follow]").forEach(button => {
+    if (button.dataset.follow !== id) return;
+    button.textContent = label;
+    button.setAttribute("aria-pressed", String(following));
+    button.setAttribute("aria-label", `${label} ${author.name || author.username || ""}`.trim());
+  });
+}
+async function follow(id, { rerender = true } = {}) {
   const me = api.me();
   const u = api.user(id);
   const wasFollowing=me.following.includes(id);
@@ -3476,7 +3498,8 @@ async function follow(id) {
       await api.setCloudFollow(id, !following && !requested);
       const nowFollowing = api.me().following.includes(id);
       const nowRequested = api.db().requests.some(request => request.from === api.me().id && request.to === id);
-      render();
+      if (rerender) render();
+      else syncFollowButtons(id);
       toast(nowFollowing ? "Following" : nowRequested ? "Follow request sent" : wasFollowing ? "Unfollowed" : "Follow request canceled");
     } catch (error) {
       toast(error.message || "Follow settings could not be updated.");
@@ -3499,7 +3522,8 @@ async function follow(id) {
     }
   });
   if(!u.private)recordActivity(api.me().following.includes(id)?"follow":"unfollow",{author:id,id:null},"profile");
-  render();
+  if (rerender) render();
+  else syncFollowButtons(id);
   const following=api.me().following.includes(id);
   const requested=api.db().requests.some(r=>r.from===me.id&&r.to===id);
   toast(following?"Following":requested?"Requested":wasFollowing?"Unfollowed":"Follow request canceled");
@@ -5671,6 +5695,7 @@ function bindExploreViewerSwipe(id, source = "explore") {
   const screen = app.querySelector(".post-viewer-screen");
   const feed = screen?.querySelector(".post-viewer-feed");
   if (!screen || !feed) return;
+  let activeId = id;
   const places = source === "places";
   screen.classList.add(places ? "post-viewer-place-swipe" : "post-viewer-explore");
   // Places: browse placeFeed.posts plus a viewer-only queue of extra ids (global feed untouched).
@@ -5681,7 +5706,7 @@ function bindExploreViewerSwipe(id, source = "explore") {
   const queue = bindExploreViewerSwipe.placeQueue;
   const placeIds = () => [...new Set([...placeFeed.posts.map(post => post.id), ...(queue?.ids || [])])];
   const placeNeighbor = (offset, fromId = id) => { const ids = placeIds(); const i = ids.indexOf(fromId); return i < 0 ? null : ids[i + offset] || null; };
-  const fetchMorePlacePosts = async () => {
+  const fetchMorePlacePosts = async (fromId = activeId) => {
     const hasMore = queue.hasMore ?? placeFeed.hasMore;
     if (!hasMore || !selectedPlace?.id) return null;
     queue.loading ||= (async () => {
@@ -5695,23 +5720,31 @@ function bindExploreViewerSwipe(id, source = "explore") {
       queue.nextOffset = Number.isSafeInteger(result?.nextOffset) ? result.nextOffset : (queue.nextOffset ?? placeFeed.nextOffset ?? 0) + cached.length;
     })().finally(() => { queue.loading = null; });
     await queue.loading;
-    return placeNeighbor(1, viewer);
+    return placeNeighbor(1, fromId);
   };
   let settleTimer = 0;
   let loading = false;
   let loadObserver = null;
   const pendingMarkup = () => `<div class="post-viewer-next-pending" data-viewer-next-pending role="status">Loading more posts…</div>`;
   const loadPending = async sentinel => {
-    if (!sentinel?.isConnected || loading || viewer !== id || viewerSource !== source) return;
+    if (!sentinel?.isConnected || loading || !screen.isConnected || viewerSource !== source) return;
     loading = true;
     screen.setAttribute("aria-busy", "true");
     try {
-      const targetId = places ? await fetchMorePlacePosts() : await exploreEco.ensureNext(id);
-      if (!sentinel.isConnected || viewer !== id || viewerSource !== source) return;
+      const cursorId = sentinel.previousElementSibling?.matches?.(".clip[data-id]")
+        ? sentinel.previousElementSibling.dataset.id
+        : activeId;
+      const targetId = places ? await fetchMorePlacePosts(cursorId) : await exploreEco.ensureNext(cursorId);
+      if (!sentinel.isConnected || !screen.isConnected || viewerSource !== source) return;
       if (!targetId) {
         sentinel.textContent = "You’re all caught up.";
         sentinel.classList.add("is-ended");
         sentinel.removeAttribute("data-viewer-next-pending");
+        return;
+      }
+      const existing = [...feed.querySelectorAll(":scope > .clip[data-id]")].some(card => card.dataset.id === targetId);
+      if (existing) {
+        sentinel.remove();
         return;
       }
       let post = api.post(targetId);
@@ -5729,11 +5762,13 @@ function bindExploreViewerSwipe(id, source = "explore") {
         return;
       }
       sentinel.outerHTML = postCard(post, "detail") + pendingMarkup();
-      bindPosts();
+      const addedCard = viewerCards().find(card => card.dataset.id === targetId);
+      bindPosts({ observe: false });
+      addedCard?.querySelectorAll("video").forEach(video => feedObserver?.observe(video));
       const nextSentinel = feed.querySelector(":scope > [data-viewer-next-pending]:last-child");
       if (nextSentinel && loadObserver) loadObserver.observe(nextSentinel);
       feed.querySelectorAll(".clip[data-id] video").forEach(video => {
-        if (video.closest(".clip")?.dataset.id !== id) video.pause();
+        if (video.closest(".clip")?.dataset.id !== activeId) video.pause();
       });
     } catch (error) {
       if (sentinel.isConnected) {
@@ -5745,6 +5780,40 @@ function bindExploreViewerSwipe(id, source = "explore") {
       loading = false;
       screen.removeAttribute("aria-busy");
     }
+  };
+  const viewerCards = () => [...feed.querySelectorAll(":scope > .clip[data-id]")];
+  const appendSearchNext = () => {
+    if (source !== "search") return;
+    const cards = viewerCards();
+    const activeIndex = cards.findIndex(card => card.dataset.id === activeId);
+    if (activeIndex < cards.length - 2 || !cards.length) return;
+    const lastId = cards[cards.length - 1].dataset.id;
+    const nextId = viewerAdjacentPostIds(lastId, source).nextId;
+    if (!nextId || cards.some(card => card.dataset.id === nextId)) return;
+    const post = api.post(nextId);
+    if (!post || !api.canSeePost(post)) return;
+    feed.insertAdjacentHTML("beforeend", postCard(post, "detail"));
+    const addedCard = viewerCards().find(card => card.dataset.id === nextId);
+    bindPosts({ observe: false });
+    addedCard?.querySelectorAll("video").forEach(video => feedObserver?.observe(video));
+  };
+  const appendMoreSentinel = () => {
+    if (source === "search" || feed.querySelector(":scope > [data-viewer-next-pending]")) return;
+    const cards = viewerCards();
+    const activeIndex = cards.findIndex(card => card.dataset.id === activeId);
+    if (!cards.length || activeIndex < cards.length - 2) return;
+    const lastId = cards[cards.length - 1].dataset.id;
+    const hasMore = places
+      ? (queue?.hasMore ?? placeFeed.hasMore) === true
+      : viewerAdjacentPostIds(lastId, source).hasMore;
+    if (!hasMore) return;
+    feed.insertAdjacentHTML("beforeend", pendingMarkup());
+    const sentinel = feed.querySelector(":scope > [data-viewer-next-pending]:last-child");
+    if (sentinel && loadObserver) loadObserver.observe(sentinel);
+  };
+  const appendAhead = () => {
+    appendSearchNext();
+    appendMoreSentinel();
   };
   const onScroll = () => {
     clearTimeout(settleTimer);
@@ -5761,12 +5830,19 @@ function bindExploreViewerSwipe(id, source = "explore") {
         if (nextDistance < distance) { active = card; distance = nextDistance; }
       }
       const activePost = active && api.post(active.dataset.id);
-      if (active && activePost && distance < feed.clientHeight * .3 && active.dataset.id !== viewer &&
+      if (active && activePost && distance < feed.clientHeight * .3 && active.dataset.id !== activeId &&
           api.canSeePost(activePost)) {
-        feed.querySelectorAll("video").forEach(video => video.pause());
-        viewer = active.dataset.id;
-        render();
-        return;
+        activeId = active.dataset.id;
+        viewer = activeId;
+        feed.querySelectorAll("video").forEach(video => {
+          if (video.closest(".clip")?.dataset.id !== activeId) video.pause();
+        });
+        const contextMarkup = `<section class="${[...screen.classList].filter(name => name !== "motion-screen-enter").join(" ")}">`;
+        screen.dataset.scrollContext = screenScrollContext(contextMarkup);
+        const download = screen.querySelector("#post-viewer-download");
+        if (download) download.hidden = !(activePost.kind === "video" || postHasVideo(activePost));
+        if (screen.classList.contains("post-viewer-media")) bindMediaViewerComments(activeId);
+        appendAhead();
       }
       const sentinel = feed.querySelector("[data-viewer-next-pending]");
       if (sentinel) {
@@ -5787,8 +5863,9 @@ function bindExploreViewerSwipe(id, source = "explore") {
     feed.querySelectorAll("[data-viewer-next-pending]").forEach(sentinel => loadObserver.observe(sentinel));
   }
   feed.querySelectorAll(".clip[data-id] video").forEach(video => {
-    if (video.closest(".clip")?.dataset.id !== id) video.pause();
+    if (video.closest(".clip")?.dataset.id !== activeId) video.pause();
   });
+  appendAhead();
   bindExploreViewerSwipe.offKey = () => {
     clearTimeout(settleTimer);
     loadObserver?.disconnect();
@@ -5815,25 +5892,25 @@ function bindMediaViewerComments(id) {
   // Same-media soft backdrop so the contained foreground never sits on empty bands.
   const still = clip.querySelector(":scope > .fullimg, :scope > .post-carousel .fullimg");
   const backdropSrc = still?.currentSrc || still?.getAttribute("src") || clip.querySelector(":scope > video")?.getAttribute("poster") || "";
-  if (backdropSrc && !isLocalMedia(backdropSrc)) {
+  if (backdropSrc && !isLocalMedia(backdropSrc) && !clip.querySelector(":scope > .post-viewer-media-backdrop")) {
     const backdrop = document.createElement("img");
     backdrop.className = "post-viewer-media-backdrop";
     backdrop.alt = ""; backdrop.setAttribute("aria-hidden", "true");
     backdrop.src = backdropSrc;
     clip.prepend(backdrop);
   }
-  const meta = clip.querySelector(":scope > .meta");
-  const soundbar = clip.querySelector(":scope > .soundbar");
-  const info = document.createElement("div");
-  info.className = "post-viewer-media-info";
+  const info = clip.querySelector(":scope > .post-viewer-media-info") || document.createElement("div");
+  info.classList.add("post-viewer-media-info");
+  const meta = info.querySelector(":scope > .meta") || clip.querySelector(":scope > .meta");
+  const soundbar = info.querySelector(":scope > .soundbar") || clip.querySelector(":scope > .soundbar");
+  if (meta && meta.parentElement !== info) info.append(meta);
+  if (soundbar && clip.querySelector(":scope > video") && soundbar.parentElement !== info) info.append(soundbar);
+  else if (soundbar && !clip.querySelector(":scope > video")) soundbar.remove();
   const overlay = document.createElement("div");
   overlay.className = "post-viewer-comment-overlay";
   overlay.setAttribute("aria-label", "Recent comments");
-  info.append(overlay);
-  if (meta) info.append(meta);
-  if (soundbar && clip.querySelector(":scope > video")) info.append(soundbar);
-  else soundbar?.remove();
-  clip.append(info);
+  info.prepend(overlay);
+  if (!info.isConnected) clip.append(info);
   let loading = Boolean(api.cloudPost(id)), failed = false;
   const current = () => overlay.isConnected && viewer === id;
   const rowNodes = new Map();
@@ -5934,6 +6011,7 @@ function bindMediaViewerComments(id) {
     visibility.dispose();
     for (const event of ["pointerdown", "wheel", "touchmove", "focusin"]) overlay.removeEventListener(event, readComments);
     document.removeEventListener(MEDIA_VIEWER_COMMENTS_EVENT, onChange);
+    overlay.remove();
     if (bindMediaViewerComments.cleanup === cleanup) bindMediaViewerComments.cleanup = null;
   };
   document.addEventListener(MEDIA_VIEWER_COMMENTS_EVENT, onChange);
@@ -6041,6 +6119,7 @@ function postViewer(id) {
   const author = api.user(p.author) || { id: p.author, username: "member", name: "Oldtime member", avatar: "" };
   const following = (api.me()?.following || []).includes(author.id);
   const fromPlaces = viewerSource === "places";
+  const exploreViewer = ["explore", "search"].includes(viewerSource);
   const mediaViewer = !fromPlaces && (["photo","video","carousel"].includes(p.kind) || viewerSource === "explore" || viewerSource === "search");
   const adjacent = viewerAdjacentPostIds(id, viewerSource);
   const previousPost = adjacent.previousId && adjacent.previousId !== id ? api.post(adjacent.previousId) : null;
@@ -6051,7 +6130,7 @@ function postViewer(id) {
   const feedTail = !nextPost && adjacent.hasMore
     ? `<div class="post-viewer-next-pending" data-viewer-next-pending role="status">Loading more posts…</div>`
     : "";
-  shell(`<section class="screen on post-viewer-screen${fromPlaces ? " post-viewer-place" : ""}${mediaViewer ? " post-viewer-media" : ""}">
+  shell(`<section class="screen on post-viewer-screen${fromPlaces ? " post-viewer-place" : ""}${mediaViewer ? " post-viewer-media" : ""}${exploreViewer ? " post-viewer-explore" : ""}">
     <header class="post-viewer-topbar">
       <button type="button" class="post-viewer-back" id="post-viewer-back" aria-label="Back">${ic.back}</button>
       ${fromPlaces
@@ -6061,7 +6140,7 @@ function postViewer(id) {
         : `<button type="button" class="post-viewer-avatar" id="post-viewer-avatar" aria-label="Open @${esc(author.username)}'s Story or profile"><img src="${esc(author.avatar || "")}" alt="" /></button>
            <button type="button" class="post-viewer-identity" id="post-viewer-profile"><b>${esc(author.name || author.username)}</b><small>@${esc(author.username)}</small></button>
            ${author.id !== api.me()?.id ? `<button type="button" class="post-viewer-follow" id="post-viewer-follow" aria-pressed="${following}">${following ? "Following" : "Follow"}</button>` : ""}`}
-      ${p.kind==="video"?`<button type="button" class="post-viewer-download" id="post-viewer-download" aria-label="Save video with Oldtime watermark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11m-4-3 4 4 4-4M4.5 17v3.5h15V17"/></svg></button>`:""}
+       ${mediaViewer?`<button type="button" class="post-viewer-download" id="post-viewer-download" aria-label="Save video with Oldtime watermark"${p.kind==="video"||postHasVideo(p)?"":" hidden"}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11m-4-3 4 4 4-4M4.5 17v3.5h15V17"/></svg></button>`:""}
     </header>
     <div class="post-viewer-feed" data-initial-index="${initialFeedIndex}" tabindex="0" aria-label="Scrollable posts">
       ${viewerCards.map(post => postCard(post, "detail")).join("")}${feedTail}
@@ -6103,7 +6182,9 @@ function postViewer(id) {
   $("#post-viewer-download")?.addEventListener("click",async event=>{
     const button=event.currentTarget;
     if(button.disabled)return;
-    if(p.allowDownloads===false)return toast("This creator has turned off downloads.");
+    const downloadPost = api.post(viewer);
+    if (!downloadPost) return toast("This post is no longer available.");
+    if(downloadPost.allowDownloads===false)return toast("This creator has turned off downloads.");
     button.disabled=true;
     const buttonMarkup=button.innerHTML;
     button.textContent="0%";
@@ -6113,11 +6194,11 @@ function postViewer(id) {
     try{
       if(Constructor){context=new Constructor();void context.resume().catch(()=>{});}
       const {downloadPostVideo}=await import("./post-video-download.js");
-      await downloadPostVideo({reference:profilePostMedia(p)[0],audioSession:context?{context}:null,alive:()=>screen.isConnected,
+      await downloadPostVideo({reference:profilePostMedia(downloadPost)[0],audioSession:context?{context}:null,alive:()=>screen.isConnected,
         onProgress:fraction=>{button.textContent=`${Math.round(fraction*100)}%`;button.setAttribute("aria-label",`Preparing watermarked video ${Math.round(fraction*100)}%`);}});
       if(screen.isConnected)toast("Watermarked video prepared for download.");
     }catch(error){if(screen.isConnected)toast(error.message||"Couldn't save this video. Try again.");}
-    finally{button.disabled=false;button.innerHTML=buttonMarkup;button.setAttribute("aria-label","Save video with Oldtime watermark");await context?.close().catch(()=>{});}
+    finally{button.disabled=false;button.innerHTML=buttonMarkup;button.setAttribute("aria-label","Save video with Oldtime watermark");button.hidden=!(api.post(viewer)?.kind==="video"||postHasVideo(api.post(viewer)||{}));await context?.close().catch(()=>{});}
   });
   $("#post-viewer-comment")?.addEventListener("click", openComments);
   $("#post-viewer-comment-send")?.addEventListener("click", openComments);

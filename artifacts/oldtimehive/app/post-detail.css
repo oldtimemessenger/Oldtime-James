@@ -456,7 +456,7 @@
 .pvc-row { max-width:100%; padding:4px 9px; border:0; border-radius:12px; background:#0000004d; color:#fff; font:500 12px/1.35 var(--font,system-ui,sans-serif); text-align:left; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; cursor:pointer; }
 .pvc-row b { font-weight:750; }
 .pvc-del { margin-left:6px; padding:0; background:none; color:#ffffffb3; font:600 11px var(--font,system-ui,sans-serif); }
-.pvc-skel { display:block; width:62%; height:20px; border-radius:12px; background:#ffffff40; animation:pvcPulse 1.2s ease-in-out infinite; }
+.pvc-skel { display:block; width:62%; height:20px; border-radius:12px; background:#ffffff40; }
 .pvc-skel.short { width:38%; }
 @keyframes pvcPulse { 50% { opacity:.45; } }
 #app .post-viewer-media .post-viewer-composer { position:relative; inset:auto; flex:0 0 auto; padding:7px 10px max(8px,env(safe-area-inset-bottom)); background:transparent; border:0; }
