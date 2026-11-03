@@ -110,3 +110,24 @@ test("Story playback progress follows video time and photo duration is five seco
   assert.match(js, /: 5000/);
   assert.match(js, /document\.hidden/);
 });
+
+
+test("Stories use a centered immersive stage on desktop and preserve full-bleed mobile playback", () => {
+  const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(visual, /--story-frame-width:min\(480px/);
+  assert.match(visual, /--story-frame-height:min\(854px/);
+  assert.match(visual, /\.story-stage\s*\{[\s\S]*?border-radius:26px/);
+  assert.match(visual, /\.story-bar\s*\{[\s\S]*?max-width:calc\(var\(--story-frame-width\) - 24px\)/);
+  assert.match(visual, /@media \(max-width:699px\)[\s\S]*?border-radius:0/);
+  assert.match(visual, /\.story-compose:focus-within[\s\S]*?var\(--color-primary/);
+  assert.match(visual, /prefers-reduced-motion:reduce/);
+});
+
+
+test("Story progress is segmented by item and announces the current position", () => {
+  assert.match(js, /role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
+  assert.match(js, /progress-segment\$\{index < i \? " is-complete" : ""\}/);
+  const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(visual, /\.progress-segment\s*\{[^}]*flex:1 1 0/);
+  assert.match(visual, /\.progress-segment\.is-complete b\s*\{\s*width:100%/);
+});
