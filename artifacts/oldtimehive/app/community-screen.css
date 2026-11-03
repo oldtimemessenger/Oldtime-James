@@ -463,3 +463,19 @@
 .community-note-tool.is-disabled { opacity:.4; pointer-events:none; }
 .community-note-status { margin:6px 0 0; color:#4a4850; font:500 13px/1.3 var(--font); }
 .community-note-status:empty { display:none; }
+
+
+/* Thread composer: connected parts feel like one conversation while remaining separate posts. */
+.community-thread-compose-tools { display:flex; align-items:center; gap:10px; padding:12px 0 4px; border-bottom:1px solid #eceef2; }
+.community-thread-compose-tools button { border:1px solid #dce4f3; border-radius:20px; background:#f5f8ff; color:#1555d8; padding:8px 13px; font:600 12px/1.2 var(--font); }
+.community-thread-compose-tools span { color:#747d8a; font:400 11px/1.4 var(--font); }
+.community-thread-parts { display:grid; gap:10px; }
+.community-thread-part { position:relative; margin:10px 0 0 14px; padding:10px 12px 8px 16px; border-left:2px solid #b8c9ed; background:#f8faff; border-radius:0 12px 12px 0; }
+.community-thread-part header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; color:#52617a; font:600 11px/1.3 var(--font); }
+.community-thread-part header button { border:0; background:none; color:#7b8491; padding:5px; font:500 11px/1 var(--font); }
+.community-thread-part textarea { width:100%; min-height:76px; resize:vertical; border:0; outline:0; background:transparent; color:inherit; font:400 15px/1.5 var(--font); }
+.community-thread-part textarea:focus-visible { outline:2px solid #1555d8; outline-offset:2px; border-radius:6px; }
+.community-thread-part textarea[readonly] { opacity:.72; }
+.community-thread-part small { display:block; text-align:right; color:#7b8491; font:400 10px/1.4 var(--font); }
+#community-thread-add:disabled { opacity:.45; }
+.comment-replies-nested { margin-left:16px; padding-left:10px; border-left:1px solid #dfe5ef; }
