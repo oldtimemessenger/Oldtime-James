@@ -28,12 +28,12 @@ test("Cloud Explore uses the shared blue focus and compact touch targets", () =>
   assert.match(explore, /\.xe-empty\s*\{[^}]*padding:\s*28px 24px 32px/);
 });
 
-test("Search keeps Oldtime chrome while using a staggered visual discovery grid", () => {
+test("Search discovery cards follow Places styling with subtle visual variation", () => {
   assert.ok(search.includes(".search-screen .xe-grid {"));
-  assert.ok(search.includes("grid-auto-flow: dense;"));
-  assert.ok(search.includes("grid-auto-rows: 1px;"));
-  assert.ok(search.includes(".search-screen .xe-card:nth-child(6n + 1) { grid-row: span 27; }"));
-  assert.ok(search.includes("border-radius: 14px;"));
-  assert.ok(search.includes("background: #f0f3f9;"));
+  assert.ok(search.includes("gap: 10px 9px;"));
+  assert.ok(search.includes("aspect-ratio: 4 / 5;"));
+  assert.ok(search.includes("border-radius: 12px;"));
+  assert.ok(search.includes("border: 1px solid var(--line, #e8e8eb);"));
+  assert.ok(search.includes(".search-screen .xe-card:nth-child(5n + 2) .xe-tile { aspect-ratio: 1 / 1; }"));
   assert.ok(search.includes("@media (prefers-reduced-motion: reduce)"));
 });
