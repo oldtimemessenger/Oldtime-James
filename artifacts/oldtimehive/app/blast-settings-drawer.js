@@ -16,7 +16,7 @@ export function renderBlastSettingsDrawer(ctx) {
         ${SETTINGS_ITEMS.map(([view, label, glyph]) => `<button type="button" class="bvn-settings-item" ${view === "saved" ? 'data-blast-feed-filter="saved"' : `data-blast-nav="${view}"`} data-testid="community-nav-${view}">
           <span class="bvn-settings-icon">${ctx.icon(glyph)}</span>
           <span class="bvn-settings-copy"><b>${ctx.esc(label)}</b></span>
-          <span class="bvn-settings-chevron" aria-hidden="true">${ctx.icon("more")}</span>
+          <span class="bvn-settings-chevron" aria-hidden="true">${ctx.icon("chevronRight")}</span>
         </button>`).join("")}
       </nav>
     </aside>

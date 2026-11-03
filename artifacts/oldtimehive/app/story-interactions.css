@@ -21,10 +21,10 @@
 
 .story-side-actions { position:absolute; right:14px; bottom:calc(max(14px,env(safe-area-inset-bottom)) + 92px); z-index:8; display:flex; flex-direction:column; align-items:center; gap:18px; }
 .story-heart,.story-share { flex:0 0 38px; width:38px; height:38px; display:grid; place-items:center; padding:0; border:0; color:#fff; background:transparent; filter:drop-shadow(0 1px 4px rgba(0,0,0,.65)); }
-.story-heart .navic { width:27px; height:27px; fill:#fff; stroke:#fff; }
+.story-heart .navic { width:30px; height:30px; fill:#fff; stroke:#fff; }
 .story-heart.is-liked { color:#e5262f; }
 .story-heart.is-liked .navic { fill:#e5262f; stroke:#e5262f; }
-.story-share .navic { width:26px; height:26px; fill:#fff; stroke:none; }
+.story-share .navic { width:30px; height:30px; fill:#fff; stroke:none; }
 .story-heart:disabled,.story-share:disabled { opacity:.62; }
 
 .story-bar { position:absolute; left:8px; right:8px; bottom:max(10px,env(safe-area-inset-bottom)); z-index:9; display:grid; grid-template-columns:40px minmax(0,1fr) auto; align-items:center; gap:7px; }

@@ -101,7 +101,7 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
     </form>
     <div class="story-owner-controls">
       <div class="story-more-wrap">
-        <button type="button" class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("more")}</button>
+        <button type="button" class="story-more-open" aria-label="Story activity and options" aria-haspopup="dialog" aria-expanded="false">${icon("tune")}</button>
         <div class="story-more-menu story-sheet" role="dialog" aria-label="Story activity and options" hidden>
           <div class="story-panel-handle" aria-hidden="true"></div>
           <header class="story-panel-head">
@@ -139,7 +139,7 @@ export function mountStoryInteractions({ view, story, api, toast = () => {}, pau
   const sideActions = doc.createElement("div");
   sideActions.className = "story-side-actions";
   sideActions.innerHTML = `<button type="button" class="story-heart" aria-label="Like Story" aria-pressed="false">${icon("mediaHeart")}</button>
-    <button type="button" class="story-share" aria-label="Share Story">${icon("share", true, 0)}</button>`;
+    <button type="button" class="story-share" aria-label="Share Story">${icon("share")}</button>`;
   view.append(bar);
   view.append(sideActions);
   const liveChat = doc.createElement("div");

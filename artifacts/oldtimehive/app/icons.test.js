@@ -30,16 +30,16 @@ test("Messages is an original outline stack with an open pair of back edges",()=
   assert.doesNotMatch(icon('bad"><script>'),/<script>/);
 });
 
-test("studio, sports, story and comment menus use the vertical overflow glyph", () => {
+test("studio, sports, story and comment menus use the vertical overflow glyph or tune icon", () => {
   assert.match(source("creative-view-icons.js"), /more:\s*svg\(iconPaths\.more\)/);
   assert.match(source("sports-mode.js"), /more:\s*iconPaths\.more/);
-  assert.match(source("story-interactions.js"), /icon\("more"\)/);
-  assert.match(source("app.js"), /aria-label="Comment actions">\$\{ic\.more\}/);
+  assert.match(source("story-interactions.js"), /icon\("tune"\)/);
+  assert.match(source("app.js"), /aria-label="Comment actions">\$\{ic\.tune\}/);
 });
 
-test("the signed-in profile uses a gear while other profiles keep their action menu", () => {
+test("the signed-in profile uses a hamburger menu while other profiles keep their action menu", () => {
   const app = source("app.js");
-  assert.match(app, /mine \? ic\.gear : ic\.more/);
+  assert.match(app, /mine \? ic\.menu : ic\.(?:more|tune)/);
   assert.match(app, /mine \? "Open profile settings and actions" : "More profile actions"/);
   assert.ok(iconPaths.gear.includes('<circle cx="12" cy="12" r="3"/>'));
   assert.match(icon("gear"), /<svg[^>]*><path d=/);
