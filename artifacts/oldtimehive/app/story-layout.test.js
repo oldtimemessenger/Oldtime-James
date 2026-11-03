@@ -122,3 +122,12 @@ test("Stories use a centered immersive stage on desktop and preserve full-bleed 
   assert.match(visual, /\.story-compose:focus-within[\s\S]*?var\(--color-primary/);
   assert.match(visual, /prefers-reduced-motion:reduce/);
 });
+
+
+test("Story progress is segmented by item and announces the current position", () => {
+  assert.match(js, /role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
+  assert.match(js, /progress-segment\$\{index < i \? " is-complete" : ""\}/);
+  const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(visual, /\.progress-segment\s*\{[^}]*flex:1 1 0/);
+  assert.match(visual, /\.progress-segment\.is-complete b\s*\{\s*width:100%/);
+});
