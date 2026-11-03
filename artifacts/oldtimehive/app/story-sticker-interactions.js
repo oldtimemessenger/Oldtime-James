@@ -153,7 +153,7 @@ export function mountStoryStickerInteractions(view, story, { onCreate, onOpenSto
     if (!["questions", "trendsetters", "hey-world"].includes(sticker.kind)) continue;
     const button = document.createElement("button");
     button.type = "button"; button.className = "ss-hit";
-    button.setAttribute("aria-label", sticker.kind === "questions" ? (owned ? "Open your private questions" : sticker.prompt || "Ask a question") : `${label(sticker)} — Join`);
+    button.setAttribute("aria-label", sticker.kind === "questions" ? (owned ? "Open your private questions" : sticker.prompt || "Ask a question") : `${label(sticker)} — Add Yours`);
     button.style.cssText = `left:${safePosition(sticker.x, .5) * 100}%;top:${safePosition(sticker.y, .55) * 100}%;width:${safePosition(sticker.width, .7, .15) * 100}%;height:${safePosition(sticker.height, .24, .08, .8) * 100}%;transform:translate(-50%,-50%) rotate(${safePosition(sticker.rotation, 0, -180, 180)}deg)`;
     if (!story.hasMedia) { button.classList.add("ss-hit-visible"); button.textContent = `${sticker.title || label(sticker)} · ${sticker.prompt || "Ask me anything"}`; }
     button.onclick = e => {
