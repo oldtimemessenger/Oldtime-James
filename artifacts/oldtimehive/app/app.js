@@ -6696,7 +6696,10 @@ function openCommunityNoteComposer() {
   let imageEditorOpen = false;
   // { id, file, kind, url, uploadedId } — uploadedId is kept so a retry never re-uploads confirmed media.
   let attachments = [];
-  let idempotencyKey = null;
+  let partKeys = [];
+  let publishedIds = [];
+  let threadParts = [];
+  let threadMentionCleanups = [];
   let mentionCleanup = () => {};
   const releaseAll = () => attachments.forEach(item => item.url && URL.revokeObjectURL(item.url));
   const close = () => {
@@ -6706,6 +6709,7 @@ function openCommunityNoteComposer() {
     attachments = [];
     document.removeEventListener("keydown", onKey);
     mentionCleanup();
+    threadMentionCleanups.forEach(cleanup => cleanup());
     sheet.classList.remove("on");
     sheet.innerHTML = "";
     sheet.onclick = null;
@@ -6721,6 +6725,8 @@ function openCommunityNoteComposer() {
     </header>
     <div class="community-note-author"><img src="${esc(api.me()?.avatar || automaticAvatar(api.me()))}" alt="" width="32" height="32"><span>${esc(api.me()?.name || api.me()?.username || "You")}</span></div>
     <textarea id="community-note-input" maxlength="1000" placeholder="What’s on your mind?" aria-label="Write a Community post" data-testid="input-community-note"></textarea>
+    <div class="community-thread-compose-tools"><button type="button" id="community-thread-add">＋ Add to thread</button><span>Connected posts · up to 10 parts</span></div>
+    <div id="community-thread-parts" class="community-thread-parts" aria-label="Additional thread posts"></div>
     <ol id="community-note-attachments" class="community-note-attachments" aria-label="Attached photos and videos" data-testid="list-community-attachments" hidden></ol>
     <div class="community-note-media-tools" role="toolbar" aria-label="Post tools">
       <label class="community-note-tool community-note-image-picker" for="community-note-image" aria-label="Add photos or videos">
@@ -6745,21 +6751,44 @@ function openCommunityNoteComposer() {
   const imageInput = $("#community-note-image", sheet);
   const cameraInput = $("#community-note-camera", sheet);
   const list = $("#community-note-attachments", sheet);
+  const threadAdd = $("#community-thread-add", sheet);
+  const threadList = $("#community-thread-parts", sheet);
   const counter = $("#community-note-count", sheet);
   const attachCount = $("#community-note-attach-count", sheet);
   const submit = $("#community-note-submit", sheet);
   const error = $("#community-note-error", sheet);
   const status = $("#community-note-status", sheet);
   const busy = () => submit.dataset.busy === "true";
+  const partInputs = () => [input, ...threadParts];
   const syncSubmit = () => {
-    submit.disabled = (!input.value.trim() && !attachments.length) || busy();
+    submit.disabled = (!partInputs().some(field => field.value.trim()) && !attachments.length && !publishedIds.length) || busy();
+    threadAdd.disabled = busy() || threadParts.length >= 9;
     const full = attachments.length >= COMMUNITY_MAX_ATTACHMENTS;
     imageInput.disabled = full || busy();
     cameraInput.disabled = full || busy();
     sheet.querySelectorAll(".community-note-image-picker,.community-note-camera-picker").forEach(label => label.classList.toggle("is-disabled", full || busy()));
     attachCount.textContent = `${attachments.length} / ${COMMUNITY_MAX_ATTACHMENTS}`;
   };
-  const contentChanged = () => { idempotencyKey = null; };
+  const contentChanged = index => { if (index >= publishedIds.length) partKeys[index] = null; };
+  const addThreadPart = () => {
+    if (threadParts.length >= 9 || busy()) return;
+    const index = threadParts.length + 1;
+    const wrap = document.createElement("section");
+    wrap.className = "community-thread-part";
+    wrap.innerHTML = `<header><span>Post ${index + 1} of 10</span><button type="button" data-thread-remove>Remove</button></header><textarea maxlength="1000" placeholder="Continue your thread…" aria-label="Thread post ${index + 1}"></textarea><small>0 / 1,000</small>`;
+    const field = wrap.querySelector("textarea");
+    threadParts.push(field); partKeys.push(null); threadList.appendChild(wrap);
+    threadMentionCleanups.push(bindMentionAutocomplete(field, { api }));
+    field.oninput = () => { wrap.querySelector("small").textContent = `${[...field.value].length.toLocaleString()} / 1,000`; contentChanged(index); syncSubmit(); };
+    wrap.querySelector("[data-thread-remove]").onclick = () => {
+      if (index < publishedIds.length || busy()) return;
+      const at = threadParts.indexOf(field); if (at < 0) return;
+      threadParts.splice(at,1); partKeys.splice(at+1,1); threadMentionCleanups.splice(at,1)[0]?.(); wrap.remove();
+      [...threadList.children].forEach((item,i)=>{ item.querySelector("header span").textContent = `Post ${i+2} of 10`; });
+      syncSubmit();
+    };
+    field.focus(); syncSubmit();
+  };
   const renderAttachments = () => {
     list.hidden = !attachments.length;
     list.innerHTML = attachments.map((item, index) => `<li class="community-note-attachment" data-kind="${item.kind}">
@@ -6777,12 +6806,12 @@ function openCommunityNoteComposer() {
     list.querySelectorAll("[data-attach-remove]").forEach(button => button.onclick = () => {
       const [removed] = attachments.splice(Number(button.dataset.attachRemove), 1);
       if (removed?.url) URL.revokeObjectURL(removed.url);
-      contentChanged(); renderAttachments(); syncSubmit();
+      contentChanged(0); renderAttachments(); syncSubmit();
     });
     list.querySelectorAll("[data-attach-move]").forEach(button => button.onclick = () => {
       const from = Number(button.dataset.attachMove);
       attachments = moveAttachment(attachments, from, from + Number(button.dataset.dir));
-      contentChanged(); renderAttachments(); syncSubmit();
+      contentChanged(0); renderAttachments(); syncSubmit();
     });
     list.querySelectorAll("[data-attach-edit]").forEach(button => button.onclick = () => editPhoto(Number(button.dataset.attachEdit)));
   };
@@ -6790,7 +6819,7 @@ function openCommunityNoteComposer() {
     const { next, rejected } = addComposerFiles(attachments, files, COMMUNITY_MAX_ATTACHMENTS);
     attachments = next.map(item => item.id ? item : { ...item, id: crypto.randomUUID(), url: URL.createObjectURL(item.file), uploadedId: "" });
     error.textContent = rejectionMessage(rejected, COMMUNITY_MAX_ATTACHMENTS);
-    contentChanged(); renderAttachments(); syncSubmit();
+    contentChanged(0); renderAttachments(); syncSubmit();
   };
   const editPhoto = index => {
     const item = attachments[index];
@@ -6815,7 +6844,7 @@ function openCommunityNoteComposer() {
           attachments[position] = { id: crypto.randomUUID(), file: edited, kind: "photo", url: URL.createObjectURL(edited), uploadedId: "" };
         }
         error.textContent = "";
-        contentChanged(); renderAttachments(); syncSubmit();
+        contentChanged(0); renderAttachments(); syncSubmit();
         imageEditorOpen = false;
       },
     });
@@ -6823,50 +6852,52 @@ function openCommunityNoteComposer() {
   sheet.querySelector(".community-note-close").onclick = () => { if (!busy()) close(); };
   input.oninput = () => {
     counter.textContent = `${[...input.value].length.toLocaleString()} / 1,000`;
-    contentChanged(); syncSubmit();
+    contentChanged(0); syncSubmit();
   };
+  threadAdd.onclick = addThreadPart;
   imageInput.onchange = () => { addFiles(imageInput.files); imageInput.value = ""; };
   cameraInput.onchange = () => { addFiles(cameraInput.files); cameraInput.value = ""; };
   submit.onclick = async () => {
-    const text = input.value.trim();
-    if ((!text && !attachments.length) || busy()) return;
-    if (api.authMode() !== "cloud") {
-      error.textContent = "Reconnect your online account before publishing a post.";
-      return;
-    }
-    submit.dataset.busy = "true";
-    error.textContent = "";
-    renderAttachments(); syncSubmit();
+    const texts = partInputs().map(field => field.value.trim());
+    if ((!texts.some(Boolean) && !attachments.length && !publishedIds.length) || busy()) return;
+    if (texts.some((text,index) => !text && !(index===0 && attachments.length))) { error.textContent = "Each part of a thread needs text. Add media to the first post if you want."; return; }
+    if (api.authMode() !== "cloud") { error.textContent = "Reconnect your online account before publishing a post."; return; }
+    submit.dataset.busy = "true"; error.textContent = ""; renderAttachments(); syncSubmit();
     const total = attachments.length;
     try {
       const mediaIds = [];
-      for (const [index, item] of attachments.entries()) {
+      for (const [index,item] of attachments.entries()) {
         if (!item.uploadedId) {
-          status.textContent = `Uploading ${item.kind} ${index + 1} of ${total}…`;
-          const reference = await putLocalMedia(item.file, item.id);
-          const uploadedId = String(reference || "").replace(/^oldtime-media:/, "");
-          if (!/^[0-9a-f-]{36}$/i.test(uploadedId)) {
-            throw new Error(`${item.kind === "video" ? "Video" : "Photo"} ${index + 1} could not be confirmed. Your post and attachments are still here.`);
-          }
+          status.textContent = `Uploading ${item.kind} ${index+1} of ${total}…`;
+          const reference = await putLocalMedia(item.file,item.id);
+          const uploadedId = String(reference||"").replace(/^oldtime-media:/,"");
+          if (!/^[0-9a-f-]{36}$/i.test(uploadedId)) throw new Error(`${item.kind==="video"?"Video":"Photo"} ${index+1} could not be confirmed. Your post and attachments are still here.`);
           item.uploadedId = uploadedId;
         }
         mediaIds.push(item.uploadedId);
       }
       if (mediaIds.length !== total) throw new Error("Some attachments were not confirmed. Nothing was posted.");
-      status.textContent = "Publishing…";
-      idempotencyKey ||= crypto.randomUUID();
-      const publishedPost = await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
+      for (let index=0; index<texts.length; index++) {
+        if (publishedIds[index]) continue;
+        status.textContent = texts.length>1 ? `Publishing post ${index+1} of ${texts.length}…` : "Publishing…";
+        partKeys[index] ||= crypto.randomUUID();
+        const published = await api.createCloudPost(texts[index],{destination:"community",mediaIds:index===0?mediaIds:[]},{idempotencyKey:partKeys[index]});
+        publishedIds[index] = published.id; partInputs()[index].readOnly = true;
+        if (api.me()?.id !== ownerId) { close(); return; }
+      }
+      let publishedPost = api.cloudPost(publishedIds[0]);
+      if (publishedIds.length>1) {
+        status.textContent = "Connecting your conversation…";
+        const linked = await api.linkCloudPostThread(publishedIds[0],publishedIds.slice(1));
+        publishedPost = linked.posts[0] || publishedPost;
+      }
       if (api.me()?.id !== ownerId) { close(); return; }
-      close();
-      communityView = "for-you";
-      communityFeedsModule?.showPublishedPost?.(publishedPost);
-      render();
-      toast(total ? `Post shared to Community with ${total} attachment${total === 1 ? "" : "s"}` : "Post shared to Community");
+      close(); communityView="for-you"; communityFeedsModule?.showPublishedPost?.(publishedPost); render();
+      toast(publishedIds.length>1 ? `Your ${publishedIds.length}-part thread is live in Community` : total ? `Post shared to Community with ${total} attachment${total===1?"":"s"}` : "Post shared to Community");
     } catch (failure) {
       if (closed) return;
-      status.textContent = "";
-      error.textContent = failure.message || "Your post could not be posted. Your draft is still here — try again.";
-      submit.dataset.busy = "false";
+      status.textContent=""; error.textContent=failure.message || "Your post could not be posted. Your draft is still here — try again.";
+      submit.dataset.busy="false"; partInputs().forEach((field,index)=>{if(publishedIds[index])field.readOnly=true;});
       renderAttachments(); syncSubmit();
     }
   };
