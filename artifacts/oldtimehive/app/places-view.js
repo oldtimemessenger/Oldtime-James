@@ -1,3 +1,4 @@
+import { renderMentionText } from "./mention-autocomplete.js";
 import "./places-view.css";
 import "./place-profile.css";
 import { isDefaultAvatarMediaReference } from "./story-media.js";
@@ -336,7 +337,7 @@ function postPreview(post) {
     return `<span class="places-post-media"><video class="places-post-video" ${videoAttributes} muted playsinline preload="metadata"></video><span class="places-post-type">${icon("video")}<span class="sr-only">Video</span></span></span>`;
   }
   const text = String(post.caption || post.text || "").trim();
-  return `<span class="places-post-text">${esc(text || (post.kind === "text" ? "A text post" : "Post shared at this place"))}</span>`;
+  return `<span class="places-post-text">${renderMentionText(text || (post.kind === "text" ? "A text post" : "Post shared at this place"), { tag: "span" })}</span>`;
 }
 
 function postRatingMarkup(post) {
@@ -367,7 +368,7 @@ function postCard(post, { hidePlace = false } = {}) {
     </button>
     <div class="places-post-detail">
       ${place && !hidePlace ? `<button type="button" class="places-post-location" data-action="select-place" data-place-id="${esc(place.id)}" data-place-label="${esc(place.label)}" data-place-source="${esc(place.source || "custom")}" ${coordinates}>${esc(place.label)}</button>` : ""}
-      ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+      ${caption ? `<p class="places-post-caption">${renderMentionText(caption, { tag: "span" })}</p>` : ""}
       <div class="places-post-byline">
         ${authorId
           ? `<button type="button" class="places-post-author" data-place-profile="${esc(authorId)}" aria-label="Open ${esc(authorName)}’s profile">
