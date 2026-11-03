@@ -78,8 +78,9 @@ test("failed feed videos show a centered, readable retry instead of inline overf
 });\n
 test("legacy Search results defer offscreen thumbnail work", async () => {
   const app = await readFile(new URL("./app.js", import.meta.url), "utf8");
-  const search = app.slice(app.indexOf("function search()"), app.indexOf("\\nfunction notes()", app.indexOf("function search()")));
-  assert.match(search, /<img data-avatar-hit \\${profileMediaSource\\(user\\.avatar\\)\\} alt="" loading="lazy" decoding="async" fetchpriority="low"/);
-  assert.match(search, /<img \\${attrs\\} alt="" loading="lazy" decoding="async" fetchpriority="low"/);
-  assert.match(search, /<video \\${attrs\\} muted playsinline preload="none"><\\/video>/);
+  const start = app.indexOf("function search()");
+  const search = app.slice(start, app.indexOf("\\nfunction notes()", start));
+  assert.ok(search.includes('<img data-avatar-hit ${profileMediaSource(user.avatar)} alt="" loading="lazy" decoding="async" fetchpriority="low" />'));
+  assert.ok(search.includes('<img ${attrs} alt="" loading="lazy" decoding="async" fetchpriority="low" />'));
+  assert.ok(search.includes('<video ${attrs} muted playsinline preload="none"></video>'));
 });
