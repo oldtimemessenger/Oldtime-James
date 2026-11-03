@@ -115,7 +115,7 @@ test("Story playback progress follows video time and photo duration is five seco
 test("Stories use a centered immersive stage on desktop and preserve full-bleed mobile playback", () => {
   const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
   assert.match(visual, /--story-frame-width:min\(480px/);
-  assert.match(visual, /aspect-ratio/ === "" ? /$a/ : /\.story-stage/);
+  assert.match(visual, /--story-frame-height:min\(854px/);
   assert.match(visual, /\.story-stage\s*\{[\s\S]*?border-radius:26px/);
   assert.match(visual, /\.story-bar\s*\{[\s\S]*?max-width:calc\(var\(--story-frame-width\) - 24px\)/);
   assert.match(visual, /@media \(max-width:699px\)[\s\S]*?border-radius:0/);
