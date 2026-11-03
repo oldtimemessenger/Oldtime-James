@@ -29,3 +29,19 @@ test("service worker ignores API responses, authenticated requests, writes and u
     respondWith: () => { cached = true; } });
   assert.equal(cached, true);
 });
+
+test("Oldtime remains a mobile-first installable PWA with iOS safe-area support", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+  const app = readFileSync(new URL("./app.js", import.meta.url), "utf8");
+  const visual = readFileSync(new URL("./app-wide-visual-language.css", import.meta.url), "utf8");
+  assert.match(html, /name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/);
+  assert.match(html, /apple-mobile-web-app-capable/);
+  assert.equal(manifest.display, "standalone");
+  assert.match(manifest.start_url, /^\.\//);
+  assert.match(app, /import "\.\/app-wide-visual-language\.css"/);
+  assert.match(visual, /@media \(hover:none\) and \(pointer:coarse\)/);
+  assert.match(visual, /height:100dvh/);
+  assert.match(visual, /env\(safe-area-inset-bottom,0px\)/);
+  assert.match(visual, /-webkit-overflow-scrolling:touch/);
+});
