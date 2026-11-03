@@ -22,7 +22,7 @@ import { getPost, hydratePosts, loadPostRows } from "./post-repository";
 import { discoveryIndexStatements, excludedDiscoveryTopics } from "./discovery-index";
 import { downrankNotInterestedCreators } from "./feed-feedback-ranking";
 import { placeRatings } from "./place-rating-summary";
-import { highestVideoSearchInsight, recordVideoSearchClick, videoSearchIndexStatements } from "./video-search-insights";
+import { highestVideoSearchInsight, recordVideoSearchClick, videoSearchIndexStatements, wholeSearchWatchSeconds } from "./video-search-insights";
 
 export function isSocialPath(path: string) {
   return path==="/feed" || path==="/feed/feedback" || path==="/posts" || path.startsWith("/posts/") ||
@@ -558,8 +558,8 @@ export async function socialRequest(
     if(Object.keys(input).some(key=>!["queryText","watchTimeSeconds"].includes(key))||
       typeof input.queryText!=="string"||input.queryText.length>120||
       typeof input.watchTimeSeconds!=="number"||!Number.isFinite(input.watchTimeSeconds)||
-      input.watchTimeSeconds<=5||input.watchTimeSeconds>3600){
-      throw new ApiError(400,"A valid search phrase and watch duration over five seconds are required.");
+      wholeSearchWatchSeconds(input.watchTimeSeconds)===null){
+      throw new ApiError(400,"A valid search phrase and at least six whole seconds of watch time are required.");
     }
     const post=await getPost(db,userId,videoClick[1]);
     if(!post||post.visibility!=="public"||post.author_is_private!==0||
