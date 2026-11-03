@@ -1,27 +1,26 @@
 // Draws Status stickers into a canvas (preview, image export and every video export frame).
-// All sticker families preserve the uploaded original art, including expanded answers.
+// Questions and Add your own use a distinct Oldtime card treatment; original artwork remains for answer cards.
 import { STICKER_LABELS, STICKER_JOIN, ART_SIZE } from "./status-sticker-editor.js";
 
 const assetUrl = make => { try { return make(); } catch { return ""; } };
-// Original uploaded artwork, edge-connected black removed (IM7 alpha floodfill), baked brand words masked
-// with the art's own sampled gradient. Editable wording is drawn back into those holes below.
+// Original Questions artwork is retained for the expanded answer composition only.
 export const STICKER_ART = {
   questions: assetUrl(() => new URL("./assets/status-stickers/questions.png", import.meta.url).href),
   trendsetters: assetUrl(() => new URL("./assets/status-stickers/trendsetters.png", import.meta.url).href),
   "hey-world": assetUrl(() => new URL("./assets/status-stickers/hey-world.png", import.meta.url).href),
 };
-// Text holes as fractions of the art box: [x0, y0, x1, y1].
+// Add Yours action hit areas as fractions of the art box: [x0, y0, x1, y1].
 export const ART_HOLES = {
-  questions: { main: [.177, .343, .868, .502], sub: [.222, .502, .856, .600] },
-  trendsetters: { main: [.322, .601, .730, .712], join: [.293, .778, .728, .892] },
-  "hey-world": { main: [.263, .591, .789, .682], join: [.286, .728, .719, .846] },
+  questions: { main: [.08, .20, .92, .62], sub: [.12, .72, .88, .91] },
+  trendsetters: { main: [.08, .25, .92, .65], join: [.20, .72, .80, .91] },
+  "hey-world": { main: [.08, .25, .92, .65], join: [.20, .72, .80, .91] },
 };
 const PALETTE = { white: "#fbfaff", ink: "#16141c", purple: "#6a3fd8", purpleSoft: "#efe9fd", muted: "#5d5870" };
 const art = new Map(); // kind -> { img, ready, failed }
 
 
 /** Starts (or reuses) loading of sticker art. Resolves when loaded or failed; never rejects. */
-export function loadStickerArt(kinds = Object.keys(STICKER_ART), { required = false } = {}) {
+export function loadStickerArt(kinds = ["questions"], { required = false } = {}) {
   kinds = [...new Set(kinds.map(kind => kind === "answer" ? "questions" : kind))];
   if (typeof Image === "undefined") return Promise.resolve();
   return Promise.all(kinds.filter(k => STICKER_ART[k]).map(kind => {
@@ -154,21 +153,53 @@ export function stickerWording(s) {
   }
   return { main: joined || STICKER_LABELS[s.kind], join: STICKER_JOIN };
 }
-function drawArt(ctx, s, w, h) {
-  const box = artBox(s.kind, w, h), entry = art.get(s.kind), words = stickerWording(s), holes = ART_HOLES[s.kind];
-  if (entry?.ready && entry.img.naturalWidth) ctx.drawImage(entry.img, box.left, box.top, box.iw, box.ih);
-  else { // art still loading: name only, inside the same box (no card)
-    holeText(ctx, [0, .3, 1, .6], box, STICKER_LABELS[s.kind], "#ffffff", 800, 60);
-    return;
-  }
-  if (s.kind === "questions") {
-    holeText(ctx, holes.main, box, words.main, "#16141c", 800, box.iw * .10, -5);
-    holeText(ctx, holes.sub, box, words.sub, "#6b6878", 600, box.iw * .063, -5);
+function drawStickerCard(ctx, s, w, h) {
+  const left = -w / 2, top = -h / 2;
+  const isQuestion = s.kind === "questions";
+  const radius = Math.min(30, h * .11, w * .08);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.22)"; ctx.shadowBlur = Math.max(8, h * .035); ctx.shadowOffsetY = Math.max(3, h * .012);
+  roundRect(ctx, left, top, w, h, radius); ctx.fillStyle = "#ffffff"; ctx.fill();
+  ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.save(); roundRect(ctx, left, top, w, h, radius); ctx.clip();
+  if (isQuestion) {
+    const headerH = h * .25;
+    ctx.fillStyle = "#8e1b24"; ctx.fillRect(left, top, w, headerH);
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(s.title || "QUESTIONS", 0, top + headerH * .52, w * .84);
+    // The prompt remains the editable "Ask me anything" text, not baked-in artwork.
+    const prompt = fitText(ctx, s.prompt || "Ask me anything", w * .82, 2, h * .14, Math.max(12, h * .075), 800);
+    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`;
+    drawLines(ctx, prompt, 0, top + h * .49, "#17191c", 1.12);
+    const fieldY = top + h * .72, fieldH = h * .17;
+    roundRect(ctx, left + w * .12, fieldY, w * .76, fieldH, fieldH * .30);
+    ctx.fillStyle = "#edf2ff"; ctx.fill();
+    ctx.fillStyle = "#1456d9"; ctx.font = `700 ${Math.max(10, h * .058)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("Send a question", 0, fieldY + fieldH / 2, w * .70);
   } else {
-    const scale = box.iw / ART_SIZE[s.kind][0], tilt = s.kind === "hey-world" ? 4 : 0;
-    holeText(ctx, holes.main, box, words.main, s.kind === "trendsetters" ? "#f3f1fb" : "#16141c", 800, 46 * scale, tilt);
-    holeText(ctx, holes.join, box, words.join, s.kind === "trendsetters" ? "#16141c" : "#6a3fd8", 800, 54 * scale, tilt);
+    ctx.fillStyle = "#1456d9"; ctx.fillRect(left, top, w, h * .23);
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(s.title || "ADD YOUR OWN", 0, top + h * .115, w * .84);
+    const prompt = fitText(ctx, s.prompt || "Share your take", w * .82, 2, h * .13, Math.max(12, h * .065), 800);
+    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`;
+    drawLines(ctx, prompt, 0, top + h * .47, "#17191c", 1.12);
+    const buttonY = top + h * .72, buttonH = h * .19;
+    roundRect(ctx, left + w * .16, buttonY, w * .68, buttonH, buttonH * .28);
+    ctx.fillStyle = "#8e1b24"; ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(11, h * .067)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("+  Add your own", 0, buttonY + buttonH / 2, w * .64);
   }
+  ctx.restore();
+  ctx.lineWidth = Math.max(1, h * .006); ctx.strokeStyle = "#e6e9ef";
+  roundRect(ctx, left, top, w, h, radius); ctx.stroke();
+  ctx.restore();
+}
+function drawArt(ctx, s, w, h) {
+  // Questions and Add your own use the Oldtime Story card style. The original
+  // Questions artwork remains available only for the expanded answer card.
+  drawStickerCard(ctx, s, w, h);
 }
 
 /**
@@ -189,7 +220,7 @@ export function drawStatusStickers(target, stickers = [], width, height, { selec
     ctx.translate(s.x * W, s.y * H); ctx.rotate(s.rotation * Math.PI / 180);
     if (s.kind === "answer") {
       drawAnswer(ctx, s, w, h, u);
-    } else drawArt(ctx, s, w, h); // transparent original art only
+    } else drawArt(ctx, s, w, h); // Oldtime Questions and Add your own cards
     if (selectedId && s.id === selectedId) {
       ctx.setLineDash([10 * u, 7 * u]); ctx.lineWidth = 2.5 * u; ctx.strokeStyle = "#ffffff";
       roundRect(ctx, -w / 2 - 6 * u, -h / 2 - 6 * u, w + 12 * u, h + 12 * u, 26 * u); ctx.stroke();

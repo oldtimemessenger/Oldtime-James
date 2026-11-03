@@ -84,7 +84,8 @@ test("editor wiring: seeds survive source choice, Fit/Fill, stickers in preview 
   assert.match(src, /if \(suppressClick\) \{ suppressClick = false; return; \}/, "moved gesture never triggers click-edit");
   assert.match(src, /pointers\.size >= 2/);
   assert.match(art, /status-stickers\/trendsetters\.png/); assert.match(art, /status-stickers\/hey-world\.png/);
-  for (const s of [src, art]) { assert.doesNotMatch(s, /Ask OldTime|Add Yours/); assert.doesNotMatch(s, /\p{Extended_Pictographic}/u); }
+  for (const s of [src, art]) { assert.doesNotMatch(s, /Ask OldTime/i); assert.doesNotMatch(s, /\p{Extended_Pictographic}/u); }
+  assert.match(art, /Add your own/); assert.match(art, /8e1b24/i);
   assert.match(css, /\.sc-stk-row\{[^}]*overflow-x:auto;scroll-snap-type:x mandatory/);
 });
 

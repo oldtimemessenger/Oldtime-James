@@ -10,10 +10,10 @@ export const ANSWER_PROMPT_MAX = 300; // original question text is preserved ver
 const promptMax = kind => kind === "answer" ? ANSWER_PROMPT_MAX : PROMPT_MAX;
 export const MIN_WIDTH = .28;
 export const MAX_WIDTH = .96;
-export const STICKER_LABELS = { questions: "Questions", trendsetters: "Trendsetters", "hey-world": "Hey World", answer: "Answer" };
+export const STICKER_LABELS = { questions: "Questions", trendsetters: "Add your own", "hey-world": "Add your own", answer: "Answer" };
 export const DEFAULT_PROMPTS = { questions: "Ask me anything", trendsetters: "Show us your take", "hey-world": "Say hello to the world", answer: "" };
-export const STICKER_CTA = "Add your own"; // secondary copy only; the participation button says Join
-export const STICKER_JOIN = "Join";
+export const STICKER_CTA = "Add your own";
+export const STICKER_JOIN = "Add your own";
 // Natural pixel size of the original transparent art (assets/status-stickers/*.png).
 export const ART_SIZE = { questions: [631, 578], trendsetters: [900, 529], "hey-world": [601, 648], answer: [631, 850] };
 // Default height (fraction of H) at width .7 in the 9:16 frame: the full art aspect-fits the hitbox exactly.

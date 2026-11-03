@@ -7,8 +7,7 @@ import { PICKER_KINDS, STICKER_LABELS, TITLE_MAX, PROMPT_MAX, ANSWER_MAX, ANSWER
   updateStickerText, resizeSticker, moveSticker, hitSticker, pinchDelta, clampMediaTransform, publishStickers, clampSticker, isUuid } from "./status-sticker-editor.js";
 import { MAX_TEXT_LABELS, canAddLabel, emptyDraft, placementPoint, hitTextLabel, joinLabelText } from "./status-text-labels.js";
 import { OVERLAY_ACCEPT, isOverlayFile, overlaySlots, overlaySize, overlayPosition, hitOverlay, scaleOverlay, moveOverlay, overlayInsertIndex, MAX_OVERLAYS } from "./status-overlay.js";
-import { drawStatusStickers, loadStickerArt, STICKER_ART } from "./status-sticker-art.js";
-const stickerArtSrc = kind => STICKER_ART[kind] || "";
+import { drawStatusStickers, loadStickerArt } from "./status-sticker-art.js";
 const galleryGlyph = new URL("./assets/gallery-glyph.png", import.meta.url).href;
 
 export const STATUS_COLORS = ["#ffffff", "#17191c", "#1456d9", "#e0245e", "#8e1b24", "#8dba91", "#f2c94c", "#f2f4f7", "#6b6f76"];
@@ -520,8 +519,10 @@ export function openStatusCapture({ source = "landing", toast = () => {}, onPost
     row.innerHTML = PICKER_KINDS.map(kind => {
       const used = stickers.some(s => s.kind === kind), full = !canAddSticker(stickers, kind);
       return `<button type="button" role="listitem" class="sc-stk-card sc-stk-${kind}" data-add-sticker="${kind}" ${full ? "disabled" : ""} data-testid="button-add-sticker-${kind}">
-        <span class="sc-stk-thumb" aria-hidden="true"><img src="${esc(stickerArtSrc(kind))}" alt="" draggable="false"></span>
-        <b>${esc(STICKER_LABELS[kind])}</b><small>${used ? "Added" : full ? "Limit reached" : kind === "questions" ? "Let people ask you" : "Invite people to add their own"}</small></button>`;
+        <span class="sc-stk-thumb" aria-hidden="true"><span class="sc-stk-mini sc-stk-mini-${kind}">
+          <b>${kind === "questions" ? "QUESTIONS" : "ADD YOUR OWN"}</b><i>${esc(DEFAULT_PROMPTS[kind] || "Share your take")}</i>
+          <em>${kind === "questions" ? "Send a question" : "+  Add your own"}</em></span></span>
+        <b>${esc(STICKER_LABELS[kind])}</b><small>${used ? "Added" : full ? "Limit reached" : kind === "questions" ? "Let people ask you" : "Invite people to join in"}</small></button>`;
     }).join("");
   }
   function syncStickerControls() {
@@ -545,7 +546,7 @@ export function openStatusCapture({ source = "landing", toast = () => {}, onPost
     const answering = s.kind === "answer";
     form.elements.prompt.readOnly = answering;
     form.elements.prompt.maxLength = answering ? ANSWER_PROMPT_MAX : PROMPT_MAX;
-    form.querySelector(".sc-stk-prompt-label").textContent = answering ? "Question" : "Prompt";
+    form.querySelector(".sc-stk-prompt-label").textContent = answering ? "Question" : s.kind === "questions" ? "Your question" : "Prompt";
     form.querySelector(".sc-stk-answer").hidden = s.kind !== "answer";
     form.elements.answer.value = s.answer || "";
     root.classList.add("sc-stk-editing"); syncStickerControls();
