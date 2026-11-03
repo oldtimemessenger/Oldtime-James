@@ -1388,7 +1388,8 @@ export const api = {
       likes: [], dislikes: [], replies: [],
     };
     const roots = cloudPostComments.get(postId) || this.post(postId)?.comments || [];
-    const all = roots.flatMap(comment => [comment, ...(comment.replies || [])]);
+    const flatten = nodes => nodes.flatMap(comment => [comment, ...flatten(comment.replies || [])]);
+    const all = flatten(roots);
     const added = !all.some(comment => comment.id === confirmed.id);
     if (added) {
       const parent = all.find(comment => comment.id === confirmed.parentId);
