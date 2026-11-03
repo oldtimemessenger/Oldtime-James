@@ -168,3 +168,37 @@
   color:var(--ot-color-text,#17191c);
 }
 #app .xe-cap-more:active { transform:scale(.95); }
+
+/* Installed PWA and mobile Safari ergonomics. The app is intentionally phone-only. */
+@media (hover:none) and (pointer:coarse) {
+  #app .phone {
+    width:100%;
+    max-width:none;
+    height:100vh;
+    height:100dvh;
+    min-height:100vh;
+    min-height:100dvh;
+    border-radius:0;
+    overflow:hidden;
+  }
+  #app .phone .scroll {
+    padding-bottom:max(92px,calc(78px + env(safe-area-inset-bottom,0px)));
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scrollbar-width:none;
+  }
+  #app .phone .feed,
+  #app .phone [data-scroll-region] {
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scrollbar-width:none;
+  }
+  #app .phone button,
+  #app .phone a,
+  #app .phone [role="button"] {
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app .phone :is(button,a,[role="button"],input,textarea,select) {
+    touch-action:manipulation;
+  }
+}
