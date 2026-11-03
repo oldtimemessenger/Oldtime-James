@@ -126,3 +126,16 @@ test("Stories use the immersive responsive viewer without replacing the existing
   assert.match(js, /mountStoryInteractions\(/);
   assert.match(js, /api\.canSeeStory\(s\)/);
 });
+
+
+test("Stories use segmented per-item progress for Instagram-style navigation", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /class="progress story-progress"/);
+  assert.match(js, /story-progress-segment/);
+  assert.match(js, /segmentIndex < i \? " is-complete"/);
+  assert.match(js, /segmentIndex === i \? ' id="bar"'/);
+  assert.match(js, /const progressBar = \$\("#bar"\)/);
+  assert.match(redesign, /\.story-progress\s*\{[^}]*display:flex/);
+  assert.match(redesign, /\.story-progress-segment\.is-complete > b\s*\{[^}]*width:100%/);
+  assert.match(redesign, /\.story-progress-segment\.is-active > b/);
+});
