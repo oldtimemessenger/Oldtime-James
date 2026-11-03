@@ -6767,12 +6767,13 @@ function openCommunityNoteComposer() {
     submit.disabled = (!partInputs().some(field => field.value.trim()) && !attachments.length && !publishedIds.length) || busy();
     threadAdd.disabled = busy() || threadParts.length >= 9;
     const full = attachments.length >= COMMUNITY_MAX_ATTACHMENTS;
-    imageInput.disabled = full || busy();
-    cameraInput.disabled = full || busy();
-    sheet.querySelectorAll(".community-note-image-picker,.community-note-camera-picker").forEach(label => label.classList.toggle("is-disabled", full || busy()));
+    const rootLocked = Boolean(publishedIds[0] || partKeys[0]);
+    imageInput.disabled = full || busy() || rootLocked;
+    cameraInput.disabled = full || busy() || rootLocked;
+    sheet.querySelectorAll(".community-note-image-picker,.community-note-camera-picker").forEach(label => label.classList.toggle("is-disabled", full || busy() || rootLocked));
     attachCount.textContent = `${attachments.length} / ${COMMUNITY_MAX_ATTACHMENTS}`;
   };
-  const contentChanged = index => { if (index >= publishedIds.length) partKeys[index] = null; };
+  const contentChanged = index => { if (index >= publishedIds.length && !partKeys[index]) partKeys[index] = null; };
   const addThreadPart = () => {
     if (threadParts.length >= 9 || busy()) return;
     const index = threadParts.length + 1;
@@ -6793,17 +6794,18 @@ function openCommunityNoteComposer() {
   };
   const renderAttachments = () => {
     list.hidden = !attachments.length;
+    const rootLocked = Boolean(publishedIds[0] || partKeys[0]);
     list.innerHTML = attachments.map((item, index) => `<li class="community-note-attachment" data-kind="${item.kind}">
       ${item.kind === "video"
         ? `<video src="${esc(item.url)}" muted playsinline preload="metadata" aria-label="Video ${index + 1}"></video><span class="community-grid-play" aria-hidden="true">${ic.play}</span>`
         : `<img src="${esc(item.url)}" alt="Photo ${index + 1}">`}
       <span class="community-note-attachment-index" aria-hidden="true">${index + 1}</span>
       <div class="community-note-attachment-tools">
-        <button type="button" data-attach-move="${index}" data-dir="-1" aria-label="Move ${item.kind} ${index + 1} earlier" ${index === 0 || busy() ? "disabled" : ""}>‹</button>
-        ${item.kind === "photo" ? `<button type="button" data-attach-edit="${index}" aria-label="Edit photo ${index + 1}" ${busy() ? "disabled" : ""}>${ic.edit}</button>` : ""}
-        <button type="button" data-attach-move="${index}" data-dir="1" aria-label="Move ${item.kind} ${index + 1} later" ${index === attachments.length - 1 || busy() ? "disabled" : ""}>›</button>
+        <button type="button" data-attach-move="${index}" data-dir="-1" aria-label="Move ${item.kind} ${index + 1} earlier" ${index === 0 || busy() || rootLocked ? "disabled" : ""}>‹</button>
+        ${item.kind === "photo" ? `<button type="button" data-attach-edit="${index}" aria-label="Edit photo ${index + 1}" ${busy() || rootLocked ? "disabled" : ""}>${ic.edit}</button>` : ""}
+        <button type="button" data-attach-move="${index}" data-dir="1" aria-label="Move ${item.kind} ${index + 1} later" ${index === attachments.length - 1 || busy() || rootLocked ? "disabled" : ""}>›</button>
       </div>
-      <button type="button" class="community-note-attachment-remove" data-attach-remove="${index}" aria-label="Remove ${item.kind} ${index + 1}" ${busy() ? "disabled" : ""}>×</button>
+      <button type="button" class="community-note-attachment-remove" data-attach-remove="${index}" aria-label="Remove ${item.kind} ${index + 1}" ${busy() || rootLocked ? "disabled" : ""}>×</button>
     </li>`).join("");
     list.querySelectorAll("[data-attach-remove]").forEach(button => button.onclick = () => {
       const [removed] = attachments.splice(Number(button.dataset.attachRemove), 1);
@@ -6818,6 +6820,7 @@ function openCommunityNoteComposer() {
     list.querySelectorAll("[data-attach-edit]").forEach(button => button.onclick = () => editPhoto(Number(button.dataset.attachEdit)));
   };
   const addFiles = files => {
+    if (publishedIds[0] || partKeys[0]) return;
     const { next, rejected } = addComposerFiles(attachments, files, COMMUNITY_MAX_ATTACHMENTS);
     attachments = next.map(item => item.id ? item : { ...item, id: crypto.randomUUID(), url: URL.createObjectURL(item.file), uploadedId: "" });
     error.textContent = rejectionMessage(rejected, COMMUNITY_MAX_ATTACHMENTS);
@@ -6899,7 +6902,7 @@ function openCommunityNoteComposer() {
     } catch (failure) {
       if (closed) return;
       status.textContent=""; error.textContent=failure.message || "Your post could not be posted. Your draft is still here — try again.";
-      submit.dataset.busy="false"; partInputs().forEach((field,index)=>{if(publishedIds[index])field.readOnly=true;});
+      submit.dataset.busy="false"; partInputs().forEach((field,index)=>{if(publishedIds[index] || partKeys[index])field.readOnly=true;});
       renderAttachments(); syncSubmit();
     }
   };
