@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   FEED_VIDEO_PREFETCH_ROOT_MARGIN,
   prefetchFeedVideoMetadata,
+  shouldPrefetchFeedVideo,
 } from "./feed-video-prefetch.js";
 
 function makeVideo({ source = "", localReference = "" } = {}) {
@@ -76,4 +77,13 @@ test("failed or detached local-video prefetch remains retryable", async () => {
   finishLoad();
   assert.equal(await pending, false);
   assert.equal(detached.dataset.feedInitialBufferPrefetched, undefined);
+});
+
+test("feed video prefetch respects data saver and slow mobile connections", () => {
+  assert.equal(shouldPrefetchFeedVideo({ saveData: true, effectiveType: "4g" }), false);
+  assert.equal(shouldPrefetchFeedVideo({ saveData: false, effectiveType: "slow-2g" }), false);
+  assert.equal(shouldPrefetchFeedVideo({ saveData: false, effectiveType: "2g" }), false);
+  assert.equal(shouldPrefetchFeedVideo({ saveData: false, effectiveType: "3g" }), true);
+  assert.equal(shouldPrefetchFeedVideo({ saveData: false, effectiveType: "4g" }), true);
+  assert.equal(shouldPrefetchFeedVideo(undefined), true, "browsers without Network Information API keep existing behavior");
 });
