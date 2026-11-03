@@ -3277,7 +3277,7 @@ function syncCloudLikeButtons(id, post, me, pending = false) {
     if (button.dataset.like !== id) return;
     const liked = Boolean(post?.likes?.includes(me.id));
     button.classList.toggle("on", liked);
-    button.classList.toggle("like-pending", pending);
+    button.classList.toggle("like-pending", pending && liked);
     if (pending) button.setAttribute("aria-busy", "true");
     else button.removeAttribute("aria-busy");
     button.setAttribute("aria-pressed", String(liked));
