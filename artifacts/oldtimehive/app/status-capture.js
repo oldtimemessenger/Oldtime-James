@@ -546,7 +546,7 @@ export function openStatusCapture({ source = "landing", toast = () => {}, onPost
     const answering = s.kind === "answer";
     form.elements.prompt.readOnly = answering;
     form.elements.prompt.maxLength = answering ? ANSWER_PROMPT_MAX : PROMPT_MAX;
-    form.querySelector(".sc-stk-prompt-label").textContent = answering ? "Question" : "Prompt";
+    form.querySelector(".sc-stk-prompt-label").textContent = answering ? "Question" : s.kind === "questions" ? "Your question" : "Prompt";
     form.querySelector(".sc-stk-answer").hidden = s.kind !== "answer";
     form.elements.answer.value = s.answer || "";
     root.classList.add("sc-stk-editing"); syncStickerControls();
