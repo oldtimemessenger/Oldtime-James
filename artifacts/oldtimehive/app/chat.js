@@ -19,6 +19,7 @@ import { buildConsolePeople, renderConsole, bindConsole } from "./chat-inbox-con
 import { buildStoryRail, bindStoryConsole, storyThumb } from "./chat-story-console.js";
 import "./chat-story-console.css";
 import "./chat-inbox-console.css";
+import "./chat-conversation-refinement.css";
 
 const REACTS = ["❤️", "😂", "😮", "😢", "🙏", "👍", "👎"];
 let ui = { reply: null, screen: "thread", q: "", call: null, filter: "all" };
