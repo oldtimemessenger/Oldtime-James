@@ -4234,7 +4234,10 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
          s.media = url;
          const resolvedMedia = resolveStoryMedia(s, id => api.post(id));
          const placeholder = storyStage?.querySelector(".story-stage-media-pending");
-         if (!storyStage || !placeholder || !resolvedMedia) return;
+         if (!storyStage || !placeholder || !resolvedMedia) {
+           mediaPending = false;
+           return;
+         }
          const mediaMarkup = String(resolvedMedia).startsWith("data:video") || s.kind === "video"
            ? `<video class="story-stage-media" src="${esc(resolvedMedia)}" autoplay muted playsinline></video>`
            : `<img class="story-stage-media" src="${esc(resolvedMedia)}" alt="" />`;
