@@ -16,7 +16,7 @@ test("Status has no numerical send/preparation counter and revalidates shared co
   const send = status.slice(status.indexOf("  async function send()"));
   assert.doesNotMatch(send, /Sending \$|Preparing video \$|Math\.round/);
   assert.equal((send.match(/await validateSource\?\.\(\)/g) || []).length, 2);
-  assert.match(send, /text: shareText/);
+  assert.match(send, /text: joinLabelText\(project\.layers, shareText\)/);
   assert.match(app, /destination: "story", \.\.\.seed, shareText: postPublicLink/);
   assert.match(app, /showTypeFilters: true/);
 });

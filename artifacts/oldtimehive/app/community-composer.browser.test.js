@@ -18,10 +18,12 @@ const ffmpeg = which("ffmpeg");
 
 function makeAssets() {
   const dir = mkdtempSync(join(tmpdir(), "oldtime-community-"));
-  execFileSync(ffmpeg, ["-loglevel", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=96x128:rate=15", "-t", "0.8", "-c:v", "libvpx", "-b:v", "200k", join(dir, "clip.webm")]);
+  execFileSync(ffmpeg, ["-loglevel", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=320x240:rate=30", "-t", "0.8",
+    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "30", "-profile:v", "baseline", "-pix_fmt", "yuv420p",
+    "-movflags", "+faststart", "-an", join(dir, "clip.mp4")]);
   const colors = ["0x1456d9", "0xe0245e", "0x2f9e6b", "0xf2a516"];
   colors.forEach((c, i) => execFileSync(ffmpeg, ["-loglevel", "error", "-y", "-f", "lavfi", "-i", `color=c=${c}:size=64x48`, "-frames:v", "1", join(dir, `p${i}.png`)]));
-  return { webm: readFileSync(join(dir, "clip.webm")), pngs: colors.map((_, i) => readFileSync(join(dir, `p${i}.png`))) };
+  return { mp4: readFileSync(join(dir, "clip.mp4")), pngs: colors.map((_, i) => readFileSync(join(dir, `p${i}.png`))) };
 }
 
 const ME = "camera-quotes-test";
@@ -37,8 +39,8 @@ const fixture = {
 test("Community composer, single-video card, grid and viewer work in the real app", {
   skip: (!chromiumPath && "Chromium not available") || (!ffmpeg && "ffmpeg not available to build real media"), timeout: 240_000,
 }, async () => {
-  const { webm, pngs } = makeAssets();
-  const webmUrl = `data:video/webm;base64,${webm.toString("base64")}`;
+  const { mp4, pngs } = makeAssets();
+  const videoUrl = `data:video/mp4;base64,${mp4.toString("base64")}`;
   const pngUrl = i => `data:image/png;base64,${pngs[i % pngs.length].toString("base64")}`;
   process.env.PORT = "5173"; process.env.BASE_PATH = "/";
   const server = await createServer({ configFile: resolve(packageRoot, "vite.config.ts"), logLevel: "silent", server: { host: "127.0.0.1", port: 0 } });
@@ -55,7 +57,7 @@ test("Community composer, single-video card, grid and viewer work in the real ap
     const now = Date.now();
     const videoPost = {
       id: "community-solo-video", sourceId: null, destination: "community", text: "Stairs down to the water", visibility: "public",
-      media: [{ id: "solo-media", contentType: "video/webm", reference: webmUrl }],
+      media: [{ id: "solo-media", contentType: "video/mp4", reference: videoUrl }],
       createdAt: now - 2 * 86_400_000, author: { id: "travel-e", username: "travele", displayName: "Travel E", joinedAt: now - 9e9 },
       likeCount: 1, likedByMe: false, likedBy: [], commentCount: 0, saveCount: 0, repostCount: 0, repostedByMe: false, repostNote: null,
       place: { id: "custom:greece", label: "Greece", source: "custom" }, location: "Greece", sportsCard: null,
@@ -72,6 +74,9 @@ test("Community composer, single-video card, grid and viewer work in the real ap
     await context.route("**/*", route => {
       const url = new URL(route.request().url());
       if (url.protocol === "data:" || url.protocol === "blob:") return route.continue();
+      if (url.hostname === "fonts.googleapis.com" && url.pathname === "/css2") {
+        return route.fulfill({ status: 200, contentType: "text/css", body: "/* use the browser's local emoji font in this isolated test */" });
+      }
       if (url.origin !== origin) { offsite.push(`${route.request().method()} ${url.href}`); return route.abort(); }
       return route.fallback();
     });
@@ -99,11 +104,14 @@ test("Community composer, single-video card, grid and viewer work in the real ap
         reservations.set(id, record);
         if (record.order === failNextReservationIndex) {
           failNextReservationIndex = -1;
-          return json(503, { error: "Upload service briefly unavailable." });
+          return json(429, { error: "Upload temporarily unavailable. Try again." });
         }
         record.ok++;
         assert.match(body.sha256, /^[0-9a-f]{64}$/, "fixed-id uploads send a real SHA-256 digest");
         return json(201, { ready: true, ...(String(body.contentType).startsWith("video/") ? { thumbnailId: crypto.randomUUID() } : {}) });
+      }
+      if (/^\/api\/media\/[0-9a-f-]{36}\/thumbnail$/.test(url.pathname) && method === "PUT") {
+        return json(200, { attached: true });
       }
       if (url.pathname === "/api/posts" && method === "POST") {
         const body = request.postDataJSON();
@@ -114,7 +122,7 @@ test("Community composer, single-video card, grid and viewer work in the real ap
           id: "community-new-mixed", sourceId: null, destination: body.destination, text: body.text, visibility: "public",
           media: body.mediaIds.map((id, i) => {
             const type = reservations.get(id)?.contentType || "image/png";
-            return { id, contentType: type, reference: type.startsWith("video/") ? webmUrl : pngUrl(i) };
+            return { id, contentType: type, reference: type.startsWith("video/") ? videoUrl : pngUrl(i) };
           }),
           createdAt: Date.now(), author: { id: ME, username: "testmember", displayName: "Test Member", joinedAt: now - 9e9 },
           likeCount: 0, likedByMe: false, likedBy: [], commentCount: 0, repostCount: 0, repostedByMe: false, repostNote: null, place: null, sportsCard: null,
@@ -172,13 +180,14 @@ test("Community composer, single-video card, grid and viewer work in the real ap
     await page.locator(".community-screen").waitFor({ state: "visible" });
 
     // --- Composer: six mixed files, refusal messages, reorder/remove ---
-    await page.locator("#community-note-open").click();
+    const composeButton = page.locator(".community-header [data-cf-compose], .community-header #community-note-open");
+    await composeButton.click();
     await page.locator(".community-note-panel").waitFor({ state: "visible" });
-    assert.equal(await page.locator("#community-note-open").count() + 0 >= 0, true);
+    assert.equal(await composeButton.count(), 1, "the Community composer trigger remains available");
     await page.locator("#community-note-input").fill("Six from the island");
     const file = (name, mimeType, buffer) => ({ name, mimeType, buffer });
-    const picks = [file("a.png", "image/png", pngs[0]), file("b.webm", "video/webm", webm), file("c.png", "image/png", pngs[1]),
-      file("d.png", "image/png", pngs[2]), file("e.webm", "video/webm", webm), file("f.png", "image/png", pngs[3]),
+    const picks = [file("a.png", "image/png", pngs[0]), file("b.mp4", "video/mp4", mp4), file("c.png", "image/png", pngs[1]),
+      file("d.png", "image/png", pngs[2]), file("e.mp4", "video/mp4", mp4), file("f.png", "image/png", pngs[3]),
       file("g-extra.png", "image/png", pngs[0]), file("notes.txt", "text/plain", Buffer.from("x"))];
     await page.locator("#community-note-image").setInputFiles(picks);
     const items = page.locator("#community-note-attachments > li");
@@ -211,11 +220,19 @@ test("Community composer, single-video card, grid and viewer work in the real ap
     assert.equal(await page.locator("#community-note-input").inputValue(), "Six from the island");
     assert.equal(await items.count(), 6, "attachments retained after failed upload");
     assert.equal(publishBodies.length, 0);
+    assert.equal(publishKeys.length, 0, "failed attachment upload stops before publishing");
     // --- Attempt 2: uploads finish, publish fails once -> still retained ---
     await page.locator("#community-note-submit").click();
-    await page.locator("#community-note-error").filter({ hasText: /Publishing is briefly unavailable/ }).waitFor({ timeout: 90_000 });
+    await page.waitForFunction(() => {
+      const button = document.querySelector("#community-note-submit");
+      return !button || button.dataset.busy !== "true";
+    }, null, { timeout: 90_000 });
+    const publishError = await page.locator("#community-note-error").textContent().catch(() => "");
+    assert.equal(publishKeys.length, 1, `expected one failed publish request; error=${publishError}; requests=${mutations.join(", ")}`);
+    assert.match(publishError || "", /Publishing is briefly unavailable/, `unexpected publish error: ${publishError}`);
     assert.equal(await page.locator(".community-note-panel").isVisible(), true, "composer retained after failed publish");
     assert.equal(await items.count(), 6);
+    assert.equal(publishKeys.length, 1, "one publish attempt failed and the draft remains");
     // --- Attempt 3: succeeds ---
     await page.locator("#community-note-submit").click();
     await page.locator(".community-note-panel").waitFor({ state: "hidden", timeout: 90_000 });
@@ -249,7 +266,7 @@ test("Community composer, single-video card, grid and viewer work in the real ap
     if (process.env.OLDTIME_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.OLDTIME_SCREENSHOT_DIR}/community-viewer.png` });
 
     assert.deepEqual(offsite, [], "no request left the local test origin");
-    const allowed = /^(POST \/api\/media\/[0-9a-f-]{36}\/upload|POST \/api\/posts)$/;
+    const allowed = /^(POST \/api\/media\/[0-9a-f-]{36}\/upload|PUT \/api\/media\/[0-9a-f-]{36}\/thumbnail|DELETE \/api\/media\/[0-9a-f-]{36}|POST \/api\/posts)$/;
     const unexpected = mutations.filter(m => !allowed.test(m));
     if (unexpected.length) console.log("Other intercepted (fake-answered) mutations:", unexpected);
     assert.deepEqual(pageErrors, []);

@@ -5,10 +5,10 @@ const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
 
 test("Community keeps global Chat, its compact composer, and post sharing separate", () => {
   const source = read("app.js");
-  for (const view of ["updates", "communities", "search", "chat", "profile"]) {
+  for (const view of ["updates", "communities", "search", "chat"]) {
     assert.ok(source.includes(`data-tab="${view}"`));
   }
-  assert.match(source, /<button class="icon" data-tab="search" aria-label="Search"/);
+  assert.match(source, /data-tab="search"[^>]*aria-label="Search" data-testid="button-nav-search"/);
   assert.match(source, /id="community-note-open"/, "Community has a focused post composer");
   assert.match(source, /\$\("#community-note-open"\)\?\.addEventListener\("click", openCommunityNoteComposer\)/);
   assert.doesNotMatch(source, /id="community-note-gif"|data-testid=".*gif/i);
@@ -20,10 +20,10 @@ test("Community keeps global Chat, its compact composer, and post sharing separa
   assert.doesNotMatch(source, /button-nav-create-post/);
   const nav = source.match(/<nav class="nav \$[\s\S]*?<\/nav>/)?.[0] || "";
   assert.deepEqual([...nav.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]), [
-    "updates", "communities", "chat", "profile"
+    "updates", "communities", "chat", "search"
   ]);
-  assert.doesNotMatch(nav, /data-tab="search"/);
-  assert.match(source, /<button class="icon" data-tab="search" aria-label="Search"/);
+  assert.match(nav, /data-tab="search"[^>]*aria-label="Search" data-testid="button-nav-search"/);
+  assert.doesNotMatch(nav, /data-tab="profile"/);
   for (const route of ["profile", "notes", "settings"]) {
     assert.ok(source.includes(`data-drawer-route="${route}"`));
   }

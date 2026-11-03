@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const source=name=>readFileSync(new URL(name,import.meta.url),"utf8");
-test("entrance centers the supplied feather above its name with a subtle finite fade",()=>{
+test("entrance shows the supplied feather without a wordmark and uses a subtle finite fade",()=>{
  const html=source("../index.html");
  assert.match(html,/brand\/oldtime-feather.png/);
- assert.match(html,/class="oldtime-startup-name">Oldtime</);
+ assert.doesNotMatch(html,/class="oldtime-startup-name"/);
  assert.match(html,/oldtime-startup-art \{[^}]*left:6px/);
  assert.match(html,/@keyframes oldtime-feather-arrive \{ from \{ opacity:0;transform:scale\(\.88\)/);
  assert.doesNotMatch(html,/oldtime-feather-depart|scale\(12\)|clip-path:inset/);
@@ -26,7 +26,10 @@ test("Home header has no brand overlay and icon motion suppression leaves page m
 });
 test("notes wait for cloud confirmation and preserve other profile metadata",()=>{
  const app=source("./app.js");
- const note=app.slice(app.indexOf("function editProfileNote()"),app.indexOf("// Vertical browsing for posts"));
+ const start=app.indexOf("function editProfileNote()");
+ const end=app.indexOf("\nfunction bindExploreViewerSwipe(",start);
+ assert.ok(start>=0&&end>start,"note editor function should be present and isolated");
+ const note=app.slice(start,end);
  assert.match(note,/await requestCloudApi\("\/api\/account\/profile"\)/);
  assert.match(note,/await api\.updateCloudAccountProfile\(\{profile:\{\.\.\.current\.profile,profileNote\}\}\)/);
  assert.match(note,/api\.me\(\)\?\.profileNote!==profileNote/);

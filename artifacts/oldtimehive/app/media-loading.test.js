@@ -20,7 +20,7 @@ test("feed, profile, and chat media are lazy rather than eagerly fetched", async
   assert.match(loader, /element\.preload = "none"/);
   assert.doesNotMatch(loader, /element\.preload = .*"metadata"/);
   assert.match(loader, /element\.fetchPriority = rect\.bottom > 0 && rect\.top < window\.innerHeight \? "high" : "low"/);
-   assert.match(loader, /const profileAvatar = element\.matches\("\.profile-avatar, \.story-avatar-action img, \.ring img, \.cic-photo, \.csc-media, \.chat-avatar, \.details-avatar, \.chat-inbox-avatar img, \.discovery-person-profile img"\)/);
+  assert.match(loader, /const profileAvatar = element\.matches\("\.profile-avatar, \.story-avatar-action img, \.ring img, \.cic-photo, \.csc-media, \.chat-avatar, \.details-avatar, \.chat-inbox-avatar img, \.discovery-person-profile img, \.cf-person-avatar img"\)/);
   assert.match(loader, /if \(element\.tagName === "IMG" \|\| element\.tagName === "VIDEO"\) element\.hidden = true/);
   assert.match(loader, /element\.hidden = false;\s*element\.classList\.remove\("media-load-failed"\)/);
   assert.match(app, /if \(isLocalMedia\(v\.dataset\.localMedia\) && !v\.src\)[\s\S]*?await loadFeedVideo\(v\)/);
