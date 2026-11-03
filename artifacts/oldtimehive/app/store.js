@@ -3623,6 +3623,31 @@ export const api = {
     cloudFeedError = "";
     return post;
   },
+  async loadCloudPostThread(postId) {
+    const session = getCloudSession();
+    if (!session?.accessToken) throw new Error("Sign in to open this conversation.");
+    const result = await cloudRequest(`/api/posts/${encodeURIComponent(postId)}/thread`, { session });
+    ensureCurrentCloudSession(session);
+    if (!Array.isArray(result?.posts)) throw new Error("The conversation could not be loaded.");
+    return { threadId:String(result.threadId || postId), position:Number(result.position)||0,
+      posts:result.posts.map(normalizeCloudPost) };
+  },
+  async linkCloudPostThread(rootId, postIds) {
+    const session = getCloudSession();
+    if (!session?.accessToken) throw new Error("Sign in to publish a conversation.");
+    const result = await cloudRequest(`/api/posts/${encodeURIComponent(rootId)}/thread`, {
+      session, method:"POST", body:{postIds},
+    });
+    ensureCurrentCloudSession(session);
+    if (!Array.isArray(result?.posts) || result.posts.length < 2) {
+      throw new Error("The posts were published, but the conversation link could not be confirmed. Retry to finish connecting them.");
+    }
+    const posts = result.posts.map(normalizeCloudPost);
+    for (const post of posts) {
+      forEachCloudPostCopy(post.id, copy => { copy.threadId = result.threadId; });
+    }
+    return { threadId:String(result.threadId), posts };
+  },
   async setCloudLike(id, liked) {
     const session = getCloudSession();
     const path = `/api/posts/${encodeURIComponent(id)}/like`;
