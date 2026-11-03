@@ -92,3 +92,12 @@ test("stories share one expiry rule and the retired Hey Word prompt is absent", 
   assert.doesNotMatch(js, /Share your take|Add yours/);
   assert.doesNotMatch(interactions, /Hey Word|hey-word/i);
 });
+
+test("Story playback progress follows video time and photo duration is five seconds", () => {
+  assert.match(js, /const progressBar = \$\("#bar"\)/);
+  assert.match(js, /video\.currentTime \/ video\.duration/);
+  assert.match(js, /if \(video\.ended\) advanceStory\(\)/);
+  assert.match(js, /mediaPending \|\| view\.dataset\.stickerOpen/);
+  assert.match(js, /: 5000/);
+  assert.match(js, /document\.hidden/);
+});

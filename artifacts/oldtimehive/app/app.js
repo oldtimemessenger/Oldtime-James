@@ -4239,12 +4239,40 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     });
     $("#sclose").onclick = close;
      $("#story-profile").onclick = () => { close(); navigateToProfile(s.author); };
-    let w = 0; clearInterval(storyTimer);
+    let w = 0;
+    clearInterval(storyTimer);
+    const progressBar = $("#bar");
+    const advanceStory = () => { if (list[i] === s) { i++; show(); } };
+    let lastTick = Date.now();
+    let backgroundPaused = false;
     storyTimer = setInterval(() => {
-      if (!isStoryActive(s) || !api.canSeeStory(s) || !api.stories().some(item => item.id === s.id)) { i++; show(); return; }
-      if (paused || mediaPending || view.dataset.stickerOpen === "true") return;
-      w += s.creativeProject ? 100 / ((s.trim || s.creativeProject.duration) * 1000 / 90) : 2;
-      const bar = $("#bar"); if (bar) bar.style.width = w + "%"; if (w >= 100) { i++; show(); }
+      if (list[i] !== s) return;
+      if (!isStoryActive(s) || !api.canSeeStory(s) || !api.stories().some(item => item.id === s.id)) { advanceStory(); return; }
+      const video = storyVideo();
+      if (document.hidden) {
+        if (video && !video.paused) { video.pause(); backgroundPaused = true; }
+        lastTick = Date.now();
+        return;
+      }
+      if (backgroundPaused) {
+        backgroundPaused = false;
+        if (!paused && video) void video.play?.().catch(() => {});
+      }
+      if (paused || mediaPending || view.dataset.stickerOpen === "true") { lastTick = Date.now(); return; }
+      if (video) {
+        if (Number.isFinite(video.duration) && video.duration > 0 && progressBar) {
+          progressBar.style.width = Math.min(100, video.currentTime / video.duration * 100) + "%";
+        }
+        if (video.ended) advanceStory();
+        return; // Follow the real media clock; do not run a competing photo countdown.
+      }
+      const now = Date.now();
+      const elapsed = Math.max(0, now - lastTick);
+      lastTick = now;
+      const duration = s.creativeProject ? Math.max(1000, Number(s.trim || s.creativeProject.duration || 5) * 1000) : 5000;
+      w = Math.min(100, w + elapsed / duration * 100);
+      if (progressBar) progressBar.style.width = w + "%";
+      if (w >= 100) advanceStory();
     }, 90);
   };
   show();
