@@ -104,46 +104,10 @@
 @media(max-width:480px) { .cf-feed-tabs { gap:12px; padding-inline:12px; } .cf-feed-tabs button { font-size:13px; } }
 
 
-/* Shared UI foundations: keep the standalone Community feed aligned with the
-   rest of Oldtime while preserving its existing layout and interaction model. */
-.cf-screen {
-  background: var(--ot-color-page, #fff);
-  color: var(--ot-color-text, #14171c);
-}
-.cf-feed-header {
-  border-bottom-color: var(--ot-color-border, #e9ebef);
-  background: var(--ot-color-surface, #fff);
-}
-.cf-feed-tabs button[aria-current=page]:after {
-  background: var(--ot-color-brand, #1555d8);
-}
-.cf-controls {
-  border-left-color: var(--ot-color-border, #edf0f4);
-  background: var(--ot-color-surface, #fff);
-}
-.cf-description {
-  background: var(--ot-color-surface-subtle, #fafbfd);
-  border-bottom-color: var(--ot-color-border, #edf0f4);
-}
+/* Shared sizing only: keep every existing Community color exactly as designed. */
 .cf-dialog {
-  border-color: var(--ot-color-border, #e4e8ee);
   border-radius: var(--ot-radius-xl, 20px);
-  color: var(--ot-color-text, #17202c);
-  background: var(--ot-color-surface, #fff);
-  box-shadow: var(--ot-shadow-overlay, 0 16px 70px #10203a26);
-}
-.cf-dialog>header {
-  border-bottom-color: var(--ot-color-border, #edf0f4);
-  background: var(--ot-color-surface, #fff);
-}
-.cf-dialog :focus-visible {
-  outline-color: var(--ot-color-brand, #1555d8);
 }
 .cf-primary {
   border-radius: var(--ot-radius-pill, 24px);
-  background: var(--ot-color-brand, #1555d8);
-}
-.cf-suggestions {
-  border-bottom-color: var(--ot-color-border, #e9edf2);
-  background: var(--ot-color-surface-subtle, #fafbfd);
 }
