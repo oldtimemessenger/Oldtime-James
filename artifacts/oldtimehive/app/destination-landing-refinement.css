@@ -16,6 +16,10 @@
 #app .profile-screen .profile-name { color:var(--landing-ink); letter-spacing:-.025em; }
 #app .profile-screen .profile-intro .profile-stats { margin-top:16px; }
 #app .profile-screen .profile-intro .profile-stats > .profile-count-card { border:1px solid #e9eef9; background:linear-gradient(145deg,#f8faff,#f1f5ff); box-shadow:none; }
+#app .profile-screen .profile-intro .profile-count-text small { color:#515b6d; }
+#app .profile-screen .profile-meta-row > .profile-city,
+#app .profile-screen .profile-meta-row .profile-meta-icon { color:#596477; }
+#app .profile-screen .profile-meta-row .profile-interest-chip { color:#33415c; background:#f1f5ff; border-color:#e4ebfa; }
 #app .profile-screen .profile-intro .profile-count-card:active { transform:scale(.985); }
 #app .profile-screen .profile-intro .profile-primary-actions { gap:9px; }
 #app .profile-screen .profile-body { margin:14px 12px 0; padding:8px 10px 16px; border:1px solid rgba(22,36,70,.06); border-radius:20px 20px 0 0; background:#fff; }
@@ -56,8 +60,10 @@
 #app .cs-studio .cs-cam-btn { border:1px solid rgba(255,255,255,.18); border-radius:15px; box-shadow:0 5px 18px rgba(0,0,0,.16); }
 #app .cs-studio .cs-rail-btn:active,
 #app .cs-studio .cs-cam-btn:active { transform:scale(.96); }
-#app .cs-studio .cs-primary,
-#app .cs-studio .ce-primary { border-radius:15px; font-weight:750; letter-spacing:-.01em; }
+#app .cs-studio .cs-next { border-radius:16px; background:linear-gradient(110deg,#1456d9,#8e1b24); box-shadow:0 8px 22px rgba(8,20,48,.28); }
+#app .cs-studio .cs-round { border-radius:15px; }
+#app .cs-studio .cs-rail-btn[aria-pressed="true"],
+#app .cs-studio .cs-rail-btn[aria-expanded="true"] { background:#fff; color:#1456d9; }
 @media (max-width:360px) {
   #app .profile-screen .profile-intro { margin-right:8px; margin-left:8px; padding-right:11px; padding-left:11px; }
   #app .chat-list-screen .chat-list-body { padding-right:7px; padding-left:7px; }
