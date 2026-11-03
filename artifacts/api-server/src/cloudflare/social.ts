@@ -488,7 +488,10 @@ async function communityPostThread(request: Request, db: Database, userId: strin
     "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
   const already = new Map(existing.map(item=>[item.id,item.thread_position]));
   const pending = childIds.filter(id=>!already.has(id));
-  if (existing.length + pending.length + 1 > 10) throw new ApiError(400,"A conversation can contain up to 10 posts.");
+  const rootAlreadyLinked = existing.some(item=>item.id===rootId);
+  const existingChildren = existing.filter(item=>item.id!==rootId).length;
+  if (existingChildren + pending.length + 1 > 10) throw new ApiError(400,"A conversation can contain up to 10 posts.");
+  const nextPosition = Math.max(0,...existing.map(item=>Number(item.thread_position)||0)) + 1;
   const children = await Promise.all(pending.map(id=>getPost(db,userId,id)));
   if (children.some(post=>!post || post.archived_at || post.author_id!==userId ||
       post.visibility!==root.visibility || post.destination!==root.destination)) {
@@ -502,12 +505,12 @@ async function communityPostThread(request: Request, db: Database, userId: strin
   const statements = [
     db.prepare("UPDATE posts SET thread_id=?,thread_position=0 WHERE id=? AND thread_id IS NULL").bind(rootId,rootId),
     ...pending.map((id,index)=>db.prepare("UPDATE posts SET thread_id=?,thread_position=? WHERE id=? AND author_id=? AND thread_id IS NULL")
-      .bind(rootId,existing.length+index+1,id,userId)),
+      .bind(rootId,nextPosition+index,id,userId)),
   ];
   if (statements.length) await db.batch(statements);
   const verified = await rows<{id:string;thread_position:number|null}>(db,
     "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
-  if (verified.length !== existing.length + pending.length + 1) {
+  if (verified.length !== existing.length + pending.length + (rootAlreadyLinked ? 0 : 1)) {
     throw new ApiError(409,"The conversation changed while it was being saved. Refresh and try again.");
   }
   const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
