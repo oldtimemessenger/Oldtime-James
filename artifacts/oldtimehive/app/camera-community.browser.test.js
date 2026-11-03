@@ -3024,30 +3024,8 @@ test(process.env.OLDTIME_HOME_RENDER_ONLY === "1"
     await assertHomeCreateAvailable(page);
     const homePost = page.locator('.clip[data-id="browser-repost-post"]');
     await homePost.waitFor({ state: "visible", timeout: 5000 });
-    const topComment = homePost.locator(".feed-top-comment");
-    await topComment.waitFor({ state: "visible", timeout: 7000 });
-    const topCommentLayout = await topComment.evaluate(element => {
-      const comment = element.getBoundingClientRect();
-      const card = element.closest(".clip");
-      const author = card.querySelector(".handle").getBoundingClientRect();
-      const likes = card.querySelector("[data-post-likes]")?.getBoundingClientRect();
-      return {
-        commentBottom: comment.bottom,
-        authorTop: author.top,
-        likesTop: likes?.top ?? null,
-        background: getComputedStyle(element).backgroundColor,
-        text: element.innerText.trim(),
-      };
-    });
-    assert.ok(topCommentLayout.commentBottom <= topCommentLayout.authorTop,
-      "The temporary comment sits above the creator name and likes");
-    if (topCommentLayout.likesTop !== null) {
-      assert.ok(topCommentLayout.authorTop < topCommentLayout.likesTop);
-    }
-    assert.equal(topCommentLayout.background, "rgba(0, 0, 0, 0)",
-      "The comment is plain text over the video, without a surrounding bubble");
-    assert.match(topCommentLayout.text, /thoughtful comment/i);
-    await topComment.waitFor({ state: "detached", timeout: 8000 });
+    assert.equal(await homePost.locator(".feed-top-comment").count(), 0,
+      "Home feed never displays animated top-comment overlays");
     await page.locator('.nav [data-tab="communities"]').click();
     const remixCounter = page.locator('[data-testid="card-community-post-browser-repost-post"] .community-post-remix-count');
     assert.equal(await remixCounter.count(), 0,

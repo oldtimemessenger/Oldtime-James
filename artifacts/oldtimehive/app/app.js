@@ -37,6 +37,7 @@ import "./service-worker-registration.js";
 import { installVideoMediaSession } from "./media-session.js";
 import { mountStoryInteractions } from "./story-interactions.js";
 import "./story-interactions.css";
+import "./story-visual-refinement.css";
 import { isStoryActive } from "./story-lifecycle.js";
 import { isDefaultAvatarMediaReference, resolveStoryMedia } from "./story-media.js";
 import { mountStoryStickerInteractions } from "./story-sticker-interactions.js";
@@ -283,10 +284,6 @@ let placeDetailMapHost = null;
 let placeDetailMapController = null;
 let placeDetailMapGeneration = 0;
 let placesSearchTimer = null;
-let topCommentScrollRoot = null;
-let topCommentScrollHandler = null;
-const seenTopCommentOverlays = new Set();
-const activeTopCommentOverlays = new Map();
 let profileId = null;
 let profileMode = "posts";
 let profileRelationsRequestedFor = "";
@@ -2509,7 +2506,6 @@ function updates() {
   app.querySelector("[data-nearby-locate]")?.addEventListener("click", requestNearbyLocation);
   bindPosts();
   bindPlacesActions();
-  bindTopCommentOverlays();
   if (homeView !== "nearby") mountEmailVerificationReminder(app.querySelector(".home-screen"), {
     isBusy: () => Boolean(storyUi || document.querySelector(".creative-editor") || $("#sheet")?.classList.contains("on") || tab !== "updates" || viewer),
     sheet: () => $("#sheet"), toast, esc,
@@ -2755,7 +2751,6 @@ function postCard(p, surface = "main") {
              <div class="handle"><button type="button" class="feed-author-name post-viewer-place-creator" id="post-viewer-profile" aria-label="Open ${esc(u.name)}'s profile">${esc(u.name)}</button></div>`
           : `${postPlaceCard(p)}
              ${repostFaces}
-             ${surface === "main" ? feedTopComment(p) : ""}
                <div class="handle"><button type="button" class="feed-author-avatar" data-avatar-profile="${esc(u.id)}" aria-label="Open @${esc(u.username)}'s story or profile"><img src="${esc(u.avatar || "")}" alt="" class="avatar" /></button><button type="button" class="feed-author-name" data-profile="${esc(u.id)}">${esc(u.name)}</button>${blueBadgeMarkup(u.cloudAccountId || u.id, esc)} ${feedFollowButton({author:u,me:api.me(),following,requests:api.db().requests,className:"followpill",esc})}</div>
              ${likesRow(p)}
              ${captionMarkup}
@@ -2792,96 +2787,6 @@ function postPlaceCard(post) {
         : hasPin ? "View place" : "Place"}</small></span>
     </button>
   </div>`;
-}
-function feedTopComment(post) {
-  const comment = post?.topComment;
-  const body = String(comment?.body || "").trim();
-  if (!body || !comment?.author?.username) return "";
-  const username = String(comment.author.username);
-  const preview = body.length > 116 ? `${body.slice(0, 115).trimEnd()}…` : body;
-  return `<button type="button" class="feed-top-comment" data-comment="${esc(post.id)}" data-top-comment-post="${esc(post.id)}"
-    aria-hidden="true" tabindex="-1"
-    aria-label="Open comments. Top comment by @${esc(username)}: ${esc(preview)}">
-    <span class="feed-top-comment-copy">“${esc(preview)}”</span>
-    <span class="feed-top-comment-author">@${esc(username)}</span>
-  </button>`;
-}
-function bindTopCommentOverlays() {
-  if (topCommentScrollRoot && topCommentScrollHandler) {
-    topCommentScrollRoot.removeEventListener("scroll", topCommentScrollHandler);
-  }
-  topCommentScrollRoot = null;
-  topCommentScrollHandler = null;
-  const feed = $("#feed");
-  if (!feed) return;
-  const cards = [...feed.querySelectorAll(".clip[data-id]")].filter(card =>
-    card.querySelector(".feed-top-comment[data-top-comment-post]"));
-  const show = comment => {
-    const postId = comment.dataset.topCommentPost;
-    if (!postId) {
-      comment.remove();
-      return;
-    }
-    const now = Date.now();
-    let expiresAt = activeTopCommentOverlays.get(postId);
-    if (expiresAt && expiresAt <= now) {
-      activeTopCommentOverlays.delete(postId);
-      expiresAt = null;
-    }
-    if (!expiresAt && seenTopCommentOverlays.has(postId)) {
-      comment.remove();
-      return;
-    }
-    if (!expiresAt) {
-      expiresAt = now + 6000;
-      seenTopCommentOverlays.add(postId);
-      activeTopCommentOverlays.set(postId, expiresAt);
-    }
-    comment.setAttribute("aria-hidden", "false");
-    comment.removeAttribute("tabindex");
-    comment.classList.remove("is-fading");
-    comment.classList.add("is-visible");
-    if (comment.dataset.fadeDeadline === String(expiresAt)) return;
-    comment.dataset.fadeDeadline = String(expiresAt);
-    window.setTimeout(() => {
-      if (activeTopCommentOverlays.get(postId) !== expiresAt || !comment.isConnected) return;
-      activeTopCommentOverlays.delete(postId);
-      comment.setAttribute("aria-hidden", "true");
-      comment.setAttribute("tabindex", "-1");
-      comment.classList.add("is-fading");
-      window.setTimeout(() => comment.remove(), 450);
-    }, Math.max(0, expiresAt - Date.now()));
-  };
-  const showVisibleComments = () => {
-    for (const card of cards) {
-      const comment = card.querySelector(".feed-top-comment[data-top-comment-post]");
-      if (!comment?.isConnected) continue;
-      const postId = comment.dataset.topCommentPost;
-      const expiresAt = activeTopCommentOverlays.get(postId);
-      if (expiresAt && expiresAt > Date.now()) {
-        show(comment);
-        continue;
-      }
-      if (expiresAt) activeTopCommentOverlays.delete(postId);
-      if (seenTopCommentOverlays.has(comment.dataset.topCommentPost)) {
-        if (!comment.classList.contains("is-visible") && !comment.classList.contains("is-fading")) comment.remove();
-        continue;
-      }
-      const cardBounds = card.getBoundingClientRect();
-      const visibleHeight = Math.max(0, Math.min(cardBounds.bottom, window.innerHeight) - Math.max(cardBounds.top, 0));
-      const threshold = Math.min(cardBounds.height, window.innerHeight) * 0.05;
-      if (visibleHeight >= threshold && threshold > 0) show(comment);
-    }
-  };
-  topCommentScrollRoot = feed;
-  topCommentScrollHandler = showVisibleComments;
-  feed.addEventListener("scroll", showVisibleComments, { passive: true });
-  if (feed.scrollTop <= 1) {
-    const firstComment = feed.querySelector(".clip[data-id] .feed-top-comment[data-top-comment-post]");
-    if (firstComment) show(firstComment);
-  }
-  showVisibleComments();
-  window.requestAnimationFrame(showVisibleComments);
 }
 function head(u, following, p) {
   return `<div class="handle"><button type="button" class="feed-author-avatar" data-avatar-profile="${esc(u.id)}" aria-label="Open @${esc(u.username)}'s story or profile"><img src="${esc(u.avatar || "")}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover" /></button> <button class="feed-author-name" type="button" data-profile="${esc(u.id)}">@${esc(u.username)}</button>${blueBadgeMarkup(u.cloudAccountId || u.id, esc)} ${feedFollowButton({author:u,me:api.me(),following,requests:api.db().requests,className:"followchip",esc})}</div>`;

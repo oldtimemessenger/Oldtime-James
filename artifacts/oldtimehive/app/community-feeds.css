@@ -102,3 +102,12 @@
 .cf-suggestion-error button { background:none; border:0; color:#1555d8; }
 @media(min-width:800px) { .cf-screen .stories-feed-scroll { max-width:760px; margin:auto; } .cf-dialog-body { padding:20px 24px; } }
 @media(max-width:480px) { .cf-feed-tabs { gap:12px; padding-inline:12px; } .cf-feed-tabs button { font-size:13px; } }
+
+
+/* Shared sizing only: keep every existing Community color exactly as designed. */
+.cf-dialog {
+  border-radius: var(--ot-radius-xl, 20px);
+}
+.cf-primary {
+  border-radius: var(--ot-radius-pill, 24px);
+}
