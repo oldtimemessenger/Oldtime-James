@@ -285,3 +285,16 @@
     height:3px;
   }
 }
+
+
+/* Keep Story changes feeling immediate without imposing a long transition. */
+#storyview.storyview .story-stage {
+  animation: story-stage-arrive 160ms cubic-bezier(.2,.72,.25,1) both;
+}
+@keyframes story-stage-arrive {
+  from { opacity:.82; transform:scale(1.012); }
+  to { opacity:1; transform:scale(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+  #storyview.storyview .story-stage { animation:none; }
+}
