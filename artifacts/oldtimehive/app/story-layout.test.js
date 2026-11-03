@@ -139,6 +139,14 @@ test("Stories use a centered immersive stage on desktop and preserve full-bleed 
 });
 
 test("Story progress is segmented by item and announces the current position", () => {
+  const redesign = readFileSync(new URL("./story-immersive-redesign.css", import.meta.url), "utf8");
+  assert.match(js, /class="progress story-progress" role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
+  assert.match(js, /class="progress-segment\$\{index < i \? " is-complete" : ""\}\$\{index === i \? " is-active" : ""\} story-progress-segment" aria-hidden="true"/);
+  assert.match(js, /index === i \? ' id="bar"'/);
+  assert.match(js, /const progressBar = \$\("#bar"\)/);
+  assert.match(redesign, /\.story-progress\s*\{[^}]*display:flex/);
+  assert.match(redesign, /\.story-progress-segment\.is-complete > b\s*\{[^}]*width:100%/);
+  assert.match(redesign, /\.story-progress-segment\.is-active > b/);
   assert.match(js, /role="group" aria-label="Story \$\{i \+ 1\} of \$\{list\.length\}"/);
   assert.match(js, /progress-segment\$\{index < i \? " is-complete" : ""\}/);
   const visual = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
