@@ -1063,3 +1063,292 @@
 @media (prefers-reduced-motion: reduce) {
   .search-screen .xe-card .xe-open img { transition: none; }
 }
+
+
+/* Search's upper video cards reuse the Places post treatment.
+   Scope is intentionally limited to Search's Explore video tiles. */
+.explore-feed-grid:has(.explore-video-card) {
+  align-items: start;
+  column-gap: 6px;
+  row-gap: 16px;
+}
+.explore-video-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+}
+.explore-video-main {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.explore-video-card .places-post-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: .78;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--places-soft, #f1f2f4);
+}
+.explore-video-card .explore-feed-video,
+.explore-video-card .explore-feed-image,
+.explore-video-card .creative-media,
+.explore-video-card .creative-project-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.explore-video-card .places-post-type {
+  top: 7px;
+  right: 7px;
+  bottom: auto;
+  width: 23px;
+  height: 23px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  background: rgba(10,10,12,.72);
+}
+.explore-video-card .places-post-type svg {
+  width: 12px;
+  height: 12px;
+  fill: #fff;
+}
+.explore-video-card .places-post-detail {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 7px 7px 0;
+}
+.explore-video-card .places-post-caption {
+  display: -webkit-box;
+  max-height: 2.7em;
+  margin: 0;
+  overflow: hidden;
+  color: var(--places-ink, #202126);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.explore-video-card .places-post-byline {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+.explore-video-card .places-post-author {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--places-muted, #777d85);
+  font-size: 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.explore-video-card .places-post-author img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--places-line, #e6e8eb);
+  border-radius: 50%;
+  background: var(--places-soft, #f1f2f4);
+  object-fit: cover;
+}
+.explore-video-card .places-post-author span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.explore-video-card .places-post-stats {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  color: var(--places-muted, #777d85);
+  font-size: 10px;
+}
+.explore-video-card .places-post-stats span {
+  color: #777d85;
+  font-size: 15px;
+  line-height: 1;
+}
+.explore-video-main:active .places-post-media {
+  transform: scale(.99);
+}
+
+
+/* The horizontal video rail at the top of Search uses the same clean
+   media + caption + creator treatment as Places, while keeping its swipe rail. */
+.search-screen .discovery-video-rail {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid #eff0f2;
+  background: var(--bg, #fff);
+}
+.search-screen .discovery-video-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 0 13px 4px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 13px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.search-screen .discovery-video-track::-webkit-scrollbar { display: none; }
+.search-screen .discovery-video-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 min(42vw, 158px);
+  width: min(42vw, 158px);
+  min-width: 0;
+  max-width: 158px;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text, #17191d);
+  text-align: left;
+  scroll-snap-align: start;
+}
+.search-screen .discovery-video-open {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.search-screen .discovery-video-card .places-post-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: .78;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--places-soft, #f0f1f3);
+}
+.search-screen .discovery-video-card .discovery-video-poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.search-screen .discovery-video-open:active .discovery-video-poster {
+  transform: scale(.985);
+  opacity: .9;
+}
+.search-screen .discovery-video-card .places-post-type {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  bottom: auto;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  background: rgba(10,10,12,.72);
+  color: #fff;
+}
+.search-screen .discovery-video-card .places-post-type svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.search-screen .discovery-video-card .places-post-detail {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 7px 5px 0;
+}
+.search-screen .discovery-video-card .places-post-caption {
+  display: -webkit-box;
+  max-height: 2.7em;
+  margin: 0;
+  overflow: hidden;
+  color: var(--places-ink, #202126);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.search-screen .discovery-video-card .places-post-byline {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+}
+.search-screen .discovery-video-card .places-post-author {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--places-muted, #777d85);
+  font-size: 9px;
+  text-align: left;
+}
+.search-screen .discovery-video-card .places-post-author img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 1px solid var(--places-line, #e6e8eb);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.search-screen .discovery-video-card .places-post-author span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-screen .discovery-video-card .places-post-stats {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  color: var(--places-muted, #777d85);
+  font-size: 9px;
+}
+.search-screen .discovery-video-card .places-post-stats span {
+  color: #777d85;
+  font-size: 13px;
+  line-height: 1;
+}
+.search-screen .discovery-video-open:focus-visible,
+.search-screen .discovery-video-card .places-post-author:focus-visible {
+  outline: 2px solid var(--color-primary, #1456d9);
+  outline-offset: 2px;
+}

@@ -7410,6 +7410,31 @@ function discoveryFeedTile(post) {
     : isVideo
       ? `<video class="explore-feed-video" ${localAttrs}${poster ? ` poster="${esc(renderMediaUrl(poster))}"` : ""} muted playsinline preload="metadata"></video>`
       : `<img class="explore-feed-image" ${localAttrs} alt="" loading="lazy" />`;
+  const videoTile = isVideo && !post.creativeProject;
+  if (videoTile) {
+    const author = post.author && typeof post.author === "object" ? post.author : {};
+    const authorId = String(author.id || post.authorId || "");
+    const authorName = String(author.displayName || author.name || author.username || "Oldtime member");
+    const avatar = author.avatar ? profileMediaSource(author.avatar) : "";
+    const likes = Number(post.likeCount ?? post.likes?.length ?? 0);
+    return `<article class="explore-video-card places-post">
+      <button type="button" class="places-post-main explore-video-main" data-discovery-feed-post="${esc(post.id)}" aria-label="${esc(`${label}, video`)}">
+        <span class="places-post-media">
+          ${mediaMarkup}
+          <span class="places-post-type" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>
+        </span>
+      </button>
+      <div class="places-post-detail">
+        ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+        <div class="places-post-byline">
+          ${authorId
+            ? `<button type="button" class="places-post-author" data-profile="${esc(authorId)}">${avatar ? `<img ${avatar} alt="" loading="lazy" decoding="async">` : ""}<span>${esc(authorName)}</span></button>`
+            : `<span class="places-post-author">${avatar ? `<img ${avatar} alt="" loading="lazy" decoding="async">` : ""}<span>${esc(authorName)}</span></span>`}
+          <span class="places-post-stats" aria-label="${discoveryCompactNumber(likes)} likes"><span aria-hidden="true">♡</span> ${discoveryCompactNumber(likes)}</span>
+        </div>
+      </div>
+    </article>`;
+  }
   return `<button type="button" class="explore-feed-tile" data-discovery-feed-post="${esc(post.id)}" aria-label="${esc(`${label}${isVideo ? ", video" : ""}`)}">
     ${mediaMarkup}
     ${isVideo ? `<span class="explore-feed-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>` : ""}
@@ -7571,7 +7596,7 @@ function search() {
         : `data-discovery-home-topic="${esc(topic.id)}"`;
       return `<button type="button" class="discovery-category ${selected ? "on" : ""}" role="tab" aria-selected="${selected}" ${action}>${esc(topic.label)}</button>`;
     }).join("")}</nav>
-      <button type="button" class="discovery-filter-button" id="discover-menu-toggle" aria-label="Discover filters and settings" aria-haspopup="menu" aria-expanded="false">
+      <button type="button" class="discovery-filter-button" id="discover-menu-toggle" aria-label="Discover filters and settings" aria-haspopup="menu" aria-controls="discover-browse-menu" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.5"/><circle cx="9" cy="17" r="2.5"/></svg>
       </button>
       <div class="discovery-browse-menu" id="discover-browse-menu" role="menu" aria-label="Discover options" hidden>
@@ -7615,19 +7640,39 @@ function search() {
   const discoverMenuToggle = $("#discover-menu-toggle");
   const discoverMenu = $("#discover-browse-menu");
   if (discoverMenuToggle && discoverMenu) {
-    discoverMenuToggle.onclick = () => {
-      discoverMenu.hidden = !discoverMenu.hidden;
-      discoverMenuToggle.setAttribute("aria-expanded", String(!discoverMenu.hidden));
+    const closeDiscoverMenu = ({ restoreFocus = false } = {}) => {
+      discoverMenu.hidden = true;
+      discoverMenuToggle.setAttribute("aria-expanded", "false");
+      if (restoreFocus) discoverMenuToggle.focus();
     };
-    app.querySelector(".search-screen").addEventListener("click", event => {
-      if (!event.target.closest(".discovery-home-topic-tabs")) {
-        discoverMenu.hidden = true;
-        discoverMenuToggle.setAttribute("aria-expanded", "false");
+    discoverMenuToggle.onclick = () => {
+      const opening = discoverMenu.hidden;
+      discoverMenu.hidden = !opening;
+      discoverMenuToggle.setAttribute("aria-expanded", String(opening));
+      if (opening) discoverMenu.querySelector("button:not(:disabled)")?.focus();
+    };
+    const searchScreen = app.querySelector(".search-screen");
+    searchScreen.addEventListener("click", event => {
+      if (!event.target.closest(".discovery-home-topic-tabs")) closeDiscoverMenu();
+    });
+    searchScreen.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !discoverMenu.hidden) {
+        event.preventDefault();
+        closeDiscoverMenu({ restoreFocus: true });
+        return;
+      }
+      if (!discoverMenu.hidden && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+        const items = [...discoverMenu.querySelectorAll("button:not(:disabled)")];
+        if (!items.length) return;
+        const current = items.indexOf(document.activeElement);
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        const next = current < 0 ? (step > 0 ? 0 : items.length - 1) : (current + step + items.length) % items.length;
+        event.preventDefault();
+        items[next].focus();
       }
     });
     app.querySelectorAll("[data-xe-tune]").forEach(button => button.addEventListener("click", () => {
-      discoverMenu.hidden = true;
-      discoverMenuToggle.setAttribute("aria-expanded", "false");
+      closeDiscoverMenu();
     }));
   }
   const discoveryBack = $("#back");
