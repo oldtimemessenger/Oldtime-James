@@ -4103,8 +4103,25 @@ function openStory(authorId, storyId = null, { source = "direct" } = {}) {
     if (!s) { if (groupIndex < groups.length - 1) changeAuthor(1); else close(); return; }
     if (!isStoryActive(s) || !api.canSeeStory(s)) { i++; show(); return; }
     const nextStory = list[i + 1];
+    // Warm only the immediately following image when it is already in the
+    // authorized Story list. Do not broaden access or eagerly fetch a sequence.
+    const preloadStoryImage = story => {
+      if (!story || !isStoryActive(story) || !api.canSeeStory(story)) return;
+      const source = resolveStoryMedia(story, id => api.post(id));
+      if (!source || story.kind === "video" || String(source).startsWith("data:video")) return;
+      const image = new Image();
+      image.decoding = "async";
+      image.src = source;
+      image.decode?.().catch(() => {});
+    };
+    preloadStoryImage(nextStory);
     if (nextStory?.cloud && nextStory.hasMedia && !nextStory.media) {
-      void api.loadCloudStoryMedia(nextStory.id).catch(() => {});
+      void api.loadCloudStoryMedia(nextStory.id).then(url => {
+        if (!url || !view.classList.contains("on") || list[i + 1]?.id !== nextStory.id
+          || !isStoryActive(nextStory) || !api.canSeeStory(nextStory)) return;
+        nextStory.media = url;
+        preloadStoryImage(nextStory);
+      }).catch(() => {});
     }
     const needsCloudMedia = Boolean(s.cloud && s.hasMedia && !s.media);
     const cloudMediaRequest = needsCloudMedia ? api.loadCloudStoryMedia(s.id) : null;
