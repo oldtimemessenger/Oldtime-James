@@ -6886,6 +6886,7 @@ function openCommunityNoteComposer() {
         if (publishedIds[index]) continue;
         status.textContent = texts.length>1 ? `Publishing post ${index+1} of ${texts.length}…` : "Publishing…";
         partKeys[index] ||= crypto.randomUUID();
+        partInputs()[index].readOnly = true;
         const published = await api.createCloudPost(texts[index],{destination:"community",mediaIds:index===0?mediaIds:[]},{idempotencyKey:partKeys[index]});
         publishedIds[index] = published.id; partInputs()[index].readOnly = true;
         if (api.me()?.id !== ownerId) { close(); return; }
