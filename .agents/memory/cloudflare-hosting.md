@@ -68,3 +68,9 @@ Current Cloudflare records show both `heyoldtime.com` and `www.heyoldtime.com` a
 **Why:** The live Cloudflare API now reports both hostnames active and mapped to Pages, superseding the older root-domain routing note.
 
 **How to apply:** A production Pages deployment updates the app served on both current hostnames. Treat that separately from DNS changes, preserve both records, and obtain explicit approval before modifying routing or certificates.
+
+For a direct-upload Pages release, run Wrangler from the Oldtime web artifact so it loads that artifact's Pages configuration and discovers its `functions/` directory. Deploying from the API artifact can upload static files without the `/api` Worker proxy.
+
+**Why:** A release launched from the API artifact ignored the Pages config, set `uses_functions` to false, and returned static HTML for `/api/healthz`.
+
+**How to apply:** Deploy via `pnpm --filter @workspace/oldtimehive exec wrangler pages deploy ./dist/public ...`; verify the production deployment reports `uses_functions: true` and `/api/healthz` returns JSON.
