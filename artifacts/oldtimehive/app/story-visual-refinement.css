@@ -372,3 +372,33 @@
   #storyview.storyview .story-heart,
   #storyview.storyview .story-share { transition:none!important; }
 }
+
+
+/* Segmented progress makes the current position in an author's Story set clear. */
+#storyview.storyview > .progress {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  height:3px;
+  overflow:visible;
+  background:transparent;
+  box-shadow:none;
+}
+#storyview.storyview .progress-segment {
+  display:block;
+  flex:1 1 0;
+  min-width:0;
+  height:3px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.34);
+}
+#storyview.storyview .progress-segment b {
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,.32);
+}
+#storyview.storyview .progress-segment.is-complete b { width:100%; }
