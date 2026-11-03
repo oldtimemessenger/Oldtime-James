@@ -12,7 +12,7 @@ test("sticker metadata shape, defaults and limits", () => {
   assert.ok(isUuid(q.id));
   assert.equal(q.prompt, "Ask me anything");
   assert.doesNotMatch(JSON.stringify(DEFAULT_PROMPTS), /Ask OldTime/i);
-  assert.equal(STICKER_CTA, "Add your own");
+  assert.equal(STICKER_CTA, "Add Yours");
   assert.deepEqual([q.x, q.y, q.width, q.rotation], [.5, .55, .7, 0]);
   updateStickerText(q, { title: "t".repeat(90), prompt: "p".repeat(200) });
   assert.equal(q.title.length, 60); assert.equal(q.prompt.length, 140);
