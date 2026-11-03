@@ -12,9 +12,9 @@ export const STICKER_ART = {
 };
 // Text holes as fractions of the art box: [x0, y0, x1, y1].
 export const ART_HOLES = {
-  questions: { main: [.177, .343, .868, .502], sub: [.222, .502, .856, .600] },
-  trendsetters: { main: [.322, .601, .730, .712], join: [.293, .778, .728, .892] },
-  "hey-world": { main: [.263, .591, .789, .682], join: [.286, .728, .719, .846] },
+  questions: { main: [.08, .20, .92, .62], sub: [.12, .72, .88, .91] },
+  trendsetters: { main: [.08, .25, .92, .65], join: [.20, .72, .80, .91] },
+  "hey-world": { main: [.08, .25, .92, .65], join: [.20, .72, .80, .91] },
 };
 const PALETTE = { white: "#fbfaff", ink: "#16141c", purple: "#6a3fd8", purpleSoft: "#efe9fd", muted: "#5d5870" };
 const art = new Map(); // kind -> { img, ready, failed }
@@ -154,21 +154,50 @@ export function stickerWording(s) {
   }
   return { main: joined || STICKER_LABELS[s.kind], join: STICKER_JOIN };
 }
-function drawArt(ctx, s, w, h) {
-  const box = artBox(s.kind, w, h), entry = art.get(s.kind), words = stickerWording(s), holes = ART_HOLES[s.kind];
-  if (entry?.ready && entry.img.naturalWidth) ctx.drawImage(entry.img, box.left, box.top, box.iw, box.ih);
-  else { // art still loading: name only, inside the same box (no card)
-    holeText(ctx, [0, .3, 1, .6], box, STICKER_LABELS[s.kind], "#ffffff", 800, 60);
-    return;
-  }
-  if (s.kind === "questions") {
-    holeText(ctx, holes.main, box, words.main, "#16141c", 800, box.iw * .10, -5);
-    holeText(ctx, holes.sub, box, words.sub, "#6b6878", 600, box.iw * .063, -5);
+function drawStickerCard(ctx, s, w, h) {
+  const left = -w / 2, top = -h / 2;
+  const isQuestion = s.kind === "questions";
+  const radius = Math.min(30, h * .11, w * .08);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.22)"; ctx.shadowBlur = Math.max(8, h * .035); ctx.shadowOffsetY = Math.max(3, h * .012);
+  roundRect(ctx, left, top, w, h, radius); ctx.fillStyle = "#ffffff"; ctx.fill();
+  ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.save(); roundRect(ctx, left, top, w, h, radius); ctx.clip();
+  if (isQuestion) {
+    const headerH = h * .34;
+    ctx.fillStyle = "#1456d9"; ctx.fillRect(left, top, w, headerH);
+    ctx.fillStyle = "rgba(255,255,255,.78)"; ctx.font = `800 ${Math.max(10, h * .055)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(s.title || "QUESTIONS", 0, top + headerH * .27, w * .84);
+    const prompt = fitText(ctx, s.prompt || "Ask me anything", w * .82, 2, h * .105, Math.max(12, h * .055), 800);
+    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`; ctx.fillStyle = "#ffffff";
+    drawLines(ctx, prompt, 0, top + headerH * .48, "#ffffff", 1.12);
+    const fieldY = top + h * .70, fieldH = h * .19;
+    roundRect(ctx, left + w * .08, fieldY, w * .84, fieldH, fieldH * .34);
+    ctx.fillStyle = "#f1f3f7"; ctx.fill();
+    ctx.fillStyle = "#626b7a"; ctx.font = `600 ${Math.max(11, h * .065)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("Write a reply…", 0, fieldY + fieldH / 2, w * .76);
   } else {
-    const scale = box.iw / ART_SIZE[s.kind][0], tilt = s.kind === "hey-world" ? 4 : 0;
-    holeText(ctx, holes.main, box, words.main, s.kind === "trendsetters" ? "#f3f1fb" : "#16141c", 800, 46 * scale, tilt);
-    holeText(ctx, holes.join, box, words.join, s.kind === "trendsetters" ? "#16141c" : "#6a3fd8", 800, 54 * scale, tilt);
+    ctx.fillStyle = "#6b7280"; ctx.font = `800 ${Math.max(10, h * .052)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(s.title || "ADD YOURS", 0, top + h * .18, w * .84);
+    const prompt = fitText(ctx, s.prompt || "Share your take", w * .82, 2, h * .13, Math.max(12, h * .065), 800);
+    ctx.font = `800 ${prompt.size}px Manrope, system-ui, sans-serif`;
+    drawLines(ctx, prompt, 0, top + h * .34, "#17191c", 1.12);
+    const buttonY = top + h * .72, buttonH = h * .19;
+    roundRect(ctx, left + w * .20, buttonY, w * .60, buttonH, buttonH * .46);
+    ctx.fillStyle = "#1456d9"; ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.font = `800 ${Math.max(11, h * .067)}px Manrope, system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("+  Add Yours", 0, buttonY + buttonH / 2, w * .55);
   }
+  ctx.restore();
+  ctx.lineWidth = Math.max(1, h * .006); ctx.strokeStyle = "#e6e9ef";
+  roundRect(ctx, left, top, w, h, radius); ctx.stroke();
+  ctx.restore();
+}
+function drawArt(ctx, s, w, h) {
+  // Questions and Add Yours use clean, native-feeling Story cards. The original
+  // Questions artwork remains available only for the expanded answer card.
+  drawStickerCard(ctx, s, w, h);
 }
 
 /**
