@@ -7410,6 +7410,31 @@ function discoveryFeedTile(post) {
     : isVideo
       ? `<video class="explore-feed-video" ${localAttrs}${poster ? ` poster="${esc(renderMediaUrl(poster))}"` : ""} muted playsinline preload="metadata"></video>`
       : `<img class="explore-feed-image" ${localAttrs} alt="" loading="lazy" />`;
+  const videoTile = isVideo && !post.creativeProject;
+  if (videoTile) {
+    const author = post.author && typeof post.author === "object" ? post.author : {};
+    const authorId = String(author.id || post.authorId || "");
+    const authorName = String(author.displayName || author.name || author.username || "Oldtime member");
+    const avatar = author.avatar ? profileMediaSource(author.avatar) : "";
+    const likes = Number(post.likeCount ?? post.likes?.length ?? 0);
+    return `<article class="explore-video-card places-post">
+      <button type="button" class="places-post-main explore-video-main" data-discovery-feed-post="${esc(post.id)}" aria-label="${esc(`${label}, video`)}">
+        <span class="places-post-media">
+          ${mediaMarkup}
+          <span class="places-post-type" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>
+        </span>
+      </button>
+      <div class="places-post-detail">
+        ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+        <div class="places-post-byline">
+          ${authorId
+            ? `<button type="button" class="places-post-author" data-profile="${esc(authorId)}">${avatar ? `<img ${avatar} alt="" loading="lazy" decoding="async">` : ""}<span>${esc(authorName)}</span></button>`
+            : `<span class="places-post-author">${avatar ? `<img ${avatar} alt="" loading="lazy" decoding="async">` : ""}<span>${esc(authorName)}</span></span>`}
+          <span class="places-post-stats" aria-label="${discoveryCompactNumber(likes)} likes"><span aria-hidden="true">♡</span> ${discoveryCompactNumber(likes)}</span>
+        </div>
+      </div>
+    </article>`;
+  }
   return `<button type="button" class="explore-feed-tile" data-discovery-feed-post="${esc(post.id)}" aria-label="${esc(`${label}${isVideo ? ", video" : ""}`)}">
     ${mediaMarkup}
     ${isVideo ? `<span class="explore-feed-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>` : ""}
