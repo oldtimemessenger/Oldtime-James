@@ -98,6 +98,15 @@ test("Stories reuse the Home feed action icon scale and shared menu rhythm", () 
   assert.match(js, /import "\.\/ecosystem-consistency\.css"/);
   assert.match(shared, /\.story-heart \.navic,[\s\S]*?\.story-reaction-open \.navic\s*\{[^}]*width:24px;[^}]*height:24px/);
   assert.match(shared, /\.story-more-item\s*\{[^}]*min-height:44px/);
-  assert.match(shared, /\.post-actions-menu-items button\s*\{[^}]*min-height:44px/);
+  assert.match(shared, /\.post-actions-menu-items button,[\s\S]*?\{[^}]*min-height:44px/);
   assert.match(shared, /prefers-reduced-motion:reduce/);
+});
+
+test("Story playback progress follows video time and photo duration is five seconds", () => {
+  assert.match(js, /const progressBar = \$\("#bar"\)/);
+  assert.match(js, /video\.currentTime \/ video\.duration/);
+  assert.match(js, /if \(video\.ended\) advanceStory\(\)/);
+  assert.match(js, /mediaPending \|\| view\.dataset\.stickerOpen/);
+  assert.match(js, /: 5000/);
+  assert.match(js, /document\.hidden/);
 });
