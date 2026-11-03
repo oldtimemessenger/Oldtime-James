@@ -153,6 +153,7 @@ test("Story viewer warms only the next authorized image and respects reduced mot
 
 test("app-wide action controls use a consistent menu and contextual icon language", () => {
   const icons = readFileSync(new URL("./icons.js", import.meta.url), "utf8");
+  const storyInteractions = readFileSync(new URL("./story-interactions.js", import.meta.url), "utf8");
   const menu = readFileSync(new URL("./post-actions-menu.js", import.meta.url), "utf8");
   const visual = readFileSync(new URL("./app-wide-visual-language.css", import.meta.url), "utf8");
   assert.match(js, /import "\.\/app-wide-visual-language\.css"/);
