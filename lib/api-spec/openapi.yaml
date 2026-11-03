@@ -4008,6 +4008,8 @@ components:
         storyId: { type: ["string", "null"] }
         commentId: { type: ["string", "null"] }
         questionId: { type: ["string", "null"], format: uuid, description: Private question reference visible only to the notification recipient }
+        conversationId: { type: string, description: Private conversation reference visible only to its members }
+        messageId: { type: string, description: Private message reference visible only to its conversation members }
         createdAt: { type: number }
         read: { type: boolean }
     NotificationFeed:

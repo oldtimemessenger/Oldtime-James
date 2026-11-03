@@ -52,6 +52,7 @@ export function loadAccountNotifications({ force = false, more = false } = {}) {
         id: note.id, user: api.me().id, actor: api.cloudAuthorId(note.actor),
         kind: note.kind, body: note.body, created: Number(note.createdAt),
         post: note.postId, story: note.storyId, comment: note.commentId, questionId: note.questionId ?? null,
+        conversationId: note.conversationId ?? null, messageId: note.messageId ?? null,
         read: note.read === true || Number(note.createdAt) <= readAt,
       }));
       items = more ? [...new Map([...items, ...rows].map(note => [note.id, note])).values()] : rows;

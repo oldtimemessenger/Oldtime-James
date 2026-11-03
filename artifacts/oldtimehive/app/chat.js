@@ -17,6 +17,7 @@ import { subscribeChatUpdates } from "./comms/signaling.js";
 import { openChatSettings } from "./chat-settings.js";
 import { buildConsolePeople, renderConsole, bindConsole } from "./chat-inbox-console.js";
 import { buildStoryRail, bindStoryConsole, storyThumb } from "./chat-story-console.js";
+import { bindMentionAutocomplete, renderMentionText } from "./mention-autocomplete.js";
 import "./chat-story-console.css";
 import "./chat-inbox-console.css";
 import "./chat-conversation-refinement.css";
@@ -26,6 +27,7 @@ let ui = { reply: null, screen: "thread", q: "", call: null, filter: "all" };
 let inboxSelection = { owner: null, filter: "all", folder: "all" };
 let pendingBottomChatId = null;
 let expiryTimer = null;
+let stopMentionAutocomplete = () => {};
 let stopChatSync = () => {}, typingTimer = null, lastTyping = 0;
 const stateSyncs = new Map();
 const stateTimers = new Map();
@@ -717,6 +719,8 @@ function bindRows(ctx) {
 function ctxEsc(s = "") { return String(s).replace(/&/g, "&" + "amp;").replace(/</g, "&" + "lt;").replace(/>/g, "&" + "gt;").replace(/"/g, "&" + "quot;"); }
 
 export function openThread(id, ctx) {
+  stopMentionAutocomplete();
+  stopMentionAutocomplete = () => {};
   const allowed = convo(id);
   if (!allowed?.members.includes(api.me()?.id) || (!allowed.legacyArchive && allowed.members.some(uid => api.blocked(api.me().id, uid)))) { ui.screen = "list"; ctx.setChat(null); ctx.toast("Chat unavailable"); return; }
   const previousMessages = ctx.$("#msgs");
@@ -819,6 +823,14 @@ export function openThread(id, ctx) {
       }
     };
   }
+  if (messageInput && !c.legacyArchive && api.authMode() === "cloud") {
+    stopMentionAutocomplete = bindMentionAutocomplete(messageInput, {
+      api: {
+        authMode: () => api.authMode(),
+        searchCloudMentionUsers: query => api.searchCloudChatMentionUsers(id, query),
+      },
+    });
+  }
   if (!c.legacyArchive) ctx.$("#msg").oninput = (e) => {
     resizeMessageInput();
     const value = e.target.value;
@@ -849,6 +861,14 @@ export function openThread(id, ctx) {
   ctx.app.querySelectorAll("[data-msg]").forEach(b => {
     b.onclick = () => onMessage(ctx, id, b.dataset.msg);
     b.onkeydown = e => { if (e.target === b && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onMessage(ctx, id, b.dataset.msg); } };
+  });
+  ctx.app.querySelectorAll("[data-mention-handle]").forEach(link => {
+    link.onclick = event => {
+      event.stopPropagation();
+      const handle = String(link.dataset.mentionHandle || "").toLowerCase();
+      const memberId = c.members.find(memberId => api.user(memberId)?.username?.toLowerCase() === handle);
+      if (memberId) ctx.openProfile?.(memberId);
+    };
   });
   ctx.app.querySelectorAll("[data-react-msg]").forEach(b => b.onclick = e => {
     e.stopPropagation();
@@ -943,7 +963,7 @@ function body(m, readOnly = false) {
   if (m.kind === "contact") return "Contact · " + ctxEsc(m.body || "");
   if (m.kind === "call") return ctxEsc(text || "Call");
   if (m.kind === "poll") return poll(m, readOnly);
-  const linked = ctxEsc(text).replace(/(https?:\/\/[^\s]+)/g, '<span class="sub">$1</span>');
+  const linked = renderMentionText(text, { tag: "span" }).replace(/(https?:\/\/[^\s]+)/g, '<span class="sub">$1</span>');
   return linked.replace(/\*([^*]+)\*/g, "<b>$1</b>").replace(/_([^_]+)_/g, "<i>$1</i>").replace(/~([^~]+)~/g, "<s>$1</s>");
 }
 function mediaSource(message, attribute = "src") {

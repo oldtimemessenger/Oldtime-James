@@ -1805,6 +1805,8 @@ export const GetNotificationsResponse = zod.object({
   "storyId": zod.string().nullable(),
   "commentId": zod.string().nullable(),
   "questionId": zod.uuid().nullish().describe('Private question reference visible only to the notification recipient'),
+  "conversationId": zod.string().optional(),
+  "messageId": zod.string().optional(),
   "createdAt": zod.number(),
   "read": zod.boolean()
 })),

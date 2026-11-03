@@ -8026,6 +8026,19 @@ function notes() {
    app.querySelectorAll("[data-note]").forEach(b => b.onclick = async () => {
      const n = accountNotifications().find(x => x.id === b.dataset.note);
     if (!n) return;
+     if (n.kind === "chat-mention" && n.conversationId && n.messageId) {
+       notificationsReturnStack.push(captureNavigationState());
+       chatId = n.conversationId;
+       profileId = null;
+       viewer = null;
+       tab = "chat";
+       render();
+       requestAnimationFrame(() => requestAnimationFrame(() => {
+         const message = [...document.querySelectorAll("[data-msg]")].find(item => item.dataset.msg === n.messageId);
+         message?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+       }));
+       return;
+     }
      if (n.kind === "story-question" && n.story) {
        const owner = api.cloudAccountId();
        const { openPrivateQuestionInbox } = await import("./private-question-inbox.js");

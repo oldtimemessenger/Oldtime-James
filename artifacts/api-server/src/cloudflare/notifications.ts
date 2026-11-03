@@ -15,7 +15,7 @@ export async function notificationsRequest(request:Request,db:Database,userId:st
   if(path!=="/notifications"||request.method!=="GET")throw new ApiError(405,"Method not allowed.");
   const value=new URL(request.url).searchParams.get("before"),before=value?Number(value):Date.now()+1;
   if(!Number.isSafeInteger(before)||before<=0)throw new ApiError(400,"Choose a valid notification page.");
-  type Activity={id:string;kind:string;body:string;postId:string|null;storyId:string|null;commentId:string|null;createdAt:number;actorId:string;username:string;displayName:string;avatar:string|null};
+  type Activity={id:string;kind:string;body:string;postId:string|null;storyId:string|null;commentId:string|null;createdAt:number;actorId:string;username:string;displayName:string;avatar:string|null;conversationId?:string|null;messageId?:string|null};
   // D1 has a much smaller compound-SELECT limit than PostgreSQL. Fetch bounded,
   // indexed sources in one batch, then merge them instead of one UNION tree.
   const sources=`
@@ -65,13 +65,28 @@ export async function notificationsRequest(request:Request,db:Database,userId:st
         WHERE (b.owner_id=${V} AND b.blocked_id=a.actor_id) OR (b.blocked_id=${V} AND b.owner_id=a.actor_id))
       ORDER BY a.at DESC,a.id DESC LIMIT 101`).bind(userId,...(source.includes("s.expires_at>?")?[Date.now()]:[]),Math.min(before,Date.now()+1));
   });
-  const results=await db.batch<Activity>(statements);
-  const list=results.flatMap(r=>r.results??[]).sort((a,b)=>b.createdAt-a.createdAt||b.id.localeCompare(a.id)).slice(0,101);
+  const [results,chatMentions]=await Promise.all([
+    db.batch<Activity>(statements),
+    db.prepare(`${viewerCte} SELECT 'chat-mention:'||m.id AS id,'chat-mention' AS kind,
+      'mentioned you in a chat' AS body,NULL AS postId,NULL AS storyId,NULL AS commentId,
+      m.created_at AS createdAt,u.id AS actorId,u.username,u.display_name AS displayName,
+      json_extract(s.data,'$.profile.avatar') AS avatar,m.conversation_id AS conversationId,m.message_id AS messageId
+      FROM chat_mentions m JOIN chat_members cm ON cm.conversation_id=m.conversation_id AND cm.user_id=${V}
+      JOIN chat_messages msg ON msg.id=m.message_id AND msg.conversation_id=m.conversation_id
+      JOIN users u ON u.id=m.actor_id LEFT JOIN account_state s ON s.user_id=u.id
+      WHERE m.recipient_id=${V} AND m.created_at<? AND NOT EXISTS(SELECT 1 FROM account_blocks b
+        WHERE (b.owner_id=${V} AND b.blocked_id=m.actor_id) OR (b.blocked_id=${V} AND b.owner_id=m.actor_id))
+      ORDER BY m.created_at DESC,m.id DESC LIMIT 101`).bind(userId,userId,Math.min(before,Date.now()+1),userId,userId)
+      .all<Activity>(),
+  ]);
+  const list=[...results.flatMap(r=>r.results??[]),...(chatMentions.results??[])]
+    .sort((a,b)=>b.createdAt-a.createdAt||b.id.localeCompare(a.id)).slice(0,101);
   const cursor=await db.prepare("SELECT json_extract(data,'$.notificationReadAt') AS readAt FROM account_state WHERE user_id=?").bind(userId).first<{readAt:number}>();
   const readAt=Number(cursor?.readAt)||0,page=list.slice(0,100);
   return json(GetNotificationsResponse.parse({readAt,nextBefore:list.length>100?page.at(-1)!.createdAt:null,
     notifications:page.map(r=>({id:r.id,kind:r.kind,body:r.body,postId:r.postId,storyId:r.storyId,
       commentId:["story-question","story-answer"].includes(r.kind)?null:r.commentId,
       ...(["story-question","story-answer"].includes(r.kind)?{questionId:r.commentId}:{}),
+      ...(r.conversationId?{conversationId:r.conversationId,messageId:r.messageId}:{}),
       createdAt:r.createdAt,read:r.createdAt<=readAt,actor:{id:r.actorId,username:r.username,displayName:r.displayName,avatar:r.avatar??null}}))}));
 }
