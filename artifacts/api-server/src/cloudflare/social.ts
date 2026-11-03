@@ -463,6 +463,57 @@ async function searchUsers(request: Request, db: Database, userId: string, menti
   return json({users:accounts.map(u=>({id:u.id,username:u.username,displayName:u.display_name,joinedAt:u.created_at,...publicDetails(u.data)}))});
 }
 
+async function communityPostThread(request: Request, db: Database, userId: string, postId: string) {
+  const selected = await getPost(db,userId,postId);
+  if (!selected || selected.archived_at) throw new ApiError(404,"Post not found.");
+  const selectedThread = await db.prepare("SELECT thread_id FROM posts WHERE id=?").bind(postId).first<{thread_id:string|null}>();
+  const rootId = selectedThread?.thread_id || postId;
+  const root = await getPost(db,userId,rootId);
+  if (!root || root.archived_at || root.author_id !== selected.author_id) throw new ApiError(404,"Conversation not found.");
+  if (!["community","both"].includes(root.destination)) throw new ApiError(404,"Community conversation not found.");
+  if (request.method === "GET") {
+    const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
+    const posts = records.length ? await hydratePosts(db,userId,records) : [await hydratePosts(db,userId,[root])[0]];
+    return json({threadId:rootId,posts,position:Math.max(0,records.findIndex(item=>item.id===postId))});
+  }
+  if (request.method !== "POST") throw new ApiError(405,"Method not allowed.");
+  if (root.author_id !== userId) throw new ApiError(403,"Only the author can add posts to this conversation.");
+  const parsed = z.object({postIds:z.array(z.string().uuid()).min(1).max(9)}).strict().safeParse(await body(request));
+  if (!parsed.success) throw new ApiError(400,"Add between 1 and 9 posts to your conversation.");
+  const childIds = [...new Set(parsed.data.postIds)];
+  if (childIds.length !== parsed.data.postIds.length || childIds.includes(rootId)) {
+    throw new ApiError(400,"Each conversation post must be unique.");
+  }
+  const existing = await rows<{id:string;thread_position:number|null}>(db,
+    "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
+  const already = new Map(existing.map(item=>[item.id,item.thread_position]));
+  const pending = childIds.filter(id=>!already.has(id));
+  if (existing.length + pending.length + 1 > 10) throw new ApiError(400,"A conversation can contain up to 10 posts.");
+  const children = await Promise.all(pending.map(id=>getPost(db,userId,id)));
+  if (children.some(post=>!post || post.archived_at || post.author_id!==userId ||
+      post.visibility!==root.visibility || post.destination!==root.destination)) {
+    throw new ApiError(400,"Every part must be your own Community post with the same audience.");
+  }
+  const otherThreads = await rows<{id:string;thread_id:string|null}>(db,
+    `SELECT id,thread_id FROM posts WHERE id IN (${pending.map(()=>"?").join(",")})`,...pending);
+  if (otherThreads.some(item=>item.thread_id && item.thread_id!==rootId)) {
+    throw new ApiError(409,"A post can belong to only one conversation.");
+  }
+  const statements = [
+    db.prepare("UPDATE posts SET thread_id=?,thread_position=0 WHERE id=? AND thread_id IS NULL").bind(rootId,rootId),
+    ...pending.map((id,index)=>db.prepare("UPDATE posts SET thread_id=?,thread_position=? WHERE id=? AND author_id=? AND thread_id IS NULL")
+      .bind(rootId,existing.length+index+1,id,userId)),
+  ];
+  if (statements.length) await db.batch(statements);
+  const verified = await rows<{id:string;thread_position:number|null}>(db,
+    "SELECT id,thread_position FROM posts WHERE thread_id=? ORDER BY thread_position",rootId);
+  if (verified.length !== existing.length + pending.length + 1) {
+    throw new ApiError(409,"The conversation changed while it was being saved. Refresh and try again.");
+  }
+  const records = await loadPostRows(db,userId,"p.thread_id=?",[rootId],11);
+  return json({threadId:rootId,posts:await hydratePosts(db,userId,records),position:0});
+}
+
 export async function socialRequest(
   request: Request,
   db: Database,
