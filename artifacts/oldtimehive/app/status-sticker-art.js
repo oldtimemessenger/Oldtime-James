@@ -1,16 +1,15 @@
 // Draws Status stickers into a canvas (preview, image export and every video export frame).
-// All sticker families preserve the uploaded original art, including expanded answers.
+// Questions and Add Yours are drawn as native Story cards; original Questions art remains for answer cards.
 import { STICKER_LABELS, STICKER_JOIN, ART_SIZE } from "./status-sticker-editor.js";
 
 const assetUrl = make => { try { return make(); } catch { return ""; } };
-// Original uploaded artwork, edge-connected black removed (IM7 alpha floodfill), baked brand words masked
-// with the art's own sampled gradient. Editable wording is drawn back into those holes below.
+// Original Questions artwork is retained for the expanded answer composition only.
 export const STICKER_ART = {
   questions: assetUrl(() => new URL("./assets/status-stickers/questions.png", import.meta.url).href),
   trendsetters: assetUrl(() => new URL("./assets/status-stickers/trendsetters.png", import.meta.url).href),
   "hey-world": assetUrl(() => new URL("./assets/status-stickers/hey-world.png", import.meta.url).href),
 };
-// Text holes as fractions of the art box: [x0, y0, x1, y1].
+// Add Yours action hit areas as fractions of the art box: [x0, y0, x1, y1].
 export const ART_HOLES = {
   questions: { main: [.08, .20, .92, .62], sub: [.12, .72, .88, .91] },
   trendsetters: { main: [.08, .25, .92, .65], join: [.20, .72, .80, .91] },
