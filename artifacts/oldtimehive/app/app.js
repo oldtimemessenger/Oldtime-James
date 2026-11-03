@@ -5142,7 +5142,7 @@ function profile(id) {
    shell(`<section class="screen on profile-screen"><div class="scroll profile-page">
     <div class="profile-hero">
        <div class="profile-cover"><img class="profile-cover-background" ${profileMediaSource(coverImage)} alt="" aria-hidden="true" /><img class="profile-cover-landscape" ${profileMediaSource(coverImage)} alt="" /></div>
-       <div class="profile-topbar"><button id="back" aria-label="Back">←</button><div class="row profile-topbar-actions"><button id="sharep" class="profile-share" aria-label="Share profile" title="Share profile">${ic.share}</button><button type="button" class="icon profile-more" id="profile-actions-open" aria-label="${mine ? "Open profile settings and actions" : "More profile actions"}" title="${mine ? "Menu" : "Profile actions"}">${mine ? ic.menu : ic.tune}</button></div></div>
+       <div class="profile-topbar"><button id="back" aria-label="Back">←</button><div class="row profile-topbar-actions"><button id="sharep" class="profile-share" aria-label="Share profile" title="Share profile">${ic.share}</button><button type="button" class="icon profile-more" id="profile-actions-open" aria-label="${mine ? "Open profile settings and actions" : "More profile actions"}" title="${mine ? "Settings" : "Profile actions"}">${mine ? ic.menu : ic.tune}</button></div></div>
       <div class="profile-intro">
         <div class="profile-identity">
           <div class="profile-avatar-wrap">
