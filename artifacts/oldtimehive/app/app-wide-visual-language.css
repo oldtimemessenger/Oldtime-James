@@ -143,3 +143,28 @@
 #app .phone :is(.card,.community-post-card,.notification-row,.chat-row,.search-result,.settings-entry) {
   transition:background-color 140ms ease,border-color 140ms ease;
 }
+
+/* Explore recommendation controls share the same contextual action affordance. */
+#app .xe-cap-more {
+  width:40px;
+  min-width:40px;
+  height:40px;
+  margin:-6px -4px -6px 0;
+  border:1px solid transparent;
+  border-radius:50%;
+  background:transparent;
+  color:var(--ot-color-muted,#687181);
+  transition:background-color 140ms ease,color 140ms ease,transform 140ms ease;
+}
+#app .xe-cap-more .navic {
+  width:20px;
+  height:20px;
+  transform:none;
+  stroke-width:1.85;
+}
+#app .xe-cap-more:hover,
+#app .xe-cap-more:active {
+  background:var(--ot-color-surface-subtle,#f2f4f7);
+  color:var(--ot-color-text,#17191c);
+}
+#app .xe-cap-more:active { transform:scale(.95); }
