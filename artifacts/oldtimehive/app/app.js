@@ -112,8 +112,8 @@ import { mountEmailVerificationReminder, openEmailVerificationSheet, emailManual
 import { openProfileListSheet } from "./profile-list-sheet.js";
 import "./email-verification.css";
 import "./media-style-consistency.css";
-import "./unboxed-interface.css";
 import "./ui-foundations.css";
+import "./unboxed-interface.css";
 
 const $ = (s, r = document) => r.querySelector(s);
 const app = $("#app");
@@ -3675,7 +3675,7 @@ function comments(id, focusedCommentId = "") {
   let actionLayer = null;
   let mentionCleanup = () => {};
   const expandedReplies = new Set();
-  const totalCount = comments => comments.reduce((total, comment) => total + 1 + (comment.replies || []).length, 0);
+  const totalCount = comments => comments.reduce((total, comment) => total + 1 + totalCount(comment.replies || []), 0);
   const close = () => {
     actionLayer?.remove();
     actionLayer = null;
@@ -3817,21 +3817,25 @@ function comments(id, focusedCommentId = "") {
     list.innerHTML = visibleComments.map(comment => {
       const author = api.user(comment.author) || { username: "member", avatar: "" };
       const replies = comment.replies || [];
+      const replyCount = totalCount(replies);
       const expanded = expandedReplies.has(comment.id);
       const liked = (comment.likes || []).includes(api.me().id);
       const disliked = (comment.dislikes || []).includes(api.me().id);
       const commentDate = comment.created ? new Date(comment.created) : null;
       const dateLabel = commentDate ? `${commentDate.getMonth() + 1}-${String(commentDate.getDate()).padStart(2, "0")}` : ago(comment.created);
-      const replyMarkup = replies.map(reply => {
+      const renderReply = reply => {
         const replyAuthor = api.user(reply.author) || { username: "member", avatar: "" };
+        const nested = reply.replies || [];
         return `<div class="comment-reply ${reply.id === enteringCommentId ? "comment-item-entering" : ""}" id="reply-${esc(reply.id)}">
           <img ${profileMediaSource(replyAuthor.avatar)} alt="" class="comment-reply-avatar" />
-          <div class="comment-reply-content"><b>@${esc(replyAuthor.username)}</b><span>${esc(reply.body)}</span>
+          <div class="comment-reply-content"><b>@${esc(replyAuthor.username)}</b><span>${renderMentionText(reply.body)}</span>
             ${reply.attachment?.url ? `<img class="comment-attachment" src="${esc(reply.attachment.url)}" alt="Photo attached to reply" loading="lazy" />` : ""}
             <small>${ago(reply.created)} <button type="button" data-reply="${esc(reply.id)}">Reply</button> <button type="button" data-comment-share="${esc(reply.id)}" aria-label="Share reply">${ic.share}</button> <button type="button" data-cmore="${esc(reply.id)}" aria-label="Reply actions">${ic.more}</button> ${reply.author === api.me().id ? `<button type="button" data-rdel="${esc(comment.id)}:${esc(reply.id)}">Delete</button>` : ""}</small>
+            ${nested.length ? `<div class="comment-replies comment-replies-nested">${nested.map(renderReply).join("")}</div>` : ""}
           </div>
         </div>`;
-      }).join("");
+      };
+      const replyMarkup = replies.map(renderReply).join("");
       const favoriteKey = `${id}:${comment.id}`;
       const isFavorite = Array.isArray(api.me().commentFavorites) && api.me().commentFavorites.includes(favoriteKey);
       return `<article class="comment-item ${comment.id === enteringCommentId ? "comment-item-entering" : ""}" id="comment-${esc(comment.id)}">
@@ -3850,7 +3854,7 @@ function comments(id, focusedCommentId = "") {
             <button type="button" class="comment-share-action" data-comment-share="${esc(comment.id)}" aria-label="Share comment">${ic.share}</button>
             ${comment.author === api.me().id || post.author === api.me().id ? `<button type="button" class="comment-delete" data-cdel="${esc(comment.id)}">Delete</button>` : ""}
           </div>
-          ${replies.length ? `<button type="button" class="comment-view-replies" data-toggle-replies="${esc(comment.id)}" aria-expanded="${expanded}">${expanded ? "Hide" : "View"} ${replies.length} ${replies.length === 1 ? "reply" : "replies"}</button>` : ""}
+          ${replyCount ? `<button type="button" class="comment-view-replies" data-toggle-replies="${esc(comment.id)}" aria-expanded="${expanded}">${expanded ? "Hide" : "View"} ${replyCount} ${replyCount === 1 ? "reply" : "replies"}</button>` : ""}
           ${expanded ? `<div class="comment-replies">${replyMarkup}</div>` : ""}
         </div>
       </article>`;
@@ -3867,7 +3871,7 @@ function comments(id, focusedCommentId = "") {
       const author = api.user(comment.author);
       const input = $("#cbody", sheet);
       input.value = author ? `@${author.username} ` : "";
-      input.dataset.reply = comment.parentId || comment.id;
+      input.dataset.reply = comment.id;
       input.placeholder = `Reply to @${author?.username || "member"}`;
       input.focus();
     });
@@ -6695,7 +6699,10 @@ function openCommunityNoteComposer() {
   let imageEditorOpen = false;
   // { id, file, kind, url, uploadedId } — uploadedId is kept so a retry never re-uploads confirmed media.
   let attachments = [];
-  let idempotencyKey = null;
+  let partKeys = [];
+  let publishedIds = [];
+  let threadParts = [];
+  let threadMentionCleanups = [];
   let mentionCleanup = () => {};
   const releaseAll = () => attachments.forEach(item => item.url && URL.revokeObjectURL(item.url));
   const close = () => {
@@ -6705,6 +6712,7 @@ function openCommunityNoteComposer() {
     attachments = [];
     document.removeEventListener("keydown", onKey);
     mentionCleanup();
+    threadMentionCleanups.forEach(cleanup => cleanup());
     sheet.classList.remove("on");
     sheet.innerHTML = "";
     sheet.onclick = null;
@@ -6720,6 +6728,8 @@ function openCommunityNoteComposer() {
     </header>
     <div class="community-note-author"><img src="${esc(api.me()?.avatar || automaticAvatar(api.me()))}" alt="" width="32" height="32"><span>${esc(api.me()?.name || api.me()?.username || "You")}</span></div>
     <textarea id="community-note-input" maxlength="1000" placeholder="What’s on your mind?" aria-label="Write a Community post" data-testid="input-community-note"></textarea>
+    <div class="community-thread-compose-tools"><button type="button" id="community-thread-add">＋ Add to thread</button><span>Connected posts · up to 10 parts</span></div>
+    <div id="community-thread-parts" class="community-thread-parts" aria-label="Additional thread posts"></div>
     <ol id="community-note-attachments" class="community-note-attachments" aria-label="Attached photos and videos" data-testid="list-community-attachments" hidden></ol>
     <div class="community-note-media-tools" role="toolbar" aria-label="Post tools">
       <label class="community-note-tool community-note-image-picker" for="community-note-image" aria-label="Add photos or videos">
@@ -6744,52 +6754,77 @@ function openCommunityNoteComposer() {
   const imageInput = $("#community-note-image", sheet);
   const cameraInput = $("#community-note-camera", sheet);
   const list = $("#community-note-attachments", sheet);
+  const threadAdd = $("#community-thread-add", sheet);
+  const threadList = $("#community-thread-parts", sheet);
   const counter = $("#community-note-count", sheet);
   const attachCount = $("#community-note-attach-count", sheet);
   const submit = $("#community-note-submit", sheet);
   const error = $("#community-note-error", sheet);
   const status = $("#community-note-status", sheet);
   const busy = () => submit.dataset.busy === "true";
+  const partInputs = () => [input, ...threadParts];
   const syncSubmit = () => {
-    submit.disabled = (!input.value.trim() && !attachments.length) || busy();
+    submit.disabled = (!partInputs().some(field => field.value.trim()) && !attachments.length && !publishedIds.length) || busy();
+    threadAdd.disabled = busy() || threadParts.length >= 9;
     const full = attachments.length >= COMMUNITY_MAX_ATTACHMENTS;
-    imageInput.disabled = full || busy();
-    cameraInput.disabled = full || busy();
-    sheet.querySelectorAll(".community-note-image-picker,.community-note-camera-picker").forEach(label => label.classList.toggle("is-disabled", full || busy()));
+    const rootLocked = Boolean(publishedIds[0] || partKeys[0]);
+    imageInput.disabled = full || busy() || rootLocked;
+    cameraInput.disabled = full || busy() || rootLocked;
+    sheet.querySelectorAll(".community-note-image-picker,.community-note-camera-picker").forEach(label => label.classList.toggle("is-disabled", full || busy() || rootLocked));
     attachCount.textContent = `${attachments.length} / ${COMMUNITY_MAX_ATTACHMENTS}`;
   };
-  const contentChanged = () => { idempotencyKey = null; };
+  const contentChanged = index => { if (index >= publishedIds.length && !partKeys[index]) partKeys[index] = null; };
+  const addThreadPart = () => {
+    if (threadParts.length >= 9 || busy()) return;
+    const index = threadParts.length + 1;
+    const wrap = document.createElement("section");
+    wrap.className = "community-thread-part";
+    wrap.innerHTML = `<header><span>Post ${index + 1} of 10</span><button type="button" data-thread-remove>Remove</button></header><textarea maxlength="1000" placeholder="Continue your thread…" aria-label="Thread post ${index + 1}"></textarea><small>0 / 1,000</small>`;
+    const field = wrap.querySelector("textarea");
+    threadParts.push(field); partKeys.push(null); threadList.appendChild(wrap);
+    threadMentionCleanups.push(bindMentionAutocomplete(field, { api }));
+    field.oninput = () => { const currentIndex=threadParts.indexOf(field)+1; wrap.querySelector("small").textContent = `${[...field.value].length.toLocaleString()} / 1,000`; contentChanged(currentIndex); syncSubmit(); };
+    wrap.querySelector("[data-thread-remove]").onclick = () => {
+      const at = threadParts.indexOf(field); if (at < 0 || at+1 < publishedIds.length || busy()) return;
+      threadParts.splice(at,1); partKeys.splice(at+1,1); threadMentionCleanups.splice(at,1)[0]?.(); wrap.remove();
+      [...threadList.children].forEach((item,i)=>{ item.querySelector("header span").textContent = `Post ${i+2} of 10`; item.querySelector("textarea").setAttribute("aria-label",`Thread post ${i+2}`); });
+      syncSubmit();
+    };
+    field.focus(); syncSubmit();
+  };
   const renderAttachments = () => {
     list.hidden = !attachments.length;
+    const rootLocked = Boolean(publishedIds[0] || partKeys[0]);
     list.innerHTML = attachments.map((item, index) => `<li class="community-note-attachment" data-kind="${item.kind}">
       ${item.kind === "video"
         ? `<video src="${esc(item.url)}" muted playsinline preload="metadata" aria-label="Video ${index + 1}"></video><span class="community-grid-play" aria-hidden="true">${ic.play}</span>`
         : `<img src="${esc(item.url)}" alt="Photo ${index + 1}">`}
       <span class="community-note-attachment-index" aria-hidden="true">${index + 1}</span>
       <div class="community-note-attachment-tools">
-        <button type="button" data-attach-move="${index}" data-dir="-1" aria-label="Move ${item.kind} ${index + 1} earlier" ${index === 0 || busy() ? "disabled" : ""}>‹</button>
-        ${item.kind === "photo" ? `<button type="button" data-attach-edit="${index}" aria-label="Edit photo ${index + 1}" ${busy() ? "disabled" : ""}>${ic.edit}</button>` : ""}
-        <button type="button" data-attach-move="${index}" data-dir="1" aria-label="Move ${item.kind} ${index + 1} later" ${index === attachments.length - 1 || busy() ? "disabled" : ""}>›</button>
+        <button type="button" data-attach-move="${index}" data-dir="-1" aria-label="Move ${item.kind} ${index + 1} earlier" ${index === 0 || busy() || rootLocked ? "disabled" : ""}>‹</button>
+        ${item.kind === "photo" ? `<button type="button" data-attach-edit="${index}" aria-label="Edit photo ${index + 1}" ${busy() || rootLocked ? "disabled" : ""}>${ic.edit}</button>` : ""}
+        <button type="button" data-attach-move="${index}" data-dir="1" aria-label="Move ${item.kind} ${index + 1} later" ${index === attachments.length - 1 || busy() || rootLocked ? "disabled" : ""}>›</button>
       </div>
-      <button type="button" class="community-note-attachment-remove" data-attach-remove="${index}" aria-label="Remove ${item.kind} ${index + 1}" ${busy() ? "disabled" : ""}>×</button>
+      <button type="button" class="community-note-attachment-remove" data-attach-remove="${index}" aria-label="Remove ${item.kind} ${index + 1}" ${busy() || rootLocked ? "disabled" : ""}>×</button>
     </li>`).join("");
     list.querySelectorAll("[data-attach-remove]").forEach(button => button.onclick = () => {
       const [removed] = attachments.splice(Number(button.dataset.attachRemove), 1);
       if (removed?.url) URL.revokeObjectURL(removed.url);
-      contentChanged(); renderAttachments(); syncSubmit();
+      contentChanged(0); renderAttachments(); syncSubmit();
     });
     list.querySelectorAll("[data-attach-move]").forEach(button => button.onclick = () => {
       const from = Number(button.dataset.attachMove);
       attachments = moveAttachment(attachments, from, from + Number(button.dataset.dir));
-      contentChanged(); renderAttachments(); syncSubmit();
+      contentChanged(0); renderAttachments(); syncSubmit();
     });
     list.querySelectorAll("[data-attach-edit]").forEach(button => button.onclick = () => editPhoto(Number(button.dataset.attachEdit)));
   };
   const addFiles = files => {
+    if (publishedIds[0] || partKeys[0]) return;
     const { next, rejected } = addComposerFiles(attachments, files, COMMUNITY_MAX_ATTACHMENTS);
     attachments = next.map(item => item.id ? item : { ...item, id: crypto.randomUUID(), url: URL.createObjectURL(item.file), uploadedId: "" });
     error.textContent = rejectionMessage(rejected, COMMUNITY_MAX_ATTACHMENTS);
-    contentChanged(); renderAttachments(); syncSubmit();
+    contentChanged(0); renderAttachments(); syncSubmit();
   };
   const editPhoto = index => {
     const item = attachments[index];
@@ -6814,7 +6849,7 @@ function openCommunityNoteComposer() {
           attachments[position] = { id: crypto.randomUUID(), file: edited, kind: "photo", url: URL.createObjectURL(edited), uploadedId: "" };
         }
         error.textContent = "";
-        contentChanged(); renderAttachments(); syncSubmit();
+        contentChanged(0); renderAttachments(); syncSubmit();
         imageEditorOpen = false;
       },
     });
@@ -6822,50 +6857,53 @@ function openCommunityNoteComposer() {
   sheet.querySelector(".community-note-close").onclick = () => { if (!busy()) close(); };
   input.oninput = () => {
     counter.textContent = `${[...input.value].length.toLocaleString()} / 1,000`;
-    contentChanged(); syncSubmit();
+    contentChanged(0); syncSubmit();
   };
+  threadAdd.onclick = addThreadPart;
   imageInput.onchange = () => { addFiles(imageInput.files); imageInput.value = ""; };
   cameraInput.onchange = () => { addFiles(cameraInput.files); cameraInput.value = ""; };
   submit.onclick = async () => {
-    const text = input.value.trim();
-    if ((!text && !attachments.length) || busy()) return;
-    if (api.authMode() !== "cloud") {
-      error.textContent = "Reconnect your online account before publishing a post.";
-      return;
-    }
-    submit.dataset.busy = "true";
-    error.textContent = "";
-    renderAttachments(); syncSubmit();
+    const texts = partInputs().map(field => field.value.trim());
+    if ((!texts.some(Boolean) && !attachments.length && !publishedIds.length) || busy()) return;
+    if (texts.some((text,index) => !text && !(index===0 && attachments.length))) { error.textContent = "Each part of a thread needs text. Add media to the first post if you want."; return; }
+    if (api.authMode() !== "cloud") { error.textContent = "Reconnect your online account before publishing a post."; return; }
+    submit.dataset.busy = "true"; error.textContent = ""; renderAttachments(); syncSubmit();
     const total = attachments.length;
     try {
       const mediaIds = [];
-      for (const [index, item] of attachments.entries()) {
+      for (const [index,item] of attachments.entries()) {
         if (!item.uploadedId) {
-          status.textContent = `Uploading ${item.kind} ${index + 1} of ${total}…`;
+          status.textContent = `Uploading ${item.kind} ${index+1} of ${total}…`;
           const reference = await putLocalMedia(item.file, item.id);
-          const uploadedId = String(reference || "").replace(/^oldtime-media:/, "");
-          if (!/^[0-9a-f-]{36}$/i.test(uploadedId)) {
-            throw new Error(`${item.kind === "video" ? "Video" : "Photo"} ${index + 1} could not be confirmed. Your post and attachments are still here.`);
-          }
+          const uploadedId = String(reference||"").replace(/^oldtime-media:/,"");
+          if (!/^[0-9a-f-]{36}$/i.test(uploadedId)) throw new Error(`${item.kind==="video"?"Video":"Photo"} ${index+1} could not be confirmed. Your post and attachments are still here.`);
           item.uploadedId = uploadedId;
         }
         mediaIds.push(item.uploadedId);
       }
       if (mediaIds.length !== total) throw new Error("Some attachments were not confirmed. Nothing was posted.");
-      status.textContent = "Publishing…";
-      idempotencyKey ||= crypto.randomUUID();
-      const publishedPost = await api.createCloudPost(text, { destination: "community", mediaIds }, { idempotencyKey });
+      for (let index=0; index<texts.length; index++) {
+        if (publishedIds[index]) continue;
+        status.textContent = texts.length>1 ? `Publishing post ${index+1} of ${texts.length}…` : "Publishing…";
+        partKeys[index] ||= crypto.randomUUID();
+        partInputs()[index].readOnly = true;
+        const published = await api.createCloudPost(texts[index],{destination:"community",mediaIds:index===0?mediaIds:[]},{idempotencyKey:partKeys[index]});
+        publishedIds[index] = published.id; partInputs()[index].readOnly = true;
+        if (api.me()?.id !== ownerId) { close(); return; }
+      }
+      let publishedPost = api.cloudPost(publishedIds[0]);
+      if (publishedIds.length>1) {
+        status.textContent = "Connecting your conversation…";
+        const linked = await api.linkCloudPostThread(publishedIds[0],publishedIds.slice(1));
+        publishedPost = linked.posts[0] || publishedPost;
+      }
       if (api.me()?.id !== ownerId) { close(); return; }
-      close();
-      communityView = "for-you";
-      communityFeedsModule?.showPublishedPost?.(publishedPost);
-      render();
-      toast(total ? `Post shared to Community with ${total} attachment${total === 1 ? "" : "s"}` : "Post shared to Community");
+      close(); communityView="for-you"; communityFeedsModule?.showPublishedPost?.(publishedPost); render();
+      toast(publishedIds.length>1 ? `Your ${publishedIds.length}-part thread is live in Community` : total ? `Post shared to Community with ${total} attachment${total===1?"":"s"}` : "Post shared to Community");
     } catch (failure) {
       if (closed) return;
-      status.textContent = "";
-      error.textContent = failure.message || "Your post could not be posted. Your draft is still here — try again.";
-      submit.dataset.busy = "false";
+      status.textContent=""; error.textContent=failure.message || "Your post could not be posted. Your draft is still here — try again.";
+      submit.dataset.busy="false"; partInputs().forEach((field,index)=>{if(publishedIds[index] || partKeys[index])field.readOnly=true;});
       renderAttachments(); syncSubmit();
     }
   };
@@ -6911,6 +6949,39 @@ function bindCommunityVideoCards() {
     });
   });
 }
+async function openCommunityThread(postId, trigger) {
+  const sheet = $("#sheet");
+  if (!sheet) return;
+  const owner = api.cloudAccountId();
+  sheet.classList.add("on");
+  sheet.innerHTML = `<section class="panel community-thread-viewer" role="dialog" aria-modal="true" aria-labelledby="community-thread-title" tabindex="-1">
+    <header><button type="button" data-thread-close aria-label="Close conversation">${ic.back || ic.close}</button><div><h2 id="community-thread-title">Conversation</h2><small>Connected Community posts</small></div></header>
+    <div class="community-thread-viewer-content" role="status"><div class="community-thread-loading"><i></i><span></span><span></span></div></div>
+  </section>`;
+  const close = () => {
+    sheet.classList.remove("on"); sheet.innerHTML=""; sheet.onclick=null;
+    if (trigger?.isConnected) trigger.focus({preventScroll:true});
+  };
+  sheet.onclick = event => { if(event.target===sheet) close(); };
+  sheet.querySelector("[data-thread-close]").onclick=close;
+  try {
+    const result=await api.loadCloudPostThread(postId);
+    if(api.cloudAccountId()!==owner || !sheet.querySelector(".community-thread-viewer")) return;
+    if(result.posts.length<2){close();toast("This post isn’t part of a multi-post thread yet.");return;}
+    const cards=result.posts.map((post,index)=>`<div class="community-thread-viewer-part"><span class="community-thread-part-number">${index+1} / ${result.posts.length}</span>${communityPostCard(post)}</div>`).join("");
+    sheet.querySelector(".community-thread-viewer-content").outerHTML=`<div class="community-thread-viewer-content">${cards}</div>`;
+    bindPosts(); bindCommunityMediaOpen();
+  } catch(error) {
+    if(sheet.querySelector(".community-thread-viewer")) sheet.querySelector(".community-thread-viewer-content").innerHTML=`<p class="community-thread-viewer-error">${esc(error.message||"This conversation couldn’t be loaded.")}</p>`;
+  }
+}
+app?.addEventListener("click",event=>{
+  const button=event.target.closest?.("[data-thread-open]");
+  if(!button)return;
+  event.preventDefault();event.stopPropagation();
+  void openCommunityThread(button.dataset.threadOpen,button);
+});
+
 function communityPostCard(post) {
   const author = api.user(post.author) || { id: post.author, username: "member", name: "Member", avatar: "/app/avatar.svg" };
   const currentUser = api.me();
@@ -6962,6 +7033,7 @@ function communityPostCard(post) {
           </header>
           ${text ? `<button type="button" class="cvc-caption" data-stories-post="${esc(post.id)}" data-media-index="0">${renderMentionText(text, { tag: "span" })}</button>` : ""}
           ${postPlaceCard(post) ? `<div class="cvc-place">${postPlaceCard(post)}</div>` : ""}
+          ${post.threadId ? `<button type="button" class="community-thread-affordance" data-thread-open="${esc(post.id)}">${ic.messageCircle || ic.comment}<span>View thread · Part ${Number(post.threadPosition)+1}</span></button>` : ""}
           <div class="cvc-actions" aria-label="Post actions">${likeButton}${commentButton}${repostButton}<span class="cvc-spacer"></span>${saveButton}${shareButton}</div>
           <button type="button" class="cvc-comment-prompt" data-comment="${esc(post.id)}">${commentPromptLabel(commentCount)}</button>
         </div>
@@ -6980,6 +7052,7 @@ function communityPostCard(post) {
       ${postActionsMenu}
     </header>
     ${repostAttribution}
+    ${post.threadId ? `<button type="button" class="community-thread-affordance" data-thread-open="${esc(post.id)}">${ic.messageCircle || ic.comment}<span>View thread · Part ${Number(post.threadPosition)+1}</span></button>` : ""}
     ${text ? `<button type="button" class="community-post-copy" data-stories-post="${esc(post.id)}">${renderMentionText(text, { tag: "span" })}</button>` : ""}
     ${grid}
     ${postPlaceCard(post) ? `<div class="community-post-place">${postPlaceCard(post)}</div>` : ""}
