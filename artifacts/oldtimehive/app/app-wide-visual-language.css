@@ -64,3 +64,82 @@
     transition:none;
   }
 }
+
+/* Primary navigation: a quiet, consistent dock across routed screens. */
+#app .phone > .nav:not(.nav-hidden) {
+  border-top:1px solid color-mix(in srgb,var(--ot-color-border,#e5e7eb) 78%,transparent);
+  background:color-mix(in srgb,var(--ot-color-surface,#fff) 94%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(1.25);
+  backdrop-filter:blur(18px) saturate(1.25);
+}
+#app .phone > .nav:not(.nav-hidden) > button {
+  min-width:0;
+  border-radius:14px;
+  transition:background-color 150ms ease,color 150ms ease,transform 150ms ease;
+}
+#app .phone > .nav:not(.nav-hidden) > button .navic {
+  width:23px;
+  height:23px;
+  stroke-width:1.9;
+}
+#app .phone > .nav:not(.nav-hidden) > button.on {
+  background:color-mix(in srgb,var(--ot-color-brand,#1456d9) 9%,transparent);
+  color:var(--ot-color-brand,#1456d9);
+}
+#app .phone > .nav:not(.nav-hidden) > button:active:not(.nav-create-button) {
+  transform:scale(.96);
+}
+#app .phone > .nav:not(.nav-hidden) > .nav-create-button .nav-create-icon {
+  box-shadow:0 4px 14px color-mix(in srgb,var(--ot-color-brand,#1456d9) 24%,transparent);
+}
+#app .phone > .nav:not(.nav-hidden) > button:focus-visible {
+  outline:2px solid var(--ot-color-brand,#1456d9);
+  outline-offset:-2px;
+}
+
+/* Shared header rhythm without flattening immersive Home or Story headers. */
+#app .phone :is(.community-header,.chat-header,.search-screen .search-app-header) {
+  min-width:0;
+  border-bottom:1px solid color-mix(in srgb,var(--ot-color-border,#e5e7eb) 82%,transparent);
+}
+#app .phone :is(.community-header-actions,.chat-actions,.search-screen .search-app-header .community-header-actions) {
+  gap:6px;
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button) {
+  min-width:40px;
+  min-height:40px;
+  border-radius:50%;
+  transition:background-color 140ms ease,color 140ms ease,transform 140ms ease;
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button):active {
+  transform:scale(.95);
+}
+#app .phone :is(.community-header-action,.community-search-button,.chat-action,.chat-back,.detail-back,.search-screen .search-app-header .community-search-button) .navic {
+  width:20px;
+  height:20px;
+  stroke-width:1.9;
+}
+
+/* Consistent chip behavior across filters and section switches. */
+#app .phone :is(.notification-filter,.chat-inbox-filter,.home-topic-tab,.community-feed-tabs button,.pills button) {
+  transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease;
+}
+#app .phone :is(.notification-filter,.chat-inbox-filter):focus-visible,
+#app .phone :is(.community-feed-tabs button,.pills button):focus-visible {
+  outline:2px solid var(--ot-color-brand,#1456d9);
+  outline-offset:2px;
+}
+
+/* Calm, accessible field focus; existing field fills and dimensions remain unchanged. */
+#app .phone :is(.field,.search,.chatsearch,.discovery-search,.composer input,.conversation-screen textarea):focus-visible {
+  outline:2px solid color-mix(in srgb,var(--ot-color-brand,#1456d9) 55%,transparent);
+  outline-offset:2px;
+}
+#app .phone :is(.field,.search):focus-within {
+  border-color:color-mix(in srgb,var(--ot-color-brand,#1456d9) 45%,var(--ot-color-border,#e5e7eb));
+}
+
+/* Shared card rhythm: keep each screen's existing layout, just smooth state changes. */
+#app .phone :is(.card,.community-post-card,.notification-row,.chat-row,.search-result,.settings-entry) {
+  transition:background-color 140ms ease,border-color 140ms ease;
+}
