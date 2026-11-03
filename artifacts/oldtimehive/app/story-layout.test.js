@@ -92,3 +92,16 @@ test("stories share one expiry rule and the retired Hey Word prompt is absent", 
   assert.doesNotMatch(js, /Share your take|Add yours/);
   assert.doesNotMatch(interactions, /Hey Word|hey-word/i);
 });
+
+test("Stories use quiet media preparation and media-synced playback timing", () => {
+  const refinement = readFileSync(new URL("./story-visual-refinement.css", import.meta.url), "utf8");
+  assert.match(js, /import "\.\/story-visual-refinement\.css"/);
+  assert.match(js, /aria-label="Preparing story"/);
+  assert.doesNotMatch(js, /story-cloud-loading[^\n]*Loading Story/);
+  assert.match(js, /activeVideo\.addEventListener\("timeupdate"/);
+  assert.match(js, /activeVideo\.addEventListener\("ended"/);
+  assert.match(js, /activeVideo\.currentTime \/ duration/);
+  assert.match(js, /: 5000/);
+  assert.match(refinement, /story-loading-shimmer/);
+  assert.match(refinement, /prefers-reduced-motion:reduce/);
+});
