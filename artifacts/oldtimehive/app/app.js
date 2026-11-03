@@ -38,6 +38,7 @@ import { installVideoMediaSession } from "./media-session.js";
 import { mountStoryInteractions } from "./story-interactions.js";
 import "./story-interactions.css";
 import "./story-visual-refinement.css";
+import "./ecosystem-consistency.css";
 import { isStoryActive } from "./story-lifecycle.js";
 import { isDefaultAvatarMediaReference, resolveStoryMedia } from "./story-media.js";
 import { mountStoryStickerInteractions } from "./story-sticker-interactions.js";
