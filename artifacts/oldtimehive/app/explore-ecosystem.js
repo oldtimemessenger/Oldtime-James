@@ -5,6 +5,7 @@ export function exploreViewerSource(query) {
 // Cloud Explore: one server-backed surface for For You + Search.
 // All results come from GET /api/discovery/explore; nothing is persisted in the browser.
 import { isDefaultAvatarMediaReference } from "./story-media.js";
+import { renderMentionText } from "./mention-autocomplete.js";
 import { isFeedHomePost } from "./post-surfaces.js";
 import { createInsightLoader } from "./search-insights.js";
 import { createVideoStillQueue, stillPlaceholderMarkup, bindStillPlaceholders, saveDataOn } from "./video-still.js";
@@ -299,7 +300,7 @@ export function createExploreEcosystem(deps) {
           </span>
         </button>
         <div class="places-post-detail">
-          ${caption ? `<p class="places-post-caption">${esc(caption)}</p>` : ""}
+          ${caption ? `<p class="places-post-caption">${renderMentionText(caption, { tag: "span" })}</p>` : ""}
           ${insightMarkup(post)}
           <div class="places-post-byline">
             <button type="button" class="places-post-author" data-xe-profile="${esc(post.author)}">
